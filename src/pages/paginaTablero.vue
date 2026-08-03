@@ -1,9 +1,10 @@
 <!-- Tablero de salidas del día, en tiempo real (ruta /tablero). Antes: PaginaTablero.vue -->
 <template>
 
+<!-- Esta pagina esta construida usando unicamente componentes -->
   <MainLayout>
 
-    <DashboardBoard />
+    <tableroTablero />
 
   </MainLayout>
 
@@ -11,7 +12,8 @@
 
 <script setup>
 
+// Importamos los componentes
 import MainLayout from '../layouts/MainLayout.vue'
-import DashboardBoard from '../components/dashboard/DashboardBoard.vue'
+import tableroTablero from '../components/tablero/tableroTablero.vue'
 
 </script>

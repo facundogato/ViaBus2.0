@@ -5,7 +5,7 @@ import { useAuth } from '../services/auth'
 
 import HomePage from '../pages/HomePage.vue'
 import ReservationPage from '../pages/ReservationPage.vue'
-import DashboardPage from '../pages/DashboardPage.vue'
+import DashboardPage from '../pages/paginaTablero.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
 import PaymentsPage from '../pages/PaymentsPage.vue'
 import CompaniesPage from '../pages/CompaniesPage.vue'
