@@ -11,7 +11,7 @@
 <script setup>
 
 import { useRouter } from 'vue-router'
-import { useAuth } from '../../services/auth'
+import { useAuth } from '../services/auth'
 
 const router = useRouter()
 const { cerrarSesion: cerrarSesionAuth } = useAuth()

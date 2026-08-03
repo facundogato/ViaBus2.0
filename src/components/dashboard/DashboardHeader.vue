@@ -17,7 +17,7 @@
     <div class="hora-container">
 
       <h2>
-        <LiveClock />
+        <Reloj />
       </h2>
 
       <span>
@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import LiveClock from '../common/LiveClock.vue';
+import Reloj from '../common/Reloj.vue';
 
 </script>
 

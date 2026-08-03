@@ -88,9 +88,9 @@
 <script setup>
 
 import { computed } from 'vue'
-import NavMenuItem from '../common/NavMenuItem.vue'
-import LogoutButton from '../common/LogoutButton.vue'
-import { useAuth } from '../../services/auth'
+import NavMenuItem from './NavMenuItem.vue'
+import LogoutButton from './LogoutButton.vue'
+import { useAuth } from '../services/auth'
 
 defineProps({
   modelValue: { type: Boolean, default: false }

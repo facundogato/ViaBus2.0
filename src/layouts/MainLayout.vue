@@ -22,7 +22,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import AppSidebar from '../components/layout/AppSidebar.vue'
+import AppSidebar from './AppSidebar.vue'
 
 // En pantallas grandes el sidebar empuja el contenido, así que arranca
 // abierto. En pantallas chicas es un panel flotante que se superpone,
