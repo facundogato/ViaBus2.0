@@ -1,6 +1,9 @@
 // IMPORTAMOS VUE
 import { createApp } from 'vue'
 
+// IMPORTAMOS HELMET
+import helmet from "helmet"
+
 // IMPORTAMOS APP
 import App from './App.vue'
 
@@ -25,5 +28,9 @@ createApp(App)
     plugins: {}
   })
   .mount('#app')
-  
- 
+
+ const app = express();
+
+ app.use(helmet());
+
+

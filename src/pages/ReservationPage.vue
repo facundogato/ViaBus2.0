@@ -201,6 +201,15 @@
     @reintentar="iniciarPago"
   />
 
+  <!-- Botón temporal para debug (avanza al paso 6) -->
+<button
+  v-if="debugMode"
+  class="btn-debug"
+  @click="forzarConfirmacion"
+>
+  ⏩ Avanzar a Confirmación
+</button>
+
 </div>
 
 <!-- PASO 6: CONFIRMACIÓN -->
@@ -214,6 +223,14 @@
     </p>
 
     <button class="btn-siguiente" @click="reiniciar">Hacer otra reserva</button>
+
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+       <canvas ref="qrCanvas" style="background: white; padding: 10px; border-radius: 8px;" />
+      </div>
+      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+        <button class="btn-secundario" @click="descargarQR">📥 Descargar QR</button>
+        <button class="btn-secundario" @click="reenviarCorreo">📧 Reenviar QR al correo</button>
+      </div>
   </div>
 </div>
 
@@ -222,7 +239,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
+import { useQuasar } from 'quasar'
+import QRcode from 'qrcode'
 import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import PaymentStep from '../components/reservation/PaymentStep.vue'
@@ -408,6 +427,7 @@ async function iniciarPago() {
   }
 }
 
+const $q = useQuasar()
 // El usuario acaba de volver de Mercado Pago: consultamos el estado real
 // en nuestro backend (no los parámetros que agrega Mercado Pago a la URL,
 // esos son solo para la UX; la verdad la tiene el webhook).
@@ -453,6 +473,169 @@ function reiniciar() {
   mensajeErrorPago.value = ''
   pasajero.value = { nombre: '', apellido: '', documento: '', email: '', telefono: '' }
 }
+
+// Función temporal para simular pago exitoso y pasar directamente a confirmación
+async function simularPagoExitoso() {
+  if (!servicioSeleccionado.value || !asientoSeleccionado.value) {
+    alert('Debes seleccionar servicio y asiento primero.');
+    return;
+  }
+
+  // Si no hay reserva, crear una simulada (sin pasar por Mercado Pago)
+  if (!reservaCreada.value) {
+    try {
+      const data = await crearReserva({
+        servicio_id: servicioSeleccionado.value.id,
+        fecha_viaje: busqueda.value.fecha,
+        asiento: asientoSeleccionado.value,
+        total: servicioSeleccionado.value.precio,
+        pasajero: pasajero.value,
+        usuario_id: usuario.value?.id
+      });
+      reservaCreada.value = data;
+    } catch (e) {
+      console.error('Error creando reserva simulada:', e);
+      alert('Error al crear reserva simulada.');
+      return;
+    }
+  }
+
+  // Forzar paso a confirmación (paso 6)
+  pasoActual.value = 5;
+}
+
+const qrCanvas = ref(null)
+
+watch([pasoActual, reservaCreada], async ([nuevoPaso, reserva]) => {
+  if (nuevoPaso === 5 && reserva && servicioSeleccionado.value) {
+    await nextTick() // espera a que el canvas esté en el DOM
+    if (qrCanvas.value) {
+      try {
+        const texto = `Reserva N° ${reserva.id} - ${servicioSeleccionado.value.origen} → ${servicioSeleccionado.value.destino}, ${busqueda.value.fecha}, asiento ${asientoSeleccionado.value}, total $${reserva.total}`
+        await QRcode.toCanvas(qrCanvas.value, texto, { width: 200 })
+        // Enviar el QR por correo al pasajero
+        await enviarQRPorCorreo(reserva.id, pasajero.value.email)
+      } catch (err) {
+        console.error('Error generando QR:', err)
+      }
+    }
+  }
+})
+
+// Modo debug (puedes ponerlo en true para pruebas)
+const debugMode = ref(true)
+
+// Función para forzar el paso de confirmación
+function forzarConfirmacion() {
+  if (!servicioSeleccionado.value) {
+    // Si no hay servicio, creamos uno ficticio para poder probar
+    servicioSeleccionado.value = {
+      id: 999,
+      origen: 'Melo',
+      destino: 'Montevideo',
+      hora: '08:00',
+      empresa: 'COPSA',
+      tipo: 'Semicama',
+      duracion: '6h',
+      precio: 1200,
+      asientos: 40
+    }
+    busqueda.value.origen = 'Melo'
+    busqueda.value.destino = 'Montevideo'
+    busqueda.value.fecha = new Date().toISOString().slice(0, 10)
+  }
+  if (!asientoSeleccionado.value) {
+    asientoSeleccionado.value = 1
+  }
+  if (!reservaCreada.value) {
+    // Creamos una reserva ficticia
+    reservaCreada.value = {
+      id: Date.now(),
+      total: servicioSeleccionado.value.precio
+    }
+  }
+  pasoActual.value = 5
+}
+
+// Función para enviar el QR por correo con mejor manejo
+async function enviarQRPorCorreo(reservaId, email) {
+  if (!email) {
+    $q?.notify?.({
+      type: 'warning',
+      message: 'No hay email registrado para enviar el QR.'
+    })
+    return false
+  }
+
+  try {
+    const response = await fetch(`/api/reservas/enviar-qr.php?reserva_id=${reservaId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      }
+    )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(errorText || 'Error del servidor')
+    }
+
+    const data = await response.json()
+
+    $q?.notify?.({
+      type: 'positive',
+      message: '✅ QR enviado a tu correo electrónico.'
+    })
+
+    return true
+
+  } catch (error) {
+
+    console.error(
+      'Error enviando QR por correo:',
+      error
+    )
+
+    $q?.notify?.({
+      type: 'negative',
+      message: '❌ No se pudo enviar el QR. Puedes descargarlo manualmente.'
+    })
+
+    return false
+  }
+}
+
+const qrBase64 = qrCanvas.value.toDataURL('image/png')
+
+const response = await fetch(`/api/reservas/enviar-qr.php?reserva_id=${reservaId}`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email,
+    qr: qrBase64
+  })
+})
+
+// Función para descargar el QR como imagen
+function descargarQR() {
+  if (!qrCanvas.value) return
+  const link = document.createElement('a')
+  link.download = `reserva-${reservaCreada.value?.id || 'qr'}.png`
+  link.href = qrCanvas.value.toDataURL('image/png')
+  link.click()
+}
+
+// Función para reenviar (desde el botón)
+async function reenviarCorreo() {
+  if (!reservaCreada.value) return
+  await enviarQRPorCorreo(reservaCreada.value.id, pasajero.value.email)
+}
+
+
 </script>
 
 <style scoped>
@@ -861,6 +1044,28 @@ h2{
     gap: 6px;
     text-align: left;
   }
+}
+
+/* Botón debug flotante */
+.btn-debug {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 50px;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+  z-index: 999;
+  transition: 0.2s;
+}
+.btn-debug:hover {
+  transform: scale(1.05);
+  background: #e55a2b;
 }
 
 </style>
