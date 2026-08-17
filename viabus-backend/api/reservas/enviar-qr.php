@@ -40,31 +40,22 @@ try {
     }
 
 
-    /*
-     * ACÁ TENÉS QUE OBTENER EL QR DE LA RESERVA
-     *
-     * Por ejemplo:
-     *
-     * $qrPath = generarQR($reservaId);
-     *
-     * De momento suponemos que existe:
-     */
+   // El QR se genera en el frontend (canvas) y llega acá como base64
+    $qrBase64 = $input['qrBase64'] ?? null;
 
-    $qrPath = __DIR__ . "/../../qrs/reserva_$reservaId.png";
+    if (!$qrBase64) {
 
-
-    if (!file_exists($qrPath)) {
-
-        http_response_code(404);
+        http_response_code(400);
 
         echo json_encode([
             'success' => false,
-            'message' => 'No se encontró el QR de la reserva.'
+            'message' => 'Falta el QR de la reserva.'
         ]);
 
         exit;
     }
 
+    $qrData = base64_decode(preg_replace('#^data:image/\w+;base64,#', '', $qrBase64));
 
     // Crear PHPMailer
     $mail = new PHPMailer(true);
@@ -92,9 +83,10 @@ try {
 
 
     // Adjuntar QR
-    $mail->addAttachment(
-        $qrPath,
-        "QR_Reserva_$reservaId.png"
+    
+    $mail->addStringAttachment(
+    $qrData,
+    "QR_Reserva_$reservaId.png"
     );
 
 

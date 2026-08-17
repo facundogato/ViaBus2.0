@@ -513,8 +513,10 @@ watch([pasoActual, reservaCreada], async ([nuevoPaso, reserva]) => {
       try {
         const texto = `Reserva N° ${reserva.id} - ${servicioSeleccionado.value.origen} → ${servicioSeleccionado.value.destino}, ${busqueda.value.fecha}, asiento ${asientoSeleccionado.value}, total $${reserva.total}`
         await QRcode.toCanvas(qrCanvas.value, texto, { width: 200 })
+        
         // Enviar el QR por correo al pasajero
-        await enviarQRPorCorreo(reserva.id, pasajero.value.email)
+        const qrBase64 = qrCanvas.value.toDataURL('image/png')
+        await enviarQRPorCorreo(reserva.id, pasajero.value.email, qrBase64)
       } catch (err) {
         console.error('Error generando QR:', err)
       }
@@ -558,7 +560,7 @@ function forzarConfirmacion() {
 }
 
 // Función para enviar el QR por correo con mejor manejo
-async function enviarQRPorCorreo(reservaId, email) {
+async function enviarQRPorCorreo(reservaId, email, qrBase64) {
   if (!email) {
     $q?.notify?.({
       type: 'warning',
@@ -573,7 +575,7 @@ async function enviarQRPorCorreo(reservaId, email) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, qrBase64 })
       }
     )
 
@@ -621,7 +623,9 @@ function descargarQR() {
 // Función para reenviar (desde el botón)
 async function reenviarCorreo() {
   if (!reservaCreada.value) return
-  await enviarQRPorCorreo(reservaCreada.value.id, pasajero.value.email)
+  if (!qrCanvas.value) return
+  const qrBase64 = qrCanvas.value.toDataURL('image/png')
+  await enviarQRPorCorreo(reservaCreada.value.id, pasajero.value.email, qrBase64)
 }
 
 
