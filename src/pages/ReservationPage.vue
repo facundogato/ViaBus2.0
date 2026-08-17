@@ -607,18 +607,7 @@ async function enviarQRPorCorreo(reservaId, email) {
   }
 }
 
-const qrBase64 = qrCanvas.value.toDataURL('image/png')
 
-const response = await fetch(`/api/reservas/enviar-qr.php?reserva_id=${reservaId}`, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    email,
-    qr: qrBase64
-  })
-})
 
 // Función para descargar el QR como imagen
 function descargarQR() {
