@@ -7,7 +7,6 @@ import HomePage from '../pages/HomePage.vue'
 import ReservationPage from '../pages/ReservationPage.vue'
 import DashboardPage from '../pages/paginaTablero.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
-import PaymentsPage from '../pages/PaymentsPage.vue'
 import CompaniesPage from '../pages/CompaniesPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
@@ -49,12 +48,6 @@ const routes = [
   {
     path: '/comprar',
     component: ReservationPage
-  },
-
-  // PAGOS
-  {
-    path: '/pagos',
-    component: PaymentsPage
   },
 
   // MI PERFIL — requiere estar logueado (cualquier rol)

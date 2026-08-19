@@ -43,7 +43,6 @@
 
     <NavMenuItem to="/tablero" icono="dashboard" etiqueta="Tablero" />
     <NavMenuItem to="/comprar" icono="receipt" etiqueta="Comprar Pasaje" />
-    <NavMenuItem to="/pagos" icono="credit_card" etiqueta="Pagos" insignia-prox="PROX" />
     <NavMenuItem to="/info" icono="menu_book" etiqueta="Info general" tamano-icono="22px" />
 
     <!-- SEPARADOR ADMINISTRACION: solo visible si el usuario logueado es admin -->
