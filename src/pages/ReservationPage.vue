@@ -34,8 +34,8 @@
 
           <div class="campo">
             <label>ORIGEN</label>
-            <select v-model="busqueda.origen">
-              <option v-for="c in ciudades" :key="c" :value="c">{{ c }}</option>
+            <select v-model="busqueda.origen" disabled>
+              <option value="Melo">Melo</option>
             </select>
           </div>
 
@@ -79,6 +79,7 @@
             class="resultado-fila"
             :class="{ seleccionado: servicioSeleccionado?.id === s.id }"
             @click="servicioSeleccionado = s"
+            @dblclick="seleccionarYBajarAlBoton(s)"
           >
             <div class="res-hora">{{ s.hora }}</div>
             <div class="res-info">
@@ -96,7 +97,7 @@
 
         <div class="acciones">
           <button class="btn-volver" @click="pasoActual = 0">Volver</button>
-          <button class="btn-siguiente" :disabled="!servicioSeleccionado" @click="pasoActual = 2">
+          <button ref="botonContinuarServicio" class="btn-siguiente" :disabled="!servicioSeleccionado" @click="pasoActual = 2">
             Continuar
           </button>
         </div>
@@ -287,6 +288,16 @@ const busqueda = ref({
 })
 
 const servicioSeleccionado = ref(null)
+const botonContinuarServicio = ref(null)
+
+function seleccionarYBajarAlBoton(servicio) {
+  servicioSeleccionado.value = servicio
+  nextTick(() => {
+    if (botonContinuarServicio.value) {
+      botonContinuarServicio.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  })
+}
 
 // ---- Búsqueda de servicios (desde el backend) ----
 const serviciosFiltrados = ref([])
@@ -709,8 +720,8 @@ h1{
 }
 
 .numero{
-  width:30px;
-  height:30px;
+  width:25px;
+  height:20px;
   border:2px solid #1a2138;
   border-radius:3px;
   display:flex;
@@ -893,6 +904,7 @@ h2{
 .acciones{
   display:flex;
   gap:15px;
+  padding: 0% 20px;
 }
 
 .btn-volver{
@@ -905,6 +917,7 @@ h2{
   letter-spacing:1px;
   border-radius:4px;
   transition:0.2s;
+  margin-top : 10px;
 }
 
 .btn-volver:hover{
@@ -923,6 +936,7 @@ h2{
   letter-spacing:1px;
   border-radius:4px;
   transition:0.2s;
+  margin-top : 10px;
 }
 
 .btn-siguiente:disabled{
@@ -1018,7 +1032,7 @@ h2{
 
   .linea {
     width: 20px;
-    margin: 0 6px;
+    margin: 0 5px;
   }
 
   .campo select,

@@ -10,7 +10,7 @@
       height="340"
       loading="lazy"
       allowfullscreen
-      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d842.5063834434999!2d-54.16719433035563!3d-32.36486056559209!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95092b13506f4aeb%3A0xaab157b6dea6ad91!2sTerminal!5e0!3m2!1ses-419!2suy!4v1781707378554!5m2!1ses-419!2suy"
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d842.509677029048!2d-54.16645404047547!3d-32.36450714151981!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95092a2eade165a1%3A0x1e32c0958e6a9c9b!2sTerminal%20de%20%C3%93mnibus!5e0!3m2!1ses-419!2suy!4v1787238669327!5m2!1ses-419!2suy"
     />
   </div>
 </template>

@@ -14,6 +14,7 @@
     <AppSidebar v-model="sidebarAbierta" />
 
     <div class="contenido" :class="{ 'contenido--full': !sidebarAbierta }">
+      <TopBar />
       <slot />
     </div>
 
@@ -23,6 +24,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import AppSidebar from './AppSidebar.vue'
+import TopBar from './TopBar.vue'
 
 // En pantallas grandes el sidebar empuja el contenido, así que arranca
 // abierto. En pantallas chicas es un panel flotante que se superpone,
