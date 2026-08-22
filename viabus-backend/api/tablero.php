@@ -9,7 +9,7 @@ $pdo    = getConnection();
 $method = $_SERVER['REQUEST_METHOD'];
 
 // Cantidad de andenes físicos disponibles en la terminal.
-const TOTAL_ANDENES = 4;
+const TOTAL_ANDENES = 7;
 const VENTANA_EMBARQUE_MIN = 15; // "próximos a salir" = salen dentro de estos minutos
 
 // GET /api/tablero.php

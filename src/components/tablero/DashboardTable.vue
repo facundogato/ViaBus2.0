@@ -3,16 +3,7 @@
 
   <div class="tabla">
 
-    <!-- ENCABEZADO -->
-    <div class="encabezado">
-      <span></span>
-      <span>DESTINO</span>
-      <span>ANDÉN</span>
-      <span>N° BUS</span>
-      <span>EMPRESA</span>
-      <span>TIPO</span>
-      <span>ESTADO</span>
-    </div>
+  
 
     <p v-if="cargando" class="estado-msg">Cargando servicios...</p>
     <p v-else-if="servicios.length === 0" class="estado-msg">
@@ -53,11 +44,11 @@ defineEmits(['toggle-demora'])
   border-radius:6px;
   overflow:hidden;
   margin-left: 20px;
-}
+ }  
 
 .encabezado{
   display:grid;
-  grid-template-columns:100px 200px 90px 110px 160px 160px 1fr;
+  grid-template-columns:80px 140px 80px 80px 100px 120px 1fr;
   padding:12px 25px;
   background:#0f1629;
   gap:10px;

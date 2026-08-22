@@ -16,9 +16,6 @@
     <!-- DERECHA -->
     <div class="hora-container">
 
-      <h2>
-        <Reloj />
-      </h2>
 
       <span>
        
@@ -30,7 +27,7 @@
 </template>
 
 <script setup>
-import Reloj from '../common/Reloj.vue';
+
 
 </script>
 
