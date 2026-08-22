@@ -1,7 +1,7 @@
-# ViaBus — Backend PHP + SQLite
+# ViaBus — Backend PHP + PostgreSQL
 
-Backend REST en PHP para el sistema de reservas de pasajes. Usa **SQLite**
-(un solo archivo, sin necesidad de instalar ni configurar un servidor MySQL).
+Backend REST en PHP para el sistema de reservas de pasajes. Usa
+**PostgreSQL** como base de datos.
 
 ---
 
@@ -11,29 +11,89 @@ Backend REST en PHP para el sistema de reservas de pasajes. Usa **SQLite**
 viabus-backend/
 ├── router.php            ← router para el servidor embebido de PHP
 ├── config/
-│   ├── database.php       ← conexión PDO a SQLite (auto-inicializa la DB)
+│   ├── database.php       ← conexión PDO a Postgres (auto-inicializa las tablas)
 │   └── helpers.php        ← CORS, JSON, utilidades
 ├── api/
 │   ├── servicios.php      ← CRUD de viajes
 │   ├── reservas.php       ← CRUD de reservas + asientos ocupados
 │   ├── ciudades.php       ← listado de ciudades
 │   ├── empresas.php       ← listado de empresas (con descripción y logo)
-│   └── pasajeros.php      ← CRUD de pasajeros
-├── data/                  ← acá se crea viabus.sqlite (se ignora en git)
+│   ├── pasajeros.php      ← CRUD de pasajeros
+│   ├── usuarios.php       ← gestión de usuarios
+│   ├── auth.php           ← login / registro
+│   ├── pagos.php          ← integración Mercado Pago
+│   └── tablero.php        ← estado en vivo de salidas
 └── sql/
-    └── schema.sql         ← tablas + los 214 servicios reales del frontend
+    └── schema.sql         ← tablas + los servicios reales del frontend
 ```
+
+---
+
+## Qué instalar (una sola vez por máquina)
+
+### 1. PostgreSQL (el servidor de base de datos)
+
+```bash
+sudo apt install postgresql postgresql-contrib -y
+sudo systemctl enable --now postgresql
+```
+
+### 2. La extensión de PHP para conectarse a Postgres
+
+Primero fijate tu versión de PHP:
+```bash
+php -v
+```
+
+Después instalá el paquete correspondiente (cambiando `8.3` por tu versión):
+```bash
+sudo apt install php8.3-pgsql -y
+```
+
+Si tu PHP es muy reciente (por ejemplo 8.5) y `apt` no encuentra el paquete,
+puede que tu PHP venga del PPA `ondrej/php` y ese repo no esté agregado
+todavía:
+```bash
+sudo add-apt-repository ppa:ondrej/php -y
+sudo apt update
+sudo apt install php8.5-pgsql -y   # con tu versión real
+```
+
+Confirmá que quedó instalada:
+```bash
+php -m | grep pgsql
+```
+Tiene que aparecer `pgsql` y `pdo_pgsql`. Si no aparece nada, el backend va
+a fallar con `Error de conexión a la base de datos: could not find driver`.
+
+### 3. Crear la base de datos
+
+```bash
+sudo -u postgres psql -c "CREATE DATABASE viabus;"
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+```
+
+`config/database.php` se conecta por defecto a `localhost:5432`, base
+`viabus`, usuario `postgres`, contraseña `postgres`. Si tu instalación usa
+otros datos, no edites el código: seteá estas variables de entorno antes de
+levantar el backend (o en un `.env` que cargues vos):
+
+| Variable | Default |
+|----------|---------|
+| `DB_HOST` | `127.0.0.1` |
+| `DB_PORT` | `5432` |
+| `DB_NAME` | `viabus` |
+| `DB_USER` | `postgres` |
+| `DB_PASS` | `postgres` |
 
 ---
 
 ## Cómo correrlo
 
-No hace falta instalar ni configurar nada de bases de datos: la primera vez
-que se llama a cualquier endpoint, `config/database.php` crea automáticamente
-`data/viabus.sqlite` a partir de `sql/schema.sql`.
-
-Solo se necesita PHP con la extensión `pdo_sqlite` (viene incluida en la
-mayoría de las instalaciones de PHP 8+):
+No hace falta correr el esquema a mano: la primera vez que se llama a
+cualquier endpoint, `config/database.php` revisa si la tabla `usuarios` ya
+existe en Postgres; si no existe, ejecuta `sql/schema.sql` completo (tablas
++ datos de ejemplo) automáticamente.
 
 ```bash
 php -S localhost:8000 -t viabus-backend viabus-backend/router.php
@@ -45,11 +105,15 @@ el backend y el frontend juntos (ver el README principal).
 ### Reiniciar los datos
 
 Si se quiere volver a los datos originales (por ejemplo, después de crear
-reservas de prueba), simplemente borrar el archivo y se regenera solo:
+reservas de prueba), borrar y recrear la base:
 
 ```bash
-rm viabus-backend/data/viabus.sqlite
+sudo -u postgres psql -c "DROP DATABASE viabus;"
+sudo -u postgres psql -c "CREATE DATABASE viabus;"
 ```
+
+El esquema y los datos de ejemplo se vuelven a cargar solos la próxima vez
+que el backend reciba una petición.
 
 ---
 
@@ -166,3 +230,6 @@ dominio que el frontend, bajo la ruta `/api`, o ajustar `BASE` en
   elimina nada de la base.
 - La tabla `reservas` tiene una restricción `UNIQUE` que impide duplicar
   asiento + servicio + fecha.
+- El driver de conexión (`pdo_pgsql`) tiene que estar habilitado en el PHP
+  de cada máquina — ver la sección de instalación arriba. Si falta, el error
+  es `Error de conexión a la base de datos: could not find driver`.

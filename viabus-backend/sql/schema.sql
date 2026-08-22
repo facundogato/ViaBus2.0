@@ -1,9 +1,15 @@
 -- =============================================================
---  ViaBus - Base de Datos (SQLite)
+--  ViaBus - Base de Datos (PostgreSQL)
 --  Generado a partir de los datos reales del frontend
 -- =============================================================
 
-PRAGMA foreign_keys = ON;
+-- Función auxiliar para actualizar automáticamente "updated_at" en cada UPDATE.
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 DROP TABLE IF EXISTS reservas;
 DROP TABLE IF EXISTS pasajeros;
@@ -15,7 +21,7 @@ DROP TABLE IF EXISTS usuarios;
 
 
 CREATE TABLE empresas (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL UNIQUE,
     logo        VARCHAR(255) DEFAULT NULL,
     descripcion TEXT DEFAULT NULL,
@@ -29,7 +35,7 @@ CREATE TABLE empresas (
 -- Usuarios de la plataforma: clientes (compran pasajes) y administradores
 -- (gestionan viajes desde el panel de administrador).
 CREATE TABLE usuarios (
-    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    id             SERIAL PRIMARY KEY,
     nombre         VARCHAR(100) NOT NULL,
     apellido       VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
@@ -39,13 +45,13 @@ CREATE TABLE usuarios (
 );
 
 CREATE TABLE ciudades (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL UNIQUE,
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE servicios (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id          SERIAL PRIMARY KEY,
     origen_id   INTEGER NOT NULL,
     destino_id  INTEGER NOT NULL,
     empresa_id  INTEGER NOT NULL,
@@ -65,7 +71,7 @@ CREATE TABLE servicios (
 );
 
 CREATE TABLE pasajeros (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL,
     apellido    VARCHAR(100) NOT NULL,
     documento   VARCHAR(20)  NOT NULL UNIQUE,
@@ -79,7 +85,7 @@ CREATE TABLE pasajeros (
 -- (embarcando / en horario / ya salió) se calcula solo comparando la hora
 -- del servicio contra la hora actual.
 CREATE TABLE estado_diario (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id          SERIAL PRIMARY KEY,
     servicio_id INTEGER NOT NULL,
     fecha       DATE NOT NULL,
     demorado    INTEGER NOT NULL DEFAULT 0,
@@ -89,7 +95,7 @@ CREATE TABLE estado_diario (
 );
 
 CREATE TABLE reservas (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    id              SERIAL PRIMARY KEY,
     servicio_id     INTEGER NOT NULL,
     pasajero_id     INTEGER NOT NULL,
     usuario_id      INTEGER DEFAULT NULL,
@@ -107,15 +113,13 @@ CREATE TABLE reservas (
 );
 
 CREATE TRIGGER trg_reservas_updated_at
-AFTER UPDATE ON reservas
+BEFORE UPDATE ON reservas
 FOR EACH ROW
-BEGIN
-    UPDATE reservas SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
-END;
+EXECUTE FUNCTION set_updated_at();
 
 -- Pagos (Mercado Pago). Una reserva tiene, como mucho, un pago asociado.
 CREATE TABLE pagos (
-    id                          INTEGER PRIMARY KEY AUTOINCREMENT,
+    id                          SERIAL PRIMARY KEY,
     reserva_id                  INTEGER NOT NULL UNIQUE,
     mercadopago_preference_id   VARCHAR(255),
     mercadopago_payment_id      VARCHAR(255),
@@ -128,11 +132,9 @@ CREATE TABLE pagos (
 );
 
 CREATE TRIGGER trg_pagos_updated_at
-AFTER UPDATE ON pagos
+BEFORE UPDATE ON pagos
 FOR EACH ROW
-BEGIN
-    UPDATE pagos SET updated_at = CURRENT_TIMESTAMP WHERE id = OLD.id;
-END;
+EXECUTE FUNCTION set_updated_at();
 
 -- Empresas
 INSERT INTO empresas (nombre, logo, descripcion, telefono, email, sitio_web, direccion) VALUES

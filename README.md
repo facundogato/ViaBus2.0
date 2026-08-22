@@ -1,24 +1,49 @@
 # ViaBus (quasar-project)
 
 Plataforma de gestión de terminal de ómnibus para Melo, Uruguay. Frontend en
-Vue 3 + Quasar, backend en PHP + SQLite.
+Vue 3 + Quasar, backend en PHP + PostgreSQL.
 
 Toda la información que muestra la app (ciudades, empresas, servicios,
 asientos disponibles, reservas) sale del backend — no hay datos
 hardcodeados en el frontend.
 
-## Instalar dependencias
+## Qué instalar antes de arrancar (una sola vez por máquina)
+
+1. **Node y pnpm** (o npm) para el frontend.
+2. **PHP 8+** con la extensión **`pdo_pgsql`** habilitada.
+   Verificar con:
+   ```bash
+   php -m | grep pgsql
+   ```
+   Si no aparece nada, instalar el paquete de tu versión de PHP, por ejemplo:
+   ```bash
+   sudo apt install php8.3-pgsql -y   # cambiar 8.3 por tu versión (php -v)
+   ```
+3. **PostgreSQL** (el servidor de base de datos en sí):
+   ```bash
+   sudo apt install postgresql postgresql-contrib -y
+   sudo systemctl enable --now postgresql
+   ```
+4. **Crear la base de datos y el usuario** (una sola vez):
+   ```bash
+   sudo -u postgres psql -c "CREATE DATABASE viabus;"
+   sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+   ```
+   Si usás otro usuario/clave/nombre de base, ver la sección de variables de
+   entorno en `viabus-backend/README.md`.
+
+A diferencia de SQLite, **Postgres corre como un servicio** — no es un
+archivo que se genera solo. Cada compañero necesita este servidor instalado
+y corriendo en su máquina (o, alternativamente, todos apuntando a un mismo
+Postgres compartido en red, ajustando las variables de entorno).
+
+## Instalar dependencias del proyecto
 
 ```bash
 pnpm install
 # o
 npm install
 ```
-
-Se necesita además **PHP 8+ con la extensión `pdo_sqlite`** (viene incluida
-en la mayoría de las instalaciones de PHP). No hace falta instalar MySQL ni
-ninguna otra base de datos: se genera sola en `viabus-backend/data/viabus.sqlite`
-la primera vez que se usa.
 
 ## Levantar todo en desarrollo
 
@@ -29,6 +54,11 @@ la primera vez que se usa.
 Esto arranca:
 - el backend PHP en `http://localhost:8000`
 - el frontend de Quasar en `http://localhost:9000`
+
+La primera vez que el backend recibe una petición, `config/database.php`
+revisa si las tablas ya existen en Postgres; si no existen, ejecuta
+`sql/schema.sql` y carga todos los datos de ejemplo automáticamente. No hay
+que correr nada a mano.
 
 El frontend está configurado para redirigir automáticamente las llamadas a
 `/api/*` hacia el backend (ver `devServer.proxy` en `quasar.config.js`), así
@@ -76,11 +106,10 @@ src/
 
 viabus-backend/
 ├── router.php            # router del servidor embebido de PHP
-├── config/               # conexión PDO (database.php) y helpers de CORS/JSON
+├── config/               # conexión PDO a Postgres (database.php) y helpers de CORS/JSON
 ├── api/                  # un archivo por recurso (ciudades, empresas,
 │                          # servicios, reservas, pasajeros, tablero)
-├── sql/schema.sql         # tablas + datos de ejemplo
-└── data/viabus.sqlite     # se genera solo, no se versiona
+└── sql/schema.sql        # tablas + datos de ejemplo (se ejecuta solo la primera vez)
 ```
 
 ### Rutas actuales
@@ -124,9 +153,10 @@ viabus-backend/
    existentes: `require '../config/database.php'` y `../config/helpers.php`,
    switch por `$_SERVER['REQUEST_METHOD']`, consultas siempre con PDO
    *prepared statements*.
-2. Si el recurso necesita una tabla nueva, agregarla en `sql/schema.sql`
-   (borrar `data/viabus.sqlite` en desarrollo para regenerarla con el
-   esquema nuevo).
+2. Si el recurso necesita una tabla nueva, agregarla en `sql/schema.sql`. En
+   desarrollo, para que se regenere con el esquema nuevo, hay que borrar las
+   tablas afectadas en Postgres (o directamente `DROP DATABASE viabus;` /
+   `CREATE DATABASE viabus;` de nuevo) y volver a pegarle al backend.
 3. Agregar la función correspondiente en `src/services/api.js` (un
    `export function` por operación, mismo estilo que las existentes).
 
@@ -147,15 +177,11 @@ horarios, notificaciones y reportes. La convención a seguir:
 
 ## Nota sobre la base de datos
 
-El proyecto usa **SQLite** (un solo archivo, sin servidor que instalar ni
-configurar) en vez de MySQL. Es una decisión deliberada del equipo, documentada
-en `viabus-backend/README.md`, para que cualquiera pueda levantar el proyecto
-sin instalar un motor de base de datos aparte. Si el objetivo académico
-requiere específicamente MySQL, es un cambio de infraestructura (no de
-organización de archivos) que conviene evaluar aparte, ya que implica
-adaptar `config/database.php` y las consultas que dependan de sintaxis
-específica de SQLite.
-
+El proyecto usa **PostgreSQL**. Cada persona que desarrolle necesita tener
+un servidor Postgres corriendo localmente (ver la sección de instalación
+arriba) — a diferencia de SQLite, no es un archivo que se genera solo, hay
+que instalar y arrancar el servicio una vez por máquina. El detalle de la
+conexión (host, usuario, contraseña) está en `viabus-backend/README.md`.
 
 ## Customizar la configuración
 
