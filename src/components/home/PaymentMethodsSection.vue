@@ -6,7 +6,7 @@
         Métodos de Pago </h2>
     
     <p class="metodos-desc">
-        Podes abonar tu pasaje con cualquiera de estas opciones, tanto al comprar en la web como en la terminal.
+        Podés abonar tu pasaje con cualquiera de estas opciones, tanto al comprar en la web como en la terminal.
     </p>
 
      <div class="metodos">
