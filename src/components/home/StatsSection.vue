@@ -38,16 +38,26 @@ import { ref, onMounted } from 'vue'
 import StatCard from '../common/StatCard.vue'
 import { getTodosServicios } from '../../services/api'
 
-const totalServicios = ref('...')
+import { supabase } from 'src/boot/supabase'
 
-onMounted(async () => {
-  try {
-    const data = await getTodosServicios()
-    totalServicios.value = String(data.length)
-  } catch {
-    totalServicios.value = '—'
+// Función para cargar los servicios desde Supabase
+async function cargarServicios () {
+  const { data, error } = await supabase
+    .from('servicios')
+    .select(`
+      *,
+      origen:ciudades!origen_id(nombre),
+      destino:ciudades!destino_id(nombre),
+      empresa:empresas!empresa_id(nombre, logo)
+    `)
+
+  if (error) {
+    console.error('Error al obtener servicios:', error)
+  } else {
+    // Asignas los datos a la variable reactiva que usas en tu template
+    servicios.value = data
   }
-})
+}
 
 </script>
 
