@@ -10,7 +10,7 @@
 
     <!-- DESTINO (todos los servicios salen desde Melo) -->
     <div class="col-destino">
-      <span class="destino"><b>DESTINO - </b> <p>{{ servicio.destino }}</p></span>
+      <span class="destino"><b>DESTINO - </b>{{ servicio.destino }}</span>
     </div>
 
     <!-- ANDEN -->
@@ -20,7 +20,7 @@
 
     <!-- N° BUS -->
     <div class="col-bus">
-       <span class="bus"> <b>N° BUS - </b> <p class="buss">{{ servicio.bus }}</p> </span>
+       <span class="bus"><b>N° BUS - </b><span class="buss">{{ servicio.bus }}</span></span>
     </div>
 
     <!-- EMPRESA -->
@@ -124,9 +124,9 @@ defineEmits(['toggle-demora'])
 }
 
 .buss {
-  
+
   font-weight: bold;
-  
+
 }
 
 .col-empresa span,
