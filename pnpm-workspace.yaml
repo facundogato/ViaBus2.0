@@ -1,4 +1,7 @@
-# https://pnpm.io/settings
+packages:
+  - '.'
+  - 'viabus-backend'
+
 shamefullyHoist: true
 
 onlyBuiltDependencies:
