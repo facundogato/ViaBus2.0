@@ -1,4 +1,3 @@
-<!-- Calcula y muestra las métricas resumen del tablero. Antes: BloqueTableroMetricas.vue -->
 <template>
 
   <div class="metricas">
@@ -45,38 +44,79 @@ const props = defineProps({
 })
 
 const conteo = computed(() => {
+
   const proximos = props.data?.proximos ?? []
-  const c = { embarcando: 0, horario: 0, demorado: 0 }
-  for (const s of proximos) {
-    if (s.estado === 'embarcando') c.embarcando++
-    else if (s.estado === 'demorado') c.demorado++
-    else c.horario++
+
+  const c = {
+    embarcando: 0,
+    horario: 0,
+    demorado: 0
   }
+
+  for (const s of proximos) {
+
+    if (s.estado === 'embarcando') {
+      c.embarcando++
+    }
+
+    else if (s.estado === 'demorado') {
+      c.demorado++
+    }
+
+    else {
+      c.horario++
+    }
+
+  }
+
   return c
+
 })
 
 </script>
 
 <style scoped>
 
-.metricas{
+.metricas {
 
   margin-left: 20px;
 
-  display:grid;
+  display: grid;
 
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns: repeat(4, 1fr);
 
-  gap:20px;
+  gap: 14px;
+
+  font-family: 'Inter', sans-serif;
 
 }
 
-@media (max-width: 700px) {
+/* Tablets */
+
+@media (max-width: 1000px) {
+
   .metricas {
-    margin-left: 0;
+
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+
   }
+
+}
+
+/* Celulares */
+
+@media (max-width: 600px) {
+
+  .metricas {
+
+    margin-left: 0;
+
+    grid-template-columns: 1fr;
+
+    gap: 10px;
+
+  }
+
 }
 
 </style>

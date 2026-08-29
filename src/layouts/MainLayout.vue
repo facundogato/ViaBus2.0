@@ -1,5 +1,5 @@
 <!--
-  Layout principal de la app: sidebar + área de contenido.
+  Layout principal de la app: sidebar + área de contenido + footer.
   Se usa en todas las páginas excepto NotFoundPage (pantalla completa sin sidebar).
 
   El estado "abierto/cerrado" del sidebar vive acá (no en AppSidebar) porque
@@ -7,16 +7,24 @@
   reservar los 240px de margen cuando el sidebar está oculto. Antes ese
   margen quedaba fijo siempre, así que al cerrar el sidebar quedaba un
   espacio vacío del mismo ancho, sin aprovechar la pantalla.
+
+  La estructura general es en columna (sidebar+contenido arriba, footer
+  abajo) para que el footer siempre quede al pie ocupando el 100% del
+  ancho, sin importar el estado del sidebar.
 -->
 <template>
   <div class="layout">
 
-    <AppSidebar v-model="sidebarAbierta" />
+    <div class="layout-body">
+      <AppSidebar v-model="sidebarAbierta" />
 
-    <div class="contenido" :class="{ 'contenido--full': !sidebarAbierta }">
-      <TopBar />
-      <slot />
+      <div class="contenido" :class="{ 'contenido--full': !sidebarAbierta }">
+        <TopBar />
+        <slot />
+      </div>
     </div>
+
+    <Appfooter />
 
   </div>
 </template>
@@ -25,6 +33,7 @@
 import { ref, onMounted } from 'vue'
 import AppSidebar from './AppSidebar.vue'
 import TopBar from './TopBar.vue'
+import Appfooter from './Appfooter.vue'
 
 // En pantallas grandes el sidebar empuja el contenido, así que arranca
 // abierto. En pantallas chicas es un panel flotante que se superpone,
@@ -40,8 +49,14 @@ onMounted(() => {
 
 .layout{
   display:flex;
+  flex-direction: column;
   background:#0b1023;
   min-height:100dvh;
+}
+
+.layout-body{
+  display:flex;
+  flex: 1;
 }
 
 .contenido{

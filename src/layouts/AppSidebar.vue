@@ -3,6 +3,7 @@
 
   <!-- BOTON MENU -->
   <q-btn
+    ref="botonRef"
     flat
     round
     dense
@@ -20,6 +21,7 @@
 
   <!-- SIDEBAR -->
   <div
+    ref="sidebarRef"
     class="sidebar"
     :class="{ oculta: !modelValue }"
   >
@@ -86,12 +88,12 @@
 
 <script setup>
 
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import NavMenuItem from './NavMenuItem.vue'
 import LogoutButton from './LogoutButton.vue'
 import { useAuth } from '../services/auth'
 
-defineProps({
+const props = defineProps({
   modelValue: { type: Boolean, default: false }
 })
 
@@ -104,6 +106,33 @@ const inicialUsuario = computed(() =>
     ? usuario.value.nombre.charAt(0).toUpperCase()
     : '?'
 )
+
+// Cerrar la sidebar al hacer click afuera (en la página, no en el sidebar
+// ni en el botón que la abre/cierra). El botón queda excluido a propósito:
+// su propio @click ya maneja el toggle, así que si no lo excluyéramos acá
+// se pisarían los dos handlers (abriría y cerraría en el mismo click).
+const sidebarRef = ref(null)
+const botonRef = ref(null)
+
+function manejarClickAfuera(event) {
+  if (!props.modelValue) return
+
+  const sidebarEl = sidebarRef.value
+  const botonEl = botonRef.value?.$el ?? botonRef.value
+
+  if (sidebarEl?.contains(event.target)) return
+  if (botonEl?.contains(event.target)) return
+
+  emit('update:modelValue', false)
+}
+
+onMounted(() => {
+  document.addEventListener('click', manejarClickAfuera)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', manejarClickAfuera)
+})
 
 </script>
 

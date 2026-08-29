@@ -1,14 +1,12 @@
-<!-- Tarjeta de métrica coloreada del tablero (embarcando/en horario/demorados). Antes: TarjetaMetrica.vue -->
-<template>
 
+<template>
   <q-card
     class="tarjeta"
     :style="{
-      borderTop:'3px solid ' + color
+      '--card-color': color
     }"
   >
-
-    <q-card-section>
+    <q-card-section class="contenido">
 
       <!-- TITULO -->
       <p class="titulo">
@@ -16,34 +14,26 @@
       </p>
 
       <!-- NUMERO -->
-      <h1
-        :style="{
-          color:color
-        }"
-      >
+      <h1>
         {{ numero }}
       </h1>
 
-      <!-- SUB -->
-      <span>
+      <!-- SUBTITULO -->
+      <span class="subtitulo">
         {{ subtitulo }}
       </span>
 
     </q-card-section>
-
   </q-card>
-
 </template>
 
 <script setup>
 
 defineProps({
-
-  titulo:String,
-  numero:String,
-  subtitulo:String,
-  color:String
-
+  titulo: String,
+  numero: String,
+  subtitulo: String,
+  color: String
 })
 
 </script>
@@ -52,35 +42,141 @@ defineProps({
 
 .tarjeta{
 
-  background:#0b1023;
+  position: relative;
 
-  border:1px solid #1a2138;
+  background: #0d1328;
 
-  color:white;
+  border: 1px solid rgba(255,255,255,0.07);
+
+  border-radius: 14px;
+
+  color: white;
+
+  overflow: hidden;
+
+  cursor: default;
+
+  transition:
+    transform .25s ease,
+    box-shadow .25s ease,
+    border-color .25s ease,
+    background .25s ease;
 
 }
+
+/* Línea superior de color */
+
+.tarjeta::before{
+
+  content:"";
+
+  position:absolute;
+
+  top:0;
+  left:0;
+
+  width:100%;
+  height:3px;
+
+  background:var(--card-color);
+
+  opacity:.9;
+
+  transition:
+    height .25s ease,
+    opacity .25s ease;
+
+}
+
+/* Hover */
+
+.tarjeta:hover{
+
+  transform: translateY(-5px);
+
+  background:#101831;
+
+  border-color:rgba(255,255,255,0.14);
+
+  box-shadow:
+    0 10px 30px rgba(0,0,0,.28);
+
+}
+
+.tarjeta:hover::before{
+
+  height:4px;
+
+  opacity:1;
+
+}
+
+/* Contenido */
+
+.contenido{
+
+  padding:20px;
+
+}
+
+/* Título */
 
 .titulo{
 
-  color:#7b8198;
+  margin:0;
 
-  letter-spacing:3px;
+  color:#8b92a8;
 
-  font-size:12px;
+  font-family:'Inter',sans-serif;
+
+  font-size:11px;
+
+  font-weight:600;
+
+  letter-spacing:2px;
 
 }
+
+/* Número */
 
 h1{
 
-  font-size:55px;
+  margin:12px 0 8px;
 
-  margin:10px 0;
+  color:var(--card-color);
+
+  font-family:'Inter',sans-serif;
+
+  font-size:42px;
+
+  font-weight:700;
+
+  line-height:1;
+
+  letter-spacing:-1px;
+
+  transition:
+    transform .25s ease;
 
 }
 
-span{
+.tarjeta:hover h1{
 
-  color:#7b8198;
+  transform:scale(1.03);
+
+}
+
+/* Subtítulo */
+
+.subtitulo{
+
+  color:#9ca3b8;
+
+  font-family:'Inter',sans-serif;
+
+  font-size:12px;
+
+  line-height:1.4;
 
 }
 

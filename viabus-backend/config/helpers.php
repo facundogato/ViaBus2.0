@@ -1,5 +1,11 @@
 <?php
 
+date_default_timezone_set('America/Montevideo');
+
+$hoy   = date('Y-m-d');
+$ahora = date('H:i');
+
+
 function setCorsHeaders(): void {
     header('Access-Control-Allow-Origin: *');
     header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');

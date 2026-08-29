@@ -3,7 +3,7 @@
 
   <div class="tabla">
 
-  
+
 
     <p v-if="cargando" class="estado-msg">Cargando servicios...</p>
     <p v-else-if="servicios.length === 0" class="estado-msg">
@@ -39,48 +39,34 @@ defineEmits(['toggle-demora'])
 
 <style scoped>
 
-.tabla{
-  border:1px solid #1a2138;
-  border-radius:6px;
-  overflow:hidden;
-  margin-left: 20px;
- }  
-
-.encabezado{
-  display:grid;
-  grid-template-columns:80px 140px 80px 80px 100px 120px 1fr;
-  padding:12px 25px;
-  background:#0f1629;
-  gap:10px;
+.tabs-container {
+  display: flex;
+  gap: 0;
+  width: fit-content;
+  border-bottom: 1px solid #1a2138;
 }
 
-.encabezado span{
-  color:#7b8198;
-  font-size:10px;
-  letter-spacing:2px;
+.tab {
+  padding: 11px 22px;
+  background: transparent;
+  border: none;
+  color: #7b8198;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  transition: 0.2s;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
 }
 
-.estado-msg{
-  padding:20px 25px;
-  color:#7b8198;
-  font-size:12px;
-  letter-spacing:1px;
+.tab:hover {
+  color: white;
 }
 
-@media (max-width: 700px) {
-  .tabla {
-    margin-left: 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-  }
-
-  /* Las columnas no se apilan (son datos de una fila real de salida):
-     se deja el ancho fijo y se scrollea horizontalmente en vez de romper
-     el layout. Las filas (DashboardTableRow.vue) usan el mismo ancho
-     mínimo para que header y filas queden alineados al scrollear. */
-  .encabezado {
-    min-width: 800px;
-  }
+.tab.activo {
+  color: #f4b400;
+  border-bottom: 3px solid #f4b400;
 }
 
 </style>
