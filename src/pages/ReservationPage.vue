@@ -104,7 +104,6 @@
 
       </div>
 
-      <!-- EN DESARROLLO -->
       <!-- PASO 3: ASIENTOS -->
 <div v-if="pasoActual === 2" class="paso-content">
 
@@ -123,6 +122,8 @@
         seleccionado: asientoSeleccionado === asiento.numero
       }"
       @click="seleccionarAsiento(asiento)"
+      @dblclick="seleccionarAsientoyBajarAlBoton(asiento)"
+
     >
       {{ asiento.numero }}
     </div>
@@ -135,6 +136,7 @@
     </button>
 
     <button
+      ref="botonContinuarServicio"
       class="btn-siguiente"
       :disabled="!asientoSeleccionado"
       @click="pasoActual++"
@@ -290,6 +292,23 @@ const busqueda = ref({
 const servicioSeleccionado = ref(null)
 const botonContinuarServicio = ref(null)
 
+function subiralPaso(paso) {
+  pasoActual.value = paso
+  nextTick(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+}
+
+
+function seleccionarAsientoyBajarAlBoton(asiento) {
+  asientoSeleccionado.value = asiento.numero
+  nextTick(() => {
+    if (botonContinuarServicio.value) {
+      botonContinuarServicio.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  })
+}
+
 function seleccionarYBajarAlBoton(servicio) {
   servicioSeleccionado.value = servicio
   nextTick(() => {
@@ -351,6 +370,12 @@ watch(pasoActual, (nuevo) => {
     asientoSeleccionado.value = null
     cargarAsientosOcupados()
   }
+})
+
+watch(pasoActual, async () => {
+  await nextTick()
+  const contenido = document.querySelector('.superior')
+  contenido?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 })
 
 function seleccionarAsiento(asiento) {
@@ -524,7 +549,7 @@ watch([pasoActual, reservaCreada], async ([nuevoPaso, reserva]) => {
       try {
         const texto = `Reserva N° ${reserva.id} - ${servicioSeleccionado.value.origen} → ${servicioSeleccionado.value.destino}, ${busqueda.value.fecha}, asiento ${asientoSeleccionado.value}, total $${reserva.total}`
         await QRcode.toCanvas(qrCanvas.value, texto, { width: 200 })
-        
+
         // Enviar el QR por correo al pasajero
         const qrBase64 = qrCanvas.value.toDataURL('image/png')
         await enviarQRPorCorreo(reserva.id, pasajero.value.email, qrBase64)
@@ -647,10 +672,9 @@ async function reenviarCorreo() {
 
 .asientos-grid {
   display: grid;
-  grid-template-columns: repeat(4, 70px);
+  grid-template-columns: 70px 70px 30px 70px 70px;
   gap: 15px;
   justify-content: center;
-  margin-top: 30px;
 }
 
 .asiento {
@@ -682,6 +706,10 @@ async function reenviarCorreo() {
   color: white;
   border-color: #27ae60;
 }
+
+/* saltar la columna del pasillo */
+.asiento:nth-child(4n + 3) { grid-column: 4; }
+.asiento:nth-child(4n + 4) { grid-column: 5; }
 
 /*fin */
 
@@ -1019,6 +1047,13 @@ h2{
 }
 
 @media (max-width: 700px) {
+  .asiento {
+    margin-left: 6px;
+    width: 57px;
+    height: 57px;
+    font-size: 14px;
+  }
+
   .stepper {
     overflow-x: auto;
     padding-bottom: 5px;
