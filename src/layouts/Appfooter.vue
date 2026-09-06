@@ -1,6 +1,6 @@
 <!-- Footer principal de la app. Reutiliza la paleta y el patrón de animación
-     (borde superior degradé + elevación) que ya usan StatCard, QuickActionsGrid
-     y CompanyList, para que quede integrado al resto del sitio. -->
+     (borde superior degradé + elevación) que ya usan StatCard,
+     para que quede integrado al resto del sitio. -->
 <template>
   <footer class="app-footer">
     <div class="footer-glow" />

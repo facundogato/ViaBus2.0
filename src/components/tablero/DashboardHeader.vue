@@ -1,8 +1,8 @@
-<!-- Encabezado del tablero con reloj en vivo. Antes: BloqueTableroSuperior.vue -->
+<!-- Encabezado del tablero. Antes: BloqueTableroSuperior.vue -->
 <template>
   <div class="superior">
 
-    <!-- IZQUIERDA -->
+    <!-- IZQUIERDA, texto plano del tablero. -->
     <div>
       <h1>
         TABLERO DE SERVICIOS
@@ -13,12 +13,12 @@
       </p>
     </div>
 
-    <!-- DERECHA -->
+    <!-- espacio para poner el reloj en un futuro -->
     <div class="hora-container">
 
 
       <span>
-       
+
       </span>
 
     </div>

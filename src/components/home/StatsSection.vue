@@ -4,7 +4,7 @@
   <div class="estadisticas">
 
     <!--
-      TARJETAS
+      TARJETAS DEL INICIO CON INFORMACION
     -->
 
    <StatCard

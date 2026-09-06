@@ -1,3 +1,5 @@
+<!-- los recuadros con estadisticas del tablero, todos hacen consultas al backend
+ de ahi sacan la infromacion que van a mostrar en pantalla dependiendo de la hora actual-->
 <template>
 
   <div class="metricas">

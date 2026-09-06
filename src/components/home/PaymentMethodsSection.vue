@@ -1,18 +1,20 @@
 <!-- Seccion fija de metodos de pago en el inicio/home -->
  <template>
-   <div class="metodos-pago-container">
+  <!-- descripcion de los pagos -->
+  <div class="metodos-pago-container">
      <h2 class ="metodos-titulo">
         <q-icon name="credit card" size="24px" color="amber" />
         Métodos de Pago </h2>
-    
+
     <p class="metodos-desc">
         Podés abonar tu pasaje con cualquiera de estas opciones, tanto al comprar en la web como en la terminal.
     </p>
 
-     <div class="metodos">
+     <!-- muestra los tipos de pagos aceptados-->
+    <div class="metodos">
          <span class="metodo">
             <q-icon name="payments" size="24px" color="amber" />
-            Efectivo 
+            Efectivo
          </span>
 
          <span class="metodo">
@@ -33,7 +35,7 @@
 
        </div>
      </div>
-   
+
    </template>
 
    <style scoped>
@@ -81,7 +83,7 @@
         transition: background-color 0.3s, color 0.3s;
         color: #e8ecf5;
 
-    
+
     }
 
     </style>

@@ -1,7 +1,7 @@
 <!-- Grilla de accesos rápidos (reservar / tablero) en el home. Antes: BloqueGaleria.vue -->
 <template>
   <div class="botones">
-
+    <!-- boton del inicio que llevan a la pagina de compra comprar -->
     <a class="boton" href="/comprar">
       <div class="icono-wrap">
         <q-icon name="confirmation_number" size="28px" color="amber" />
@@ -13,6 +13,7 @@
       <q-icon name="arrow_forward" size="20px" class="flecha" />
     </a>
 
+    <!-- boton del inicio que te lleva hacia el tablero -->
     <a class="boton" href="/tablero">
       <div class="icono-wrap">
         <q-icon name="dashboard" size="28px" color="amber" />

@@ -1,10 +1,13 @@
 <!-- Mapa embebido de la ubicación de la terminal. Antes: ZonaMapa.vue -->
 <template>
+  <!-- se hace el borde del mapa -->
+
   <div class="zona-mapa">
     <div class="mapa-header">
       <q-icon name="location_on" color="amber" size="18px" />
       <span>UBICACIÓN — Terminal de Ómnibus de Melo</span>
     </div>
+    <!-- el mapa en si-->
     <iframe
       width="100%"
       height="340"
