@@ -72,22 +72,8 @@
         </div>
 
         <div class="campo">
-          <label>ANDÉN</label>
-          <input type="text" v-model="form.anden" placeholder="A-01" />
-        </div>
-
-        <div class="campo">
           <label>BUS</label>
           <input type="text" v-model="form.bus" placeholder="MELMON-1234" />
-        </div>
-
-        <div class="campo">
-          <label>ESTADO</label>
-          <select v-model="form.estado">
-            <option value="horario">Horario</option>
-            <option value="embarcando">Embarcando</option>
-            <option value="demorado">Demorado</option>
-          </select>
         </div>
 
       </div>
@@ -200,9 +186,7 @@ function formularioVacio() {
     duracion: '',
     precio: null,
     asientos: 40,
-    anden: '',
-    bus: '',
-    estado: 'horario'
+    bus: ''
   }
 }
 
@@ -227,10 +211,9 @@ function abrirFormularioEdicion(servicio) {
     duracion: servicio.duracion,
     precio: servicio.precio,
     asientos: servicio.asientos,
-    anden: servicio.anden,
-    bus: servicio.bus,
-    estado: servicio.estado
-  }
+    bus: servicio.bus
+}
+
   formularioAbierto.value = true
 }
 
@@ -249,8 +232,8 @@ async function guardar() {
   try {
     if (editando.value) {
       // Al editar solo se pueden cambiar hora/tipo/duración/precio/asientos/andén/bus/estado
-      const { hora, tipo, duracion, precio, asientos, anden, bus, estado } = form.value
-      await actualizarServicio(editando.value, { hora, tipo, duracion, precio, asientos, anden, bus, estado })
+      const { hora, tipo, duracion, precio, asientos, bus } = form.value
+      await actualizarServicio(editando.value, { hora, tipo, duracion, precio, asientos, bus})
     } else {
       if (!form.value.origen || !form.value.destino || !form.value.empresa) {
         errorFormulario.value = 'Origen, destino y empresa son obligatorios'

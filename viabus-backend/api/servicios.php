@@ -110,7 +110,8 @@ if ($method === 'PUT') {
 
     $fields = [];
     $values = [];
-    foreach (['hora','tipo','duracion','precio','asientos','anden','bus','estado','activo'] as $f) {
+   foreach (['hora','tipo','duracion','precio','asientos','bus'] as $f) {
+
         if (array_key_exists($f, $body)) {
             $fields[] = "$f = ?";
             $values[] = $body[$f];
