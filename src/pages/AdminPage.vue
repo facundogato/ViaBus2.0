@@ -1,37 +1,64 @@
-<!-- Panel de administrador: alta, edición y baja de viajes (ruta /admin, solo rol admin). -->
+<<!-- Esto es el PANEL DEL ADMINISTRADOR.
+     Acá el admin puede: crear viajes nuevos, editar los que ya
+     existen y "borrarlos" (en realidad los desactiva).
+     Solo entra acá quien tiene rol de admin -->
+
 <template>
 
+<!-- Todo lo que está acá adentro es lo que se VE en la pantalla -->
+
+  <!-- MainLayout es como el "cascarón" de la página: el menú,
+       el encabezado, etc. Todo lo demás va adentro de él. -->
   <MainLayout>
 
-    <!-- SUPERIOR -->
+    <!-- =========== PARTE DE ARRIBA: título + botón =========== -->
     <div class="superior">
       <div>
+        <!-- El título grande de la página -->
         <h1>PANEL DE ADMINISTRADOR</h1>
+        <!-- Un texto chiquito explicando para qué sirve -->
         <p>Gestioná los viajes que se ofrecen en la terminal</p>
       </div>
+
+      <!-- Este botón abre el formulario para crear un viaje nuevo.
+           El @click significa: "cuando me hagan clic, hacé esto" -->
       <button class="btn-nuevo" @click="abrirFormularioNuevo">
+        <!-- El ícono del "+" y el texto del botón -->
         <q-icon name="add" size="18px" />
         NUEVO VIAJE
       </button>
     </div>
 
+    <!-- Si hubo un error general (por ejemplo, falló la conexión con
+         el servidor), se muestra este mensaje en rojo. El v-if hace
+         que solo aparezca SI hay error, si no, no se ve nada. -->
     <p v-if="errorGeneral" class="error-msg">{{ errorGeneral }}</p>
 
-    <!-- ===================== FORMULARIO (alta / edición) ===================== -->
+    <!-- =========== FORMULARIO (para crear o editar) =========== -->
+    <!-- Este bloque solo aparece si formularioAbierto es true,
+         o sea, si el admin apretó "Nuevo viaje" o el lápiz de editar -->
     <div v-if="formularioAbierto" class="panel-formulario">
 
+      <!-- El título cambia según lo que estemos haciendo:
+           si editamos dice "EDITAR VIAJE", si no, "NUEVO VIAJE" -->
       <h2>{{ editando ? 'EDITAR VIAJE' : 'NUEVO VIAJE' }}</h2>
 
       <div class="formulario">
 
-        <!-- Origen/destino/empresa solo se pueden definir al crear el viaje -->
+        <!-- IMPORTANTE: origen, destino y empresa SOLO se eligen
+             cuando se crea el viaje. Si estás editando, quedan
+             bloqueados (por eso el :disabled="editando") -->
+
+        <!-- Lista desplegable para elegir de dónde sale el bus -->
         <div class="campo">
           <label>ORIGEN</label>
           <select v-model="form.origen" :disabled="editando">
+            <!-- Recorre la lista de ciudades y crea una opción por cada una -->
             <option v-for="c in ciudades" :key="c" :value="c">{{ c }}</option>
           </select>
         </div>
 
+        <!-- Lista desplegable para elegir a dónde va el bus -->
         <div class="campo">
           <label>DESTINO</label>
           <select v-model="form.destino" :disabled="editando">
@@ -39,6 +66,7 @@
           </select>
         </div>
 
+        <!-- Lista desplegable para elegir la empresa del bus -->
         <div class="campo">
           <label>EMPRESA</label>
           <select v-model="form.empresa" :disabled="editando">
@@ -46,31 +74,38 @@
           </select>
         </div>
 
+        <!-- Campo para poner la hora de salida (aparece un relojito) -->
         <div class="campo">
           <label>HORA</label>
           <input type="time" v-model="form.hora" />
         </div>
 
+        <!-- Tipo de servicio, por ejemplo "De Línea" -->
         <div class="campo">
           <label>TIPO</label>
           <input type="text" v-model="form.tipo" placeholder="De Linea" />
         </div>
 
+        <!-- Cuánto tarda el viaje, ej: "5h 44m" -->
         <div class="campo">
           <label>DURACIÓN</label>
           <input type="text" v-model="form.duracion" placeholder="5h 44m" />
         </div>
 
+        <!-- Precio del pasaje. El v-model.number hace que lo que
+             escribís se guarde como número, no como texto -->
         <div class="campo">
           <label>PRECIO</label>
           <input type="number" v-model.number="form.precio" min="0" step="10" />
         </div>
 
+        <!-- Cantidad de asientos que tiene el bus -->
         <div class="campo">
           <label>ASIENTOS</label>
           <input type="number" v-model.number="form.asientos" min="1" />
         </div>
 
+        <!-- Patente o identificación del bus -->
         <div class="campo">
           <label>BUS</label>
           <input type="text" v-model="form.bus" placeholder="MELMON-1234" />
@@ -78,10 +113,17 @@
 
       </div>
 
+      <!-- Si falta completar algo obligatorio, acá se avisa -->
       <p v-if="errorFormulario" class="error-msg">{{ errorFormulario }}</p>
 
+      <!-- Botones del formulario: cancelar o guardar -->
       <div class="acciones">
+        <!-- Este botón cierra el formulario sin guardar nada -->
         <button class="btn-volver" @click="cerrarFormulario">Cancelar</button>
+
+        <!-- Este botón guarda. Mientras está guardando se desactiva
+             (para que no le den clic 5 veces) y dice "Guardando...".
+             El texto cambia según si es nuevo viaje o edición -->
         <button class="btn-siguiente" :disabled="guardando" @click="guardar">
           {{ guardando ? 'Guardando...' : (editando ? 'Guardar cambios' : 'Crear viaje') }}
         </button>
@@ -89,14 +131,19 @@
 
     </div>
 
-    <!-- ===================== LISTADO DE VIAJES ===================== -->
+    <!-- =========== LISTADO DE TODOS LOS VIAJES =========== -->
     <h2 class="titulo-lista">VIAJES ACTIVOS</h2>
 
+    <!-- Tres casos posibles:
+         1) Si está cargando, muestra "Cargando viajes..."
+         2) Si terminó de cargar y no hay nada, muestra ese aviso
+         3) Si hay viajes, muestra la tabla -->
     <p v-if="cargando" class="sin-resultados">Cargando viajes...</p>
     <p v-else-if="servicios.length === 0" class="sin-resultados">No hay viajes cargados todavía.</p>
 
     <div v-else class="tabla">
 
+      <!-- La fila de encabezado: los nombres de las columnas -->
       <div class="tabla-header">
         <div>Origen → Destino</div>
         <div>Empresa</div>
@@ -107,17 +154,27 @@
         <div>Acciones</div>
       </div>
 
+      <!-- Acá se repite una fila por CADA viaje que exista.
+           El v-for es como decir "por cada viaje s de la lista, dibujá una fila" -->
       <div v-for="s in servicios" :key="s.id" class="tabla-fila">
+        <!-- Muestra "Ciudad A → Ciudad B" -->
         <div>{{ s.origen }} → {{ s.destino }}</div>
         <div>{{ s.empresa }}</div>
         <div>{{ s.hora }}</div>
         <div>{{ s.tipo }}</div>
+        <!-- El $ va pegado al precio -->
         <div>${{ s.precio }}</div>
+        <!-- StatusBadge es una etiquetita de color que muestra
+             si el viaje está activo, lleno, etc. -->
         <div><StatusBadge :tipo="s.estado" /></div>
+
+        <!-- Los dos botones de cada fila: editar y borrar -->
         <div class="fila-acciones">
+          <!-- Lápiz: abre el formulario con los datos de ESTE viaje -->
           <button class="btn-icono" title="Editar" @click="abrirFormularioEdicion(s)">
             <q-icon name="edit" size="16px" />
           </button>
+          <!-- Tachito: desactiva el viaje (con confirmación antes) -->
           <button class="btn-icono btn-icono-borrar" title="Desactivar" @click="borrar(s)">
             <q-icon name="delete" size="16px" />
           </button>
@@ -131,77 +188,119 @@
 </template>
 
 <script setup>
+// ============================================================
+// PARTE LÓGICA: acá está "el cerebro" de la página, lo que
+// pasa por detrás cuando tocás los botones.
+// ============================================================
+
+// Importamos herramientas de Vue: ref sirve para crear variables
+// que cuando cambian, la página se actualiza sola.
 import { ref, onMounted } from 'vue'
+
+// Importamos el diseño general y la etiqueta de estado
 import MainLayout from '../layouts/MainLayout.vue'
 import StatusBadge from '../components/common/StatusBadge.vue'
+
+// Importamos las funciones que hablan con el servidor
+// (crear, editar, borrar, traer datos, etc.)
 import {
-  getTodosServicios,
-  getCiudades,
-  getEmpresas,
-  crearServicio,
-  actualizarServicio,
-  eliminarServicio
+  getTodosServicios,   // trae todos los viajes
+  getCiudades,         // trae la lista de ciudades
+  getEmpresas,         // trae la lista de empresas
+  crearServicio,       // crea un viaje nuevo
+  actualizarServicio,  // edita un viaje existente
+  eliminarServicio     // desactiva un viaje
 } from '../services/api'
 
+// ---- Variables que guarda la página ----
+
+// La lista de viajes (empieza vacía)
 const servicios = ref([])
+// Las ciudades para los desplegables
 const ciudades = ref([])
+// Las empresas para el desplegable
 const empresas = ref([])
+// Bandera: ¿estamos cargando datos del servidor? (para mostrar "Cargando...")
 const cargando = ref(false)
+// Si algo falla a lo grande, el mensaje se guarda acá
 const errorGeneral = ref('')
 
+// Esta función trae TODO del servidor: viajes, ciudades y empresas.
+// "async" significa que puede tardar un rato (habla con internet).
 async function cargarTodo() {
-  cargando.value = true
-  errorGeneral.value = ''
+  cargando.value = true        // avisamos "empecé a cargar"
+  errorGeneral.value = ''      // borramos errores viejos
   try {
+    // Promise.all pide las 3 cosas AL MISMO TIEMPO (más rápido
+    // que pedirlas de a una). Espera a que lleguen las tres.
     const [listaServicios, listaCiudades, listaEmpresas] = await Promise.all([
       getTodosServicios(),
       getCiudades(),
       getEmpresas()
     ])
+    // Guardamos todo en nuestras variables.
+    // De las ciudades solo nos interesa el nombre, por eso el .map
     servicios.value = listaServicios
     ciudades.value = listaCiudades.map(c => c.nombre)
     empresas.value = listaEmpresas
   } catch (e) {
+    // Si algo falló, guardamos el error para mostrarlo en pantalla
     errorGeneral.value = e.message
   } finally {
+    // Esto SIEMPRE se ejecuta, salga bien o mal: dejamos de cargar
     cargando.value = false
   }
 }
 
+// onMounted = "en cuanto la página cargue, hacé esto".
+// O sea: apenas abrís el panel, se trae todo automáticamente.
 onMounted(cargarTodo)
 
-// ---- Formulario (alta / edición) ----
+// ---- Todo lo relacionado al formulario ----
+
+// ¿El formulario está abierto en pantalla?
 const formularioAbierto = ref(false)
-const editando = ref(null) // null = alta | id del servicio si se está editando
+// Si es null → estamos creando uno nuevo.
+// Si tiene un número → es el id del viaje que estamos editando.
+const editando = ref(null)
+// ¿Estamos guardando en este momento? (para desactivar el botón)
 const guardando = ref(false)
+// Mensaje de error del formulario (ej: "faltó poner la hora")
 const errorFormulario = ref('')
 
+// Esta función devuelve un formulario "en blanco" con valores
+// por defecto para no empezar de cero.
 function formularioVacio() {
   return {
-    origen: ciudades.value[0] || '',
-    destino: ciudades.value[1] || '',
-    empresa: empresas.value[0]?.nombre || '',
-    hora: '',
-    tipo: 'De Linea',
+    origen: ciudades.value[0] || '',      // primera ciudad de la lista
+    destino: ciudades.value[1] || '',     // segunda ciudad
+    empresa: empresas.value[0]?.nombre || '', // primera empresa
+    hora: '',                             // sin hora todavía
+    tipo: 'De Linea',                     // valor sugerido
     duracion: '',
     precio: null,
-    asientos: 40,
+    asientos: 40,                         // asumo un bus de 40
     bus: ''
   }
 }
 
+// El formulario en sí, arranca vacío
 const form = ref(formularioVacio())
 
+// Se apretó "NUEVO VIAJE": preparamos todo para crear desde cero
 function abrirFormularioNuevo() {
-  editando.value = null
-  errorFormulario.value = ''
-  form.value = formularioVacio()
-  formularioAbierto.value = true
+  editando.value = null          // no estamos editando nada
+  errorFormulario.value = ''     // borramos errores viejos
+  form.value = formularioVacio() // formulario limpio
+  formularioAbierto.value = true // ¡abrimos el formulario!
 }
 
+// Se apretó el lápiz de algún viaje: abrimos el formulario
+// PERO relleno con los datos de ese viaje
 function abrirFormularioEdicion(servicio) {
-  editando.value = servicio.id
+  editando.value = servicio.id   // recordamos cuál viaje estamos editando
   errorFormulario.value = ''
+  // Copiamos cada dato del viaje al formulario
   form.value = {
     origen: servicio.origen,
     destino: servicio.destino,
@@ -212,51 +311,70 @@ function abrirFormularioEdicion(servicio) {
     precio: servicio.precio,
     asientos: servicio.asientos,
     bus: servicio.bus
-}
-
+  }
   formularioAbierto.value = true
 }
 
+// Botón "Cancelar": solo cerramos el formulario sin guardar nada
 function cerrarFormulario() {
   formularioAbierto.value = false
 }
 
+// Se apretó "Guardar": acá pasa la magia (o los errores 😅)
 async function guardar() {
+  // Primera revisión: la hora y el tipo son obligatorios.
+  // Si falta alguno, mostramos el aviso y no seguimos.
   if (!form.value.hora || !form.value.tipo) {
     errorFormulario.value = 'Hora y tipo son obligatorios'
     return
   }
 
-  guardando.value = true
-  errorFormulario.value = ''
+  guardando.value = true       // "estoy guardando" (botón desactivado)
+  errorFormulario.value = ''   // borramos errores viejos
   try {
+    // ¿Estamos EDITANDO o CREANDO? Depends del valor de editando
     if (editando.value) {
-      // Al editar solo se pueden cambiar hora/tipo/duración/precio/asientos/andén/bus/estado
+      // EDITANDO: por regla del negocio, al editar un viaje que ya
+      // existe NO se puede cambiar origen/destino/empresa.
+      // Solo extraemos los campos que sí se pueden tocar...
       const { hora, tipo, duracion, precio, asientos, bus } = form.value
-      await actualizarServicio(editando.value, { hora, tipo, duracion, precio, asientos, bus})
+      // ...y mandamos solo esos al servidor
+      await actualizarServicio(editando.value, { hora, tipo, duracion, precio, asientos, bus })
     } else {
+      // CREANDO: acá sí hace falta que origen, destino y empresa
+      // estén completos. Si falta algo, aviso y me voy.
       if (!form.value.origen || !form.value.destino || !form.value.empresa) {
         errorFormulario.value = 'Origen, destino y empresa son obligatorios'
         guardando.value = false
         return
       }
+      // Todo bien: mandamos el formulario completo para crear el viaje
       await crearServicio(form.value)
     }
+    // Si salió todo bien: cerramos el formulario y recargamos la
+    // lista para que el viaje nuevo/editado aparezca al toque.
     formularioAbierto.value = false
     await cargarTodo()
   } catch (e) {
+    // Si el servidor rechazó algo, mostramos su mensaje
     errorFormulario.value = e.message
   } finally {
-    guardando.value = false
+    guardando.value = false // dejamos de "guardando" siempre
   }
 }
 
+// Se apretó el tachito de un viaje: lo desactivamos
 async function borrar(servicio) {
-  if (!confirm(`¿Desactivar el viaje ${servicio.origen} → ${servicio.destino} (${servicio.hora})?`)) return
+  // Primero preguntamos "¿estás seguro?" con un mensajito.
+  // Si dice que no, no hacemos nada (el return corta todo).
+  if (!confirm(`¿Desactivar el viaje servicio.origen→{servicio.origen} →servicio.origen→{servicio.destino} (${servicio.hora})?`)) return
   try {
+    // Le avisamos al servidor que desactive ese viaje
     await eliminarServicio(servicio.id)
+    // Recargamos la lista para que ya no aparezca
     await cargarTodo()
   } catch (e) {
+    // Si falló, mostramos el error general arriba
     errorGeneral.value = e.message
   }
 }

@@ -12,7 +12,7 @@
 
 <script setup>
 
-// Importamos los componentes
+// Importamos los componentes necesarios para construir la pagina
 import MainLayout from '../layouts/MainLayout.vue'
 import tableroTablero from '../components/tablero/tableroTablero.vue'
 
