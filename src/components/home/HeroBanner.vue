@@ -57,6 +57,7 @@
 }
 
 h1 {
+
   font-size: 72px;
   color: white;
   font-weight: 900;

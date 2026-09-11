@@ -26,15 +26,101 @@
 
       <h2>PAGO</h2>
 
-      <div class="resumen-reserva">
-        <div class="resumen-fila"><span>Origen</span><strong>{{ resumen.origen }}</strong></div>
-        <div class="resumen-fila"><span>Destino</span><strong>{{ resumen.destino }}</strong></div>
-        <div class="resumen-fila"><span>Fecha</span><strong>{{ resumen.fecha }}</strong></div>
-        <div class="resumen-fila"><span>Hora</span><strong>{{ resumen.hora }}</strong></div>
-        <div class="resumen-fila"><span>Empresa</span><strong>{{ resumen.empresa }}</strong></div>
-        <div class="resumen-fila"><span>Asiento</span><strong>{{ resumen.asiento }}</strong></div>
-        <div class="resumen-fila resumen-total"><span>Total</span><strong>${{ resumen.total }}</strong></div>
+<div class="resumen-reserva">
+
+  <!-- CABECERA -->
+  <div class="resumen-header">
+    <div>
+      <span class="resumen-overline">RESUMEN DE RESERVA</span>
+      <h3>Tu viaje</h3>
+    </div>
+
+    <q-icon
+      name="confirmation_number"
+      size="30px"
+      class="icon-ticket"
+    />
+  </div>
+
+
+  <!-- TRAYECTO -->
+  <div class="trayecto">
+
+    <div class="ciudad">
+      <span>ORIGEN</span>
+      <strong>{{ resumen.origen }}</strong>
+    </div>
+
+    <div class="flecha">
+      <q-icon name="arrow_forward" size="20px" />
+    </div>
+
+    <div class="ciudad destino">
+      <span>DESTINO</span>
+      <strong>{{ resumen.destino }}</strong>
+    </div>
+
+  </div>
+
+
+  <!-- INFORMACIÓN DEL VIAJE -->
+  <div class="datos-viaje">
+
+    <div class="dato">
+      <q-icon name="event" />
+
+      <div>
+        <span>FECHA</span>
+        <strong>{{ resumen.fecha }}</strong>
       </div>
+    </div>
+
+
+    <div class="dato">
+      <q-icon name="schedule" />
+
+      <div>
+        <span>HORA</span>
+        <strong>{{ resumen.hora }}</strong>
+      </div>
+    </div>
+
+
+    <div class="dato">
+      <q-icon name="directions_bus" />
+
+      <div>
+        <span>EMPRESA</span>
+        <strong>{{ resumen.empresa }}</strong>
+      </div>
+    </div>
+
+
+    <div class="dato">
+      <q-icon name="airline_seat_recline_normal" />
+
+      <div>
+        <span>ASIENTO</span>
+        <strong>{{ resumen.asiento }}</strong>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- TOTAL -->
+  <div class="resumen-total">
+
+    <span>TOTAL A PAGAR</span>
+
+    <strong>
+      ${{ resumen.total }}
+    </strong>
+
+  </div>
+
+</div>
+
 
       <div class="acciones">
         <button class="btn-volver" @click="$emit('volver')">Volver</button>
@@ -106,43 +192,196 @@ defineEmits(['volver', 'pagar', 'reintentar'])
 
 <style scoped>
 
-.resumen-reserva{
-  border:1px solid #1a2138;
-  border-radius:6px;
-  overflow:hidden;
-  margin-bottom:25px;
-  max-width:480px;
+/* =========================================================
+   RESUMEN DE RESERVA
+========================================================= */
+
+.resumen-reserva {
+  width: 100%;
+  max-width: 680px;
+  margin-bottom: 28px;
+  background: #0f1629;
+  border: 1px solid #1d2740;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.18);
 }
 
-.resumen-fila{
-  display:flex;
-  justify-content:space-between;
-  padding:14px 20px;
-  border-bottom:1px solid #1a2138;
-  font-size:13px;
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.resumen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #1a2138;
 }
 
-.resumen-fila:last-child{
-  border-bottom:none;
+.resumen-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.resumen-fila span{
-  color:#7b8198;
-  letter-spacing:1px;
+.resumen-overline {
+  color: #f4b400;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
 }
 
-.resumen-fila strong{
-  color:white;
+.resumen-header h3 {
+  margin: 0;
+  color: white;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.3px;
 }
 
-.resumen-total{
-  background:#0f1629;
+.icon-ticket {
+  color: #f4b400;
+  opacity: 0.9;
 }
 
-.resumen-total strong{
-  color:#00ffd0;
-  font-size:18px;
+
+/* =========================================================
+   TRAYECTO
+========================================================= */
+
+.trayecto {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 27px 24px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(244, 180, 0, 0.04),
+      transparent 60%
+    );
 }
+
+.ciudad {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ciudad span {
+  color: #69738c;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.ciudad strong {
+  color: white;
+  font-size: 21px;
+  font-weight: 650;
+  letter-spacing: -0.4px;
+}
+
+.ciudad.destino {
+  text-align: right;
+}
+
+
+.flecha {
+  width: 42px;
+  height: 42px;
+  margin: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f4b400;
+  background: rgba(244, 180, 0, 0.07);
+  border: 1px solid rgba(244, 180, 0, 0.2);
+  border-radius: 50%;
+}
+
+
+/* =========================================================
+   DATOS DEL VIAJE
+========================================================= */
+
+.datos-viaje {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid #1a2138;
+  border-bottom: 1px solid #1a2138;
+}
+
+.dato {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  border-right: 1px solid #1a2138;
+}
+
+.dato:last-child {
+  border-right: none;
+}
+
+.dato > .q-icon {
+  color: #f4b400;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.dato > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.dato span {
+  color: #68728b;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.dato strong {
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   TOTAL
+========================================================= */
+
+.resumen-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #0c1325;
+}
+
+.resumen-total span {
+  color: #858da7;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.resumen-total strong {
+  color: #00e6bd;
+  font-size: 26px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+
 
 .acciones{
   display:flex;
@@ -187,6 +426,16 @@ defineEmits(['volver', 'pagar', 'reintentar'])
 }
 
 /* Estados intermedios (procesando / verificando / pendiente / rechazado / error) */
+.paso-pago > h2 {
+  color: #ffffff;
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: 3px;
+  margin: 0 0 25px;
+  text-transform: uppercase;
+}
+
+
 .estado-pago{
   max-width:480px;
   padding:50px 30px;
@@ -212,6 +461,99 @@ defineEmits(['volver', 'pagar', 'reintentar'])
 
 .estado-pago .acciones{
   justify-content:center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .resumen-reserva {
+    border-radius: 10px;
+  }
+
+
+  /* CABECERA */
+
+  .resumen-header {
+    padding: 17px 18px;
+  }
+
+  .resumen-header h3 {
+    font-size: 17px;
+  }
+
+
+  /* TRAYECTO */
+
+  .trayecto {
+    padding: 22px 18px;
+  }
+
+  .ciudad strong {
+    font-size: 17px;
+  }
+
+  .flecha {
+    width: 35px;
+    height: 35px;
+    margin: 0 10px;
+  }
+
+
+  /* DATOS */
+
+  .datos-viaje {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .dato {
+    padding: 15px;
+    border-right: 1px solid #1a2138;
+    border-bottom: 1px solid #1a2138;
+  }
+
+  .dato:nth-child(2n) {
+    border-right: none;
+  }
+
+  .dato:nth-child(3),
+  .dato:nth-child(4) {
+    border-bottom: none;
+  }
+
+
+  /* TOTAL */
+
+  .resumen-total {
+    padding: 18px;
+  }
+
+  .resumen-total strong {
+    font-size: 23px;
+  }
+}
+
+
+@media (max-width: 380px) {
+
+  .ciudad strong {
+    font-size: 15px;
+  }
+
+  .flecha {
+    margin: 0 6px;
+  }
+
+  .dato {
+    padding: 13px 11px;
+  }
+
+  .dato > .q-icon {
+    display: none;
+  }
+
 }
 
 </style>

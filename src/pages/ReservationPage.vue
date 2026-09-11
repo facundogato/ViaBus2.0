@@ -4,12 +4,23 @@
   <MainLayout>
 
       <!-- SUPERIOR -->
-      <div class="superior">
-        <div>
-          <h1>RESERVA DE PASAJES</h1>
-          <p>Elegí tu servicio, fecha, asiento y destino</p>
+  <div class="superior">
+      <div class="superior-contenido">
+
+        <div class="superior-etiqueta">
+         <span></span>
+          RESERVAS
         </div>
+
+      <h1>Reserva tu pasaje</h1>
+
+       <p>
+         Elegí tu destino, servicio y asiento para completar tu reserva.
+       </p>
+
       </div>
+  </div>
+
 
       <!-- STEPPER ( paso a paso )-->
       <div class="stepper">
@@ -105,150 +116,182 @@
       </div>
 
       <!-- PASO 3: ASIENTOS -->
-<div v-if="pasoActual === 2" class="paso-content">
+      <div v-if="pasoActual === 2" class="paso-content">
 
-  <h2>SELECCIONAR ASIENTO</h2>
+        <h2>SELECCIONAR ASIENTO</h2>
 
-  <p v-if="cargandoAsientos" class="sin-resultados">Cargando disponibilidad de asientos...</p>
+        <p v-if="cargandoAsientos" class="sin-resultados">
+          Cargando disponibilidad de asientos...
+        </p>
 
-  <div class="asientos-grid">
+        <div class="asientos-grid">
 
-    <div
-      v-for="asiento in asientos"
-      :key="asiento.numero"
-      class="asiento"
-      :class="{
-        ocupado: asiento.ocupado,
-        seleccionado: asientoSeleccionado === asiento.numero
-      }"
-      @click="seleccionarAsiento(asiento)"
-      @dblclick="seleccionarAsientoyBajarAlBoton(asiento)"
+          <div
+            v-for="asiento in asientos"
+            :key="asiento.numero"
+            class="asiento"
+            :class="{
+              ocupado: asiento.ocupado,
+              seleccionado: asientoSeleccionado === asiento.numero
+            }"
+            @click="seleccionarAsiento(asiento)"
+            @dblclick="seleccionarAsientoyBajarAlBoton(asiento)"
+          >
+            {{ asiento.numero }}
+          </div>
 
-    >
-      {{ asiento.numero }}
-    </div>
+        </div>
 
-  </div>
+        <div class="acciones">
+          <button class="btn-volver" @click="pasoActual--">
+            Volver
+          </button>
 
-  <div class="acciones">
-    <button class="btn-volver" @click="pasoActual--">
-      Volver
-    </button>
+          <button
+            ref="botonContinuarServicio"
+            class="btn-siguiente"
+            :disabled="!asientoSeleccionado"
+            @click="pasoActual++"
+          >
+            Continuar
+          </button>
+        </div>
 
-    <button
-      ref="botonContinuarServicio"
-      class="btn-siguiente"
-      :disabled="!asientoSeleccionado"
-      @click="pasoActual++"
-    >
-      Continuar
-    </button>
-  </div>
-
-</div>
-
-<!-- PASO 4: DATOS DEL PASAJERO -->
-<div v-if="pasoActual === 3" class="paso-content">
-
-  <h2>DATOS DEL PASAJERO</h2>
-
-  <div class="formulario">
-
-    <div class="campo">
-      <label>NOMBRE</label>
-      <input type="text" v-model="pasajero.nombre" />
-    </div>
-
-    <div class="campo">
-      <label>APELLIDO</label>
-      <input type="text" v-model="pasajero.apellido" />
-    </div>
-
-    <div class="campo">
-      <label>DOCUMENTO (CI)</label>
-      <input type="text" v-model="pasajero.documento" />
-    </div>
-
-    <div class="campo">
-      <label>EMAIL</label>
-      <input type="email" v-model="pasajero.email" />
-    </div>
-
-    <div class="campo">
-      <label>TELÉFONO</label>
-      <input type="text" v-model="pasajero.telefono" />
-    </div>
-
-  </div>
-
-  <p v-if="errorPasajero" class="error-msg">{{ errorPasajero }}</p>
-
-  <div class="acciones">
-    <button class="btn-volver" @click="pasoActual--">Volver</button>
-    <button class="btn-siguiente" :disabled="!pasajeroValido" @click="pasoActual++">
-      Continuar
-    </button>
-  </div>
-
-</div>
-
-<!-- PASO 5: PAGO -->
-<div v-if="pasoActual === 4" class="paso-content">
-
-  <PaymentStep
-    :resumen="resumenPago"
-    :fase="fasePago"
-    :mensaje-error="mensajeErrorPago"
-    @volver="pasoActual--"
-    @pagar="iniciarPago"
-    @reintentar="iniciarPago"
-  />
-
-  <!-- Botón temporal para debug (avanza al paso 6) -->
-<button
-  v-if="debugMode"
-  class="btn-debug"
-  @click="forzarConfirmacion"
->
-  ⏩ Avanzar a Confirmación
-</button>
-
-</div>
-
-<!-- PASO 6: CONFIRMACIÓN -->
-<div v-if="pasoActual === 5" class="paso-content">
-  <div class="placeholder-paso">
-    <q-icon name="check_circle" size="48px" color="positive" />
-    <h2>¡RESERVA CONFIRMADA!</h2>
-    <p v-if="reservaCreada">
-      Reserva N° {{ reservaCreada.id }} — {{ servicioSeleccionado?.origen }} → {{ servicioSeleccionado?.destino }},
-      asiento {{ asientoSeleccionado }}, total ${{ reservaCreada.total }}
-    </p>
-
-    <button class="btn-siguiente" @click="reiniciar">Hacer otra reserva</button>
-
-      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
-       <canvas ref="qrCanvas" style="background: white; padding: 10px; border-radius: 8px;" />
       </div>
-      <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
-        <button class="btn-secundario" @click="descargarQR">📥 Descargar QR</button>
-        <button class="btn-secundario" @click="reenviarCorreo">📧 Reenviar QR al correo</button>
+
+      <!-- PASO 4: DATOS DEL PASAJERO -->
+      <div v-if="pasoActual === 3" class="paso-content">
+
+        <h2>DATOS DEL PASAJERO</h2>
+
+        <div class="formulario">
+
+          <div class="campo">
+            <label>NOMBRE</label>
+            <input type="text" v-model="pasajero.nombre" />
+          </div>
+
+          <div class="campo">
+            <label>APELLIDO</label>
+            <input type="text" v-model="pasajero.apellido" />
+          </div>
+
+          <div class="campo">
+            <label>DOCUMENTO (CI)</label>
+            <input type="text" v-model="pasajero.documento" />
+          </div>
+
+          <div class="campo">
+            <label>EMAIL</label>
+            <input type="email" v-model="pasajero.email" />
+          </div>
+
+          <div class="campo">
+            <label>TELÉFONO</label>
+            <input type="text" v-model="pasajero.telefono" />
+          </div>
+
+        </div>
+
+        <p v-if="errorPasajero" class="error-msg">{{ errorPasajero }}</p>
+
+        <div class="acciones">
+          <button class="btn-volver" @click="pasoActual--">Volver</button>
+
+          <button
+            class="btn-siguiente"
+            :disabled="!pasajeroValido"
+            @click="pasoActual++"
+          >
+            Continuar
+          </button>
+        </div>
+
       </div>
-  </div>
-</div>
+
+      <!-- PASO 5: PAGO -->
+      <div v-if="pasoActual === 4" class="paso-content">
+
+        <PaymentStep
+          :resumen="resumenPago"
+          :fase="fasePago"
+          :mensaje-error="mensajeErrorPago"
+          @volver="pasoActual--"
+          @pagar="iniciarPago"
+          @reintentar="iniciarPago"
+        />
+
+        <!-- Botón temporal para debug -->
+        <button
+          v-if="debugMode"
+          class="btn-debug"
+          @click="forzarConfirmacion"
+        >
+          ⏩ Avanzar a Confirmación
+        </button>
+
+      </div>
+
+      <!-- PASO 6: CONFIRMACIÓN -->
+      <div v-if="pasoActual === 5" class="paso-content">
+
+        <div class="placeholder-paso">
+
+          <q-icon name="check_circle" size="48px" color="positive" />
+
+          <h2>¡RESERVA CONFIRMADA!</h2>
+
+          <p v-if="reservaCreada">
+            Reserva N° {{ reservaCreada.id }} —
+            {{ servicioSeleccionado?.origen }} →
+            {{ servicioSeleccionado?.destino }},
+            asiento {{ asientoSeleccionado }},
+            total ${{ reservaCreada.total }}
+          </p>
+
+          <button class="btn-siguiente" @click="reiniciar">
+            Hacer otra reserva
+          </button>
+
+          <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+            <canvas
+              ref="qrCanvas"
+              style="background: white; padding: 10px; border-radius: 8px;"
+            />
+          </div>
+
+          <div style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; flex-wrap: wrap;">
+
+            <button class="btn-secundario" @click="descargarQR">
+              📥 Descargar QR
+            </button>
+
+            <button class="btn-secundario" @click="reenviarCorreo">
+              📧 Reenviar QR al correo
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
 
   </MainLayout>
 
 </template>
 
 <script setup>
+
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { useQuasar } from 'quasar'
 import QRcode from 'qrcode'
 import { useRoute, useRouter } from 'vue-router'
+
 import MainLayout from '../layouts/MainLayout.vue'
 import PaymentStep from '../components/reservation/PaymentStep.vue'
+
 import { useAuth } from '../services/auth'
+
 import {
   getCiudades,
   buscarServicios,
@@ -258,30 +301,165 @@ import {
   getEstadoPago
 } from '../services/api'
 
+
 const { usuario, isAuthenticated } = useAuth()
 
-const pasos = ['Búsqueda', 'Servicio', 'Asiento', 'Pasajero', 'Pago', 'Confirmación']
+
+const pasos = [
+  'Búsqueda',
+  'Servicio',
+  'Asiento',
+  'Pasajero',
+  'Pago',
+  'Confirmación'
+]
+
 const pasoActual = ref(0)
 
-// ---- Ciudades (desde el backend) ----
+
+// =========================================================
+// RECUPERACIÓN DE RESERVA EN PROCESO
+// =========================================================
+
+const STORAGE_KEY = 'reserva_en_proceso'
+
+
+function guardarReservaEnProceso() {
+
+  const estado = {
+    pasoActual: pasoActual.value,
+
+    busqueda: busqueda.value,
+
+    servicioSeleccionado: servicioSeleccionado.value,
+
+    asientoSeleccionado: asientoSeleccionado.value,
+
+    pasajero: pasajero.value,
+
+    reservaCreada: reservaCreada.value,
+
+    fasePago: fasePago.value,
+
+    mensajeErrorPago: mensajeErrorPago.value
+  }
+
+  sessionStorage.setItem(
+    STORAGE_KEY,
+    JSON.stringify(estado)
+  )
+}
+
+
+function recuperarReservaEnProceso() {
+
+  const guardado = sessionStorage.getItem(STORAGE_KEY)
+
+  if (!guardado) {
+    return false
+  }
+
+  try {
+
+    const estado = JSON.parse(guardado)
+
+
+    if (estado.busqueda) {
+      busqueda.value = estado.busqueda
+    }
+
+
+    if (estado.servicioSeleccionado) {
+      servicioSeleccionado.value = estado.servicioSeleccionado
+    }
+
+
+    if (
+      estado.asientoSeleccionado !== undefined &&
+      estado.asientoSeleccionado !== null
+    ) {
+      asientoSeleccionado.value = estado.asientoSeleccionado
+    }
+
+
+    if (estado.pasajero) {
+      pasajero.value = estado.pasajero
+    }
+
+
+    if (estado.reservaCreada) {
+      reservaCreada.value = estado.reservaCreada
+    }
+
+
+    if (estado.fasePago) {
+      fasePago.value = estado.fasePago
+    }
+
+
+    if (estado.mensajeErrorPago) {
+      mensajeErrorPago.value = estado.mensajeErrorPago
+    }
+
+
+    if (typeof estado.pasoActual === 'number') {
+      pasoActual.value = estado.pasoActual
+    }
+
+
+    return true
+
+  } catch (error) {
+
+    console.error(
+      'Error recuperando reserva:',
+      error
+    )
+
+    sessionStorage.removeItem(STORAGE_KEY)
+
+    return false
+  }
+}
+
+
+// =========================================================
+// CIUDADES
+// =========================================================
+
 const ciudades = ref([])
 const cargandoCiudades = ref(false)
 const errorCiudades = ref('')
 
+
 async function cargarCiudades() {
+
   cargandoCiudades.value = true
   errorCiudades.value = ''
+
   try {
+
     const data = await getCiudades()
-    ciudades.value = data.map(c => c.nombre)
+
+    ciudades.value = data.map(
+      c => c.nombre
+    )
+
   } catch (e) {
+
     errorCiudades.value = e.message
+
   } finally {
+
     cargandoCiudades.value = false
+
   }
 }
 
-onMounted(cargarCiudades)
+
+// =========================================================
+// BÚSQUEDA
+// =========================================================
 
 const busqueda = ref({
   origen: 'Melo',
@@ -289,101 +467,233 @@ const busqueda = ref({
   fecha: new Date().toISOString().slice(0, 10)
 })
 
+
 const servicioSeleccionado = ref(null)
+
 const botonContinuarServicio = ref(null)
 
+
 function subiralPaso(paso) {
+
   pasoActual.value = paso
+
   nextTick(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+
   })
+
 }
 
 
 function seleccionarAsientoyBajarAlBoton(asiento) {
+
+  if (asiento.ocupado) {
+    return
+  }
+
   asientoSeleccionado.value = asiento.numero
+
   nextTick(() => {
+
     if (botonContinuarServicio.value) {
-      botonContinuarServicio.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      botonContinuarServicio.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+
     }
+
   })
+
 }
+
 
 function seleccionarYBajarAlBoton(servicio) {
+
   servicioSeleccionado.value = servicio
+
   nextTick(() => {
+
     if (botonContinuarServicio.value) {
-      botonContinuarServicio.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+
+      botonContinuarServicio.value.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      })
+
     }
+
   })
+
 }
 
-// ---- Búsqueda de servicios (desde el backend) ----
+
+// =========================================================
+// SERVICIOS
+// =========================================================
+
 const serviciosFiltrados = ref([])
+
 const buscando = ref(false)
+
 const errorBusqueda = ref('')
 
+
 async function buscar() {
+
   servicioSeleccionado.value = null
+
   buscando.value = true
+
   errorBusqueda.value = ''
+
   try {
-    serviciosFiltrados.value = await buscarServicios(busqueda.value.origen, busqueda.value.destino)
+
+    serviciosFiltrados.value =
+      await buscarServicios(
+        busqueda.value.origen,
+        busqueda.value.destino
+      )
+
     pasoActual.value = 1
+
   } catch (e) {
+
     errorBusqueda.value = e.message
+
   } finally {
+
     buscando.value = false
+
   }
+
 }
 
-// ---- Asientos (según el servicio elegido + ocupados reales del backend) ----
+
+// =========================================================
+// ASIENTOS
+// =========================================================
+
 const asientoSeleccionado = ref(null)
+
 const asientosOcupados = ref([])
+
 const cargandoAsientos = ref(false)
 
+
 const asientos = computed(() => {
-  const total = Number(servicioSeleccionado.value?.asientos) || 40
-  return Array.from({ length: total }, (_, i) => {
-    const numero = i + 1
-    return { numero, ocupado: asientosOcupados.value.includes(numero) }
-  })
+
+  const total =
+    Number(
+      servicioSeleccionado.value?.asientos
+    ) || 40
+
+  return Array.from(
+    { length: total },
+    (_, i) => {
+
+      const numero = i + 1
+
+      return {
+        numero,
+        ocupado:
+          asientosOcupados.value.includes(numero)
+      }
+
+    }
+  )
+
 })
+
 
 async function cargarAsientosOcupados() {
-  if (!servicioSeleccionado.value) return
-  cargandoAsientos.value = true
-  try {
-    const data = await getAsientosOcupados(servicioSeleccionado.value.id, busqueda.value.fecha)
-    asientosOcupados.value = data.asientos_ocupados || []
-  } catch {
-    asientosOcupados.value = []
-  } finally {
-    cargandoAsientos.value = false
+
+  if (!servicioSeleccionado.value) {
+    return
   }
+
+  cargandoAsientos.value = true
+
+  try {
+
+    const data =
+      await getAsientosOcupados(
+        servicioSeleccionado.value.id,
+        busqueda.value.fecha
+      )
+
+    asientosOcupados.value =
+      data.asientos_ocupados || []
+
+  } catch {
+
+    asientosOcupados.value = []
+
+  } finally {
+
+    cargandoAsientos.value = false
+
+  }
+
 }
 
-// Cada vez que se entra al paso de asientos con un servicio elegido, se
-// consultan los asientos ya reservados para esa fecha.
-watch(pasoActual, (nuevo) => {
+
+// Se usa para saber si estamos restaurando una reserva.
+// De esta forma no borramos el asiento recuperado.
+const restaurandoReserva = ref(false)
+
+
+watch(pasoActual, (nuevo, anterior) => {
+
   if (nuevo === 2) {
-    asientoSeleccionado.value = null
+
+    if (!restaurandoReserva.value) {
+      asientoSeleccionado.value = null
+    }
+
     cargarAsientosOcupados()
+
   }
+
 })
+
 
 watch(pasoActual, async () => {
+
   await nextTick()
-  const contenido = document.querySelector('.superior')
-  contenido?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+
+  const contenido =
+    document.querySelector('.superior')
+
+  contenido?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  })
+
 })
 
+
 function seleccionarAsiento(asiento) {
-  if (asiento.ocupado) return
-  asientoSeleccionado.value = asiento.numero
+
+  if (asiento.ocupado) {
+    return
+  }
+
+  asientoSeleccionado.value =
+    asiento.numero
+
 }
 
-// ---- Datos del pasajero ----
+
+// =========================================================
+// DATOS DEL PASAJERO
+// =========================================================
+
 const pasajero = ref({
   nombre: '',
   apellido: '',
@@ -392,7 +702,9 @@ const pasajero = ref({
   telefono: ''
 })
 
+
 const errorPasajero = ref('')
+
 
 const pasajeroValido = computed(() =>
   pasajero.value.nombre.trim() &&
@@ -400,234 +712,581 @@ const pasajeroValido = computed(() =>
   pasajero.value.documento.trim()
 )
 
-// ---- Pago (Mercado Pago) ----
+
+// =========================================================
+// PAGO
+// =========================================================
+
 const route = useRoute()
+
 const router = useRouter()
 
-// La búsqueda, la selección de servicio/asiento y los datos del pasajero
-// funcionan sin sesión. Recién acá, al llegar al paso de pago, se exige
-// haber iniciado sesión (si no, se manda a /login y se vuelve a /comprar).
-watch(pasoActual, (nuevo) => {
-  if (nuevo === 4 && !isAuthenticated.value) {
-    router.push({ path: '/login', query: { redirect: '/comprar' } })
-  }
-})
 
 const reservaCreada = ref(null)
 
-const fasePago = ref('resumen') // resumen | procesando | verificando | pendiente | rechazado | error
+
+const fasePago = ref('resumen')
+
 const mensajeErrorPago = ref('')
 
+
 const resumenPago = computed(() => ({
-  origen: servicioSeleccionado.value?.origen,
-  destino: servicioSeleccionado.value?.destino,
-  fecha: busqueda.value.fecha,
-  hora: servicioSeleccionado.value?.hora,
-  empresa: servicioSeleccionado.value?.empresa,
-  asiento: asientoSeleccionado.value,
-  total: reservaCreada.value?.total ?? servicioSeleccionado.value?.precio
+
+  origen:
+    servicioSeleccionado.value?.origen,
+
+  destino:
+    servicioSeleccionado.value?.destino,
+
+  fecha:
+    busqueda.value.fecha,
+
+  hora:
+    servicioSeleccionado.value?.hora,
+
+  empresa:
+    servicioSeleccionado.value?.empresa,
+
+  asiento:
+    asientoSeleccionado.value,
+
+  total:
+    reservaCreada.value?.total ??
+    servicioSeleccionado.value?.precio
+
 }))
 
-// El usuario tocó "Pagar con Mercado Pago" (o "Reintentar" tras un error/rechazo).
-async function iniciarPago() {
-  if (!servicioSeleccionado.value || !asientoSeleccionado.value) return
 
-  fasePago.value = 'procesando'
-  mensajeErrorPago.value = ''
+// =========================================================
+// LOGIN
+// =========================================================
 
-  try {
-    // 1. Crear la reserva si todavía no existe (si es un reintento, se reutiliza).
-    if (!reservaCreada.value) {
-      const data = await crearReserva({
-        servicio_id: servicioSeleccionado.value.id,
-        fecha_viaje: busqueda.value.fecha,
-        asiento: asientoSeleccionado.value,
-        total: servicioSeleccionado.value.precio,
-        pasajero: pasajero.value,
-        usuario_id: usuario.value?.id
-      })
-      reservaCreada.value = data
-    }
+// Si el usuario llega al paso de pago sin estar autenticado,
+// primero guardamos toda la reserva y después lo mandamos al login.
 
-    // 2. Crear la preferencia de pago en Mercado Pago para esa reserva.
-    const preferencia = await crearPreferenciaPago(reservaCreada.value.id)
+watch(pasoActual, (nuevo) => {
 
-    // 3. Redirigir al checkout de Mercado Pago. Al terminar (pague, cancele
-    //    o quede pendiente), Mercado Pago devuelve al usuario a esta misma
-    //    página con ?reserva_id=... en la URL (ver onMounted más abajo).
-    window.location.href = preferencia.init_point
+  if (
+    nuevo === 4 &&
+    !isAuthenticated.value
+  ) {
 
-  } catch (e) {
-    fasePago.value = 'error'
-    mensajeErrorPago.value = e.message
+    guardarReservaEnProceso()
+
+    router.push({
+      path: '/login',
+      query: {
+        redirect: '/comprar'
+      }
+    })
+
   }
-}
 
-const $q = useQuasar()
-// El usuario acaba de volver de Mercado Pago: consultamos el estado real
-// en nuestro backend (no los parámetros que agrega Mercado Pago a la URL,
-// esos son solo para la UX; la verdad la tiene el webhook).
-async function verificarPago(reservaId) {
-  pasoActual.value = 4
-  fasePago.value = 'verificando'
-
-  try {
-    const pago = await getEstadoPago(reservaId)
-    reservaCreada.value = { id: reservaId, total: pago.monto }
-
-    if (pago.estado === 'pagado') {
-      pasoActual.value = 5
-    } else if (pago.estado === 'rechazado' || pago.estado === 'cancelado') {
-      fasePago.value = 'rechazado'
-    } else {
-      // 'pendiente': todavía no llegó (o no llegará) el webhook de Mercado Pago.
-      fasePago.value = 'pendiente'
-    }
-  } catch (e) {
-    fasePago.value = 'error'
-    mensajeErrorPago.value = e.message
-  }
-}
-
-onMounted(() => {
-  if (route.query.reserva_id) {
-    const reservaId = Number(route.query.reserva_id)
-    verificarPago(reservaId)
-    // Se limpia la URL para que un refresco de página no vuelva a disparar
-    // la verificación con datos que ya podrían haber cambiado.
-    router.replace({ path: '/comprar' })
-  }
 })
 
-function reiniciar() {
-  pasoActual.value = 0
-  servicioSeleccionado.value = null
-  asientoSeleccionado.value = null
-  asientosOcupados.value = []
-  reservaCreada.value = null
-  fasePago.value = 'resumen'
+
+// =========================================================
+// INICIAR PAGO
+// =========================================================
+
+async function iniciarPago() {
+
+  if (
+    !servicioSeleccionado.value ||
+    !asientoSeleccionado.value
+  ) {
+    return
+  }
+
+  fasePago.value = 'procesando'
+
   mensajeErrorPago.value = ''
-  pasajero.value = { nombre: '', apellido: '', documento: '', email: '', telefono: '' }
-}
 
-// Función temporal para simular pago exitoso y pasar directamente a confirmación
-async function simularPagoExitoso() {
-  if (!servicioSeleccionado.value || !asientoSeleccionado.value) {
-    alert('Debes seleccionar servicio y asiento primero.');
-    return;
-  }
 
-  // Si no hay reserva, crear una simulada (sin pasar por Mercado Pago)
-  if (!reservaCreada.value) {
-    try {
-      const data = await crearReserva({
-        servicio_id: servicioSeleccionado.value.id,
-        fecha_viaje: busqueda.value.fecha,
-        asiento: asientoSeleccionado.value,
-        total: servicioSeleccionado.value.precio,
-        pasajero: pasajero.value,
-        usuario_id: usuario.value?.id
-      });
-      reservaCreada.value = data;
-    } catch (e) {
-      console.error('Error creando reserva simulada:', e);
-      alert('Error al crear reserva simulada.');
-      return;
+  try {
+
+    // 1. Crear reserva si todavía no existe.
+
+    if (!reservaCreada.value) {
+
+      const data =
+        await crearReserva({
+
+          servicio_id:
+            servicioSeleccionado.value.id,
+
+          fecha_viaje:
+            busqueda.value.fecha,
+
+          asiento:
+            asientoSeleccionado.value,
+
+          total:
+            servicioSeleccionado.value.precio,
+
+          pasajero:
+            pasajero.value,
+
+          usuario_id:
+            usuario.value?.id
+
+        })
+
+      reservaCreada.value = data
+
     }
+
+
+    // 2. Crear preferencia de Mercado Pago.
+
+    const preferencia =
+      await crearPreferenciaPago(
+        reservaCreada.value.id
+      )
+
+
+    // 3. Ir a Mercado Pago.
+
+    window.location.href =
+      preferencia.init_point
+
+
+  } catch (e) {
+
+    fasePago.value = 'error'
+
+    mensajeErrorPago.value =
+      e.message
+
   }
 
-  // Forzar paso a confirmación (paso 6)
-  pasoActual.value = 5;
 }
+
+
+// =========================================================
+// VERIFICAR PAGO
+// =========================================================
+
+const $q = useQuasar()
+
+
+async function verificarPago(reservaId) {
+
+  pasoActual.value = 4
+
+  fasePago.value = 'verificando'
+
+
+  try {
+
+    const pago =
+      await getEstadoPago(reservaId)
+
+
+    reservaCreada.value = {
+      id: reservaId,
+      total: pago.monto
+    }
+
+
+    if (pago.estado === 'pagado') {
+
+      pasoActual.value = 5
+
+    } else if (
+      pago.estado === 'rechazado' ||
+      pago.estado === 'cancelado'
+    ) {
+
+      fasePago.value = 'rechazado'
+
+    } else {
+
+      fasePago.value = 'pendiente'
+
+    }
+
+
+  } catch (e) {
+
+    fasePago.value = 'error'
+
+    mensajeErrorPago.value =
+      e.message
+
+  }
+
+}
+
+
+// =========================================================
+// INICIALIZACIÓN
+// =========================================================
+
+onMounted(() => {
+
+  cargarCiudades()
+
+
+  // Recuperamos la reserva guardada antes del login.
+  restaurandoReserva.value = true
+
+  recuperarReservaEnProceso()
+
+  restaurandoReserva.value = false
+
+
+  // Si volvimos desde Mercado Pago,
+  // verificamos el estado real de la reserva.
+
+  if (route.query.reserva_id) {
+
+    const reservaId =
+      Number(route.query.reserva_id)
+
+    verificarPago(reservaId)
+
+
+    // Limpiamos la URL.
+
+    router.replace({
+      path: '/comprar'
+    })
+
+  }
+
+})
+
+
+// =========================================================
+// REINICIAR
+// =========================================================
+
+function reiniciar() {
+
+  // MUY IMPORTANTE:
+  // borramos la reserva guardada para que
+  // una nueva reserva empiece desde cero.
+
+  sessionStorage.removeItem(
+    STORAGE_KEY
+  )
+
+
+  pasoActual.value = 0
+
+  servicioSeleccionado.value = null
+
+  asientoSeleccionado.value = null
+
+  asientosOcupados.value = []
+
+  reservaCreada.value = null
+
+  fasePago.value = 'resumen'
+
+  mensajeErrorPago.value = ''
+
+  pasajero.value = {
+    nombre: '',
+    apellido: '',
+    documento: '',
+    email: '',
+    telefono: ''
+  }
+
+}
+
+
+// =========================================================
+// SIMULACIÓN DE PAGO
+// =========================================================
+
+async function simularPagoExitoso() {
+
+  if (
+    !servicioSeleccionado.value ||
+    !asientoSeleccionado.value
+  ) {
+
+    alert(
+      'Debes seleccionar servicio y asiento primero.'
+    )
+
+    return
+  }
+
+
+  if (!reservaCreada.value) {
+
+    try {
+
+      const data =
+        await crearReserva({
+
+          servicio_id:
+            servicioSeleccionado.value.id,
+
+          fecha_viaje:
+            busqueda.value.fecha,
+
+          asiento:
+            asientoSeleccionado.value,
+
+          total:
+            servicioSeleccionado.value.precio,
+
+          pasajero:
+            pasajero.value,
+
+          usuario_id:
+            usuario.value?.id
+
+        })
+
+      reservaCreada.value = data
+
+    } catch (e) {
+
+      console.error(
+        'Error creando reserva simulada:',
+        e
+      )
+
+      alert(
+        'Error al crear reserva simulada.'
+      )
+
+      return
+
+    }
+
+  }
+
+
+  pasoActual.value = 5
+
+}
+
+
+// =========================================================
+// QR
+// =========================================================
 
 const qrCanvas = ref(null)
 
-watch([pasoActual, reservaCreada], async ([nuevoPaso, reserva]) => {
-  if (nuevoPaso === 5 && reserva && servicioSeleccionado.value) {
-    await nextTick() // espera a que el canvas esté en el DOM
-    if (qrCanvas.value) {
-      try {
-        const texto = `Reserva N° ${reserva.id} - ${servicioSeleccionado.value.origen} → ${servicioSeleccionado.value.destino}, ${busqueda.value.fecha}, asiento ${asientoSeleccionado.value}, total $${reserva.total}`
-        await QRcode.toCanvas(qrCanvas.value, texto, { width: 200 })
 
-        // Enviar el QR por correo al pasajero
-        const qrBase64 = qrCanvas.value.toDataURL('image/png')
-        await enviarQRPorCorreo(reserva.id, pasajero.value.email, qrBase64)
-      } catch (err) {
-        console.error('Error generando QR:', err)
+watch(
+  [pasoActual, reservaCreada],
+  async ([nuevoPaso, reserva]) => {
+
+    if (
+      nuevoPaso === 5 &&
+      reserva &&
+      servicioSeleccionado.value
+    ) {
+
+      await nextTick()
+
+
+      if (qrCanvas.value) {
+
+        try {
+
+          const texto =
+            `Reserva N° ${reserva.id} - ` +
+            `${servicioSeleccionado.value.origen} → ` +
+            `${servicioSeleccionado.value.destino}, ` +
+            `${busqueda.value.fecha}, ` +
+            `asiento ${asientoSeleccionado.value}, ` +
+            `total $${reserva.total}`
+
+
+          await QRcode.toCanvas(
+            qrCanvas.value,
+            texto,
+            {
+              width: 200
+            }
+          )
+
+
+          const qrBase64 =
+            qrCanvas.value.toDataURL(
+              'image/png'
+            )
+
+
+          await enviarQRPorCorreo(
+            reserva.id,
+            pasajero.value.email,
+            qrBase64
+          )
+
+
+        } catch (err) {
+
+          console.error(
+            'Error generando QR:',
+            err
+          )
+
+        }
+
       }
-    }
-  }
-})
 
-// Modo debug (puedes ponerlo en true para pruebas)
+    }
+
+  }
+)
+
+
+// =========================================================
+// DEBUG
+// =========================================================
+
 const debugMode = ref(true)
 
-// Función para forzar el paso de confirmación
+
 function forzarConfirmacion() {
+
   if (!servicioSeleccionado.value) {
-    // Si no hay servicio, creamos uno ficticio para poder probar
+
     servicioSeleccionado.value = {
+
       id: 999,
+
       origen: 'Melo',
+
       destino: 'Montevideo',
+
       hora: '08:00',
+
       empresa: 'COPSA',
+
       tipo: 'Semicama',
+
       duracion: '6h',
+
       precio: 1200,
+
       asientos: 40
+
     }
+
+
     busqueda.value.origen = 'Melo'
+
     busqueda.value.destino = 'Montevideo'
-    busqueda.value.fecha = new Date().toISOString().slice(0, 10)
+
+    busqueda.value.fecha =
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+
   }
+
+
   if (!asientoSeleccionado.value) {
     asientoSeleccionado.value = 1
   }
+
+
   if (!reservaCreada.value) {
-    // Creamos una reserva ficticia
+
     reservaCreada.value = {
+
       id: Date.now(),
-      total: servicioSeleccionado.value.precio
+
+      total:
+        servicioSeleccionado.value.precio
+
     }
+
   }
+
+
   pasoActual.value = 5
+
 }
 
-// Función para enviar el QR por correo con mejor manejo
-async function enviarQRPorCorreo(reservaId, email, qrBase64) {
+
+// =========================================================
+// ENVIAR QR POR CORREO
+// =========================================================
+
+async function enviarQRPorCorreo(
+  reservaId,
+  email,
+  qrBase64
+) {
+
   if (!email) {
+
     $q?.notify?.({
+
       type: 'warning',
-      message: 'No hay email registrado para enviar el QR.'
+
+      message:
+        'No hay email registrado para enviar el QR.'
+
     })
+
     return false
+
   }
 
+
   try {
-    const response = await fetch(`/api/reservas/enviar-qr.php?reserva_id=${reservaId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ email, qrBase64 })
-      }
-    )
+
+    const response =
+      await fetch(
+        `/api/reservas/enviar-qr.php?reserva_id=${reservaId}`,
+        {
+          method: 'POST',
+
+          headers: {
+            'Content-Type':
+              'application/json'
+          },
+
+          body: JSON.stringify({
+            email,
+            qrBase64
+          })
+        }
+      )
+
 
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(errorText || 'Error del servidor')
+
+      const errorText =
+        await response.text()
+
+      throw new Error(
+        errorText ||
+        'Error del servidor'
+      )
+
     }
 
-    const data = await response.json()
+
+    const data =
+      await response.json()
+
 
     $q?.notify?.({
+
       type: 'positive',
-      message: '✅ QR enviado a tu correo electrónico.'
+
+      message:
+        '✅ QR enviado a tu correo electrónico.'
+
     })
 
+
     return true
+
 
   } catch (error) {
 
@@ -636,38 +1295,117 @@ async function enviarQRPorCorreo(reservaId, email, qrBase64) {
       error
     )
 
+
     $q?.notify?.({
+
       type: 'negative',
-      message: '❌ No se pudo enviar el QR. Puedes descargarlo manualmente.'
+
+      message:
+        '❌ No se pudo enviar el QR. Puedes descargarlo manualmente.'
+
     })
 
+
     return false
+
   }
+
 }
 
 
+// =========================================================
+// DESCARGAR QR
+// =========================================================
 
-// Función para descargar el QR como imagen
 function descargarQR() {
-  if (!qrCanvas.value) return
-  const link = document.createElement('a')
-  link.download = `reserva-${reservaCreada.value?.id || 'qr'}.png`
-  link.href = qrCanvas.value.toDataURL('image/png')
+
+  if (!qrCanvas.value) {
+    return
+  }
+
+
+  const link =
+    document.createElement('a')
+
+
+  link.download =
+    `reserva-${reservaCreada.value?.id || 'qr'}.png`
+
+
+  link.href =
+    qrCanvas.value.toDataURL(
+      'image/png'
+    )
+
+
   link.click()
+
 }
 
-// Función para reenviar (desde el botón)
+
+// =========================================================
+// REENVIAR QR
+// =========================================================
+
 async function reenviarCorreo() {
-  if (!reservaCreada.value) return
-  if (!qrCanvas.value) return
-  const qrBase64 = qrCanvas.value.toDataURL('image/png')
-  await enviarQRPorCorreo(reservaCreada.value.id, pasajero.value.email, qrBase64)
+
+  if (!reservaCreada.value) {
+    return
+  }
+
+  if (!qrCanvas.value) {
+    return
+  }
+
+
+  const qrBase64 =
+    qrCanvas.value.toDataURL(
+      'image/png'
+    )
+
+
+  await enviarQRPorCorreo(
+    reservaCreada.value.id,
+    pasajero.value.email,
+    qrBase64
+  )
+
 }
 
+
+// =========================================================
+// GUARDADO AUTOMÁTICO
+// =========================================================
+
+// Cada cambio importante de la reserva se guarda.
+// Así, si el usuario abandona la página o va al login,
+// puede recuperar el proceso.
+
+watch(
+  [
+    pasoActual,
+    busqueda,
+    servicioSeleccionado,
+    asientoSeleccionado,
+    pasajero,
+    reservaCreada,
+    fasePago,
+    mensajeErrorPago
+  ],
+  () => {
+
+    guardarReservaEnProceso()
+
+  },
+  {
+    deep: true
+  }
+)
 
 </script>
 
 <style scoped>
+
 /* parte de los asientos */
 
 .asientos-grid {
@@ -708,387 +1446,639 @@ async function reenviarCorreo() {
 }
 
 /* saltar la columna del pasillo */
-.asiento:nth-child(4n + 3) { grid-column: 4; }
-.asiento:nth-child(4n + 4) { grid-column: 5; }
+
+.asiento:nth-child(4n + 3) {
+  grid-column: 4;
+}
+
+.asiento:nth-child(4n + 4) {
+  grid-column: 5;
+}
 
 /*fin */
 
-.superior{
-  padding-bottom:20px;
-  border-bottom:1px solid #1a2138;
-  margin-bottom:30px;
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.superior {
+  padding: 10px 0 30px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid #1a2138;
 }
 
-h1{
-  font-size:45px;
-  letter-spacing:3px;
-  color:white;
+.superior-contenido {
+  max-width: 850px;
 }
 
-.superior p{
-  color:#7b8198;
-  margin-top:8px;
-  font-size:13px;
-  letter-spacing:1px;
+
+/* Pequeña etiqueta superior */
+
+.superior-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #f4b400;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 12px;
 }
 
-/* STEPPER */
-
-.stepper{
-  display:flex;
-  align-items:center;
-  margin-bottom:35px;
-  gap:0;
+.superior-etiqueta span {
+  width: 22px;
+  height: 2px;
+  background: #f4b400;
+  display: block;
 }
 
-.paso{
-  display:flex;
-  align-items:center;
-  gap:8px;
+
+/* Título */
+
+.superior h1 {
+  margin: 0;
+  color: #ffffff;
+  font-size: clamp(38px, 5vw, 58px);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -1.5px;
 }
 
-.numero{
-  width:25px;
-  height:20px;
-  border:2px solid #1a2138;
-  border-radius:3px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:13px;
-  color:#7b8198;
-  font-weight:bold;
+
+/* Descripción */
+
+.superior p {
+  margin: 14px 0 0;
+  color: #858da7;
+  font-size: 20px;
+  line-height: 1.6;
+  letter-spacing: 0.3px;
+  max-width: 650px;
 }
 
-.paso.activo .numero{
-  background:#f4b400;
-  border-color:#f4b400;
-  color:black;
+
+/* =========================================================
+   STEPPER
+========================================================= */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 42px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.paso.completado .numero{
-  background:#00ff99;
-  border-color:#00ff99;
-  color:black;
+.stepper::-webkit-scrollbar {
+  display: none;
 }
 
-.label{
-  color:#7b8198;
-  font-size:12px;
-  letter-spacing:1px;
+.paso {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.paso.activo .label{
-  color:white;
+.numero {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #29324d;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #69718a;
+  background: #0b1023;
+  font-size: 17px;
+  font-weight: 700;
+  transition: all 0.25s ease;
 }
 
-.linea{
-  display:block;
-  width:50px;
-  height:1px;
-  background:#1a2138;
-  margin:0 12px;
+
+/* Paso actual */
+
+.paso.activo .numero {
+  background: #f4b400;
+  border-color: #f4b400;
+  color: #0b1023;
+  box-shadow:
+    0 0 0 5px rgba(244, 180, 0, 0.08);
 }
+
+
+/* Pasos terminados */
+
+.paso.completado .numero {
+  background: #00d99a;
+  border-color: #00d99a;
+  color: #07101e;
+  box-shadow:
+    0 0 0 4px rgba(0, 217, 154, 0.06);
+}
+
+.label {
+  color: #69718a;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  margin-left: 9px;
+  white-space: nowrap;
+}
+
+.paso.activo .label {
+  color: #ffffff;
+}
+
+.paso.completado .label {
+  color: #a8b0c4;
+}
+
+.linea {
+  width: 55px;
+  height: 1px;
+  background: #242c43;
+  margin: 0 14px;
+  display: block;
+}
+
 
 /* FORMULARIO */
 
-h2{
-  color:white;
-  font-size:16px;
-  letter-spacing:2px;
-  margin-bottom:25px;
+.paso-content h2 {
+  color: #ffffff;
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -0.3px;
+  margin: 0 0 24px;
 }
 
-.formulario{
-  display:flex;
-  gap:15px;
-  align-items:flex-end;
-  flex-wrap:wrap;
+.formulario {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
 }
 
-.campo{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
 }
 
-.campo label{
-  color:#7b8198;
-  font-size:11px;
-  letter-spacing:2px;
+.campo label {
+  color: #7b8198;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
 }
 
 .campo select,
-.campo input{
-  background:#0f1629;
-  border:1px solid #1a2138;
-  color:white;
-  padding:12px 15px;
-  border-radius:4px;
-  font-size:14px;
-  min-width:200px;
-  cursor:pointer;
+.campo input {
+  width: 100%;
+  min-width: 200px;
+  box-sizing: border-box;
+  background: #0c1325;
+  border: 1px solid #252e47;
+  color: #ffffff;
+  padding: 13px 15px;
+  border-radius: 7px;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
-.btn-buscar{
-  background:#f4b400;
-  color:black;
-  border:none;
-  padding:12px 28px;
-  font-weight:bold;
-  font-size:13px;
-  letter-spacing:2px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  border-radius:4px;
-  transition:0.2s;
+.campo select:hover,
+.campo input:hover {
+  border-color: #36415f;
 }
 
-.btn-buscar:hover{
-  background:#e0a300;
+.campo select:focus,
+.campo input:focus {
+  border-color: #f4b400;
+  box-shadow:
+    0 0 0 3px rgba(244, 180, 0, 0.08);
+  background: #0f172c;
 }
+
+.btn-buscar {
+  min-height: 45px;
+  background: #f4b400;
+  color: #0b1023;
+  border: none;
+  border-radius: 7px;
+  padding: 0 28px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn-buscar:hover {
+  background: #ffca28;
+  transform: translateY(-1px);
+  box-shadow:
+    0 8px 20px rgba(244, 180, 0, 0.15);
+}
+
+.btn-buscar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
 
 /* RESULTADOS */
 
-.resultados{
-  display:flex;
-  flex-direction:column;
-  gap:0;
-  border:1px solid #1a2138;
-  border-radius:6px;
-  overflow:hidden;
-  margin-bottom:20px;
+.resultados {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #1a2138;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 22px;
+  background: #0b1023;
 }
 
-.resultado-fila{
-  display:grid;
-  grid-template-columns:80px 200px 1fr 120px 140px;
-  align-items:center;
-  padding:20px 25px;
-  border-bottom:1px solid #1a2138;
-  cursor:pointer;
-  transition:0.2s;
-  gap:15px;
+.resultado-fila {
+  display: grid;
+  grid-template-columns:
+    90px
+    minmax(150px, 1.5fr)
+    1fr
+    120px
+    130px;
+
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #1a2138;
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
-.resultado-fila:last-child{
-  border-bottom:none;
+.resultado-fila:last-child {
+  border-bottom: none;
 }
 
-.resultado-fila:hover{
-  background:#0f1629;
+.resultado-fila:hover {
+  background: #10182c;
 }
 
-.resultado-fila.seleccionado{
-  background:#0f1629;
-  border-left:3px solid #f4b400;
+.resultado-fila.seleccionado {
+  background: #101a2f;
+  box-shadow:
+    inset 3px 0 0 #f4b400;
 }
 
-.res-hora{
-  color:#f4b400;
-  font-size:22px;
-  font-weight:bold;
+.res-hora {
+  color: #f4b400;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
-.res-empresa{
-  display:block;
-  color:white;
-  font-size:15px;
-  font-weight:600;
+.res-empresa {
+  display: block;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 650;
 }
 
-.res-tipo{
-  display:block;
-  color:#7b8198;
-  font-size:12px;
-  margin-top:3px;
-  letter-spacing:1px;
+.res-tipo {
+  display: block;
+  color: #707991;
+  font-size: 11px;
+  margin-top: 4px;
+  letter-spacing: 0.8px;
 }
 
-.res-duracion{
-  color:#7b8198;
-  font-size:13px;
+.res-duracion {
+  color: #858da7;
+  font-size: 13px;
 }
 
-.res-precio{
-  color:#00ffd0;
-  font-size:20px;
-  font-weight:bold;
+.res-precio {
+  color: #00e6bd;
+  font-size: 19px;
+  font-weight: 700;
 }
 
-.badge-disponible{
-  background:#1a2138;
-  color:#00ff99;
-  padding:5px 10px;
-  border-radius:3px;
-  font-size:12px;
-  border:1px solid #00ff99;
+.badge-disponible {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  background: rgba(0, 255, 153, 0.04);
+  color: #00e6a0;
+  padding: 6px 10px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: 1px solid rgba(0, 255, 153, 0.35);
 }
+
 
 /* ACCIONES */
 
-.acciones{
-  display:flex;
-  gap:15px;
-  padding: 0% 20px;
+.acciones {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 25px;
+  padding: 0;
 }
 
-.btn-volver{
-  background:transparent;
-  border:1px solid #1a2138;
-  color:#7b8198;
-  padding:12px 25px;
-  cursor:pointer;
-  font-size:13px;
-  letter-spacing:1px;
-  border-radius:4px;
-  transition:0.2s;
-  margin-top : 10px;
+.btn-volver,
+.btn-siguiente {
+  min-height: 44px;
+  border-radius: 7px;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.btn-volver:hover{
-  border-color:#7b8198;
-  color:white;
+
+.btn-volver {
+  background: transparent;
+  border: 1px solid #252e47;
+  color: #858da7;
 }
 
-.btn-siguiente{
-  background:#f4b400;
-  border:none;
-  color:black;
-  padding:12px 30px;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:bold;
-  letter-spacing:1px;
-  border-radius:4px;
-  transition:0.2s;
-  margin-top : 10px;
+.btn-volver:hover {
+  border-color: #48536f;
+  color: white;
+  background: #0f1629;
 }
 
-.btn-siguiente:disabled{
-  opacity:0.4;
-  cursor:not-allowed;
+.btn-siguiente {
+  background: #f4b400;
+  border: 1px solid #f4b400;
+  color: #0b1023;
 }
 
-.btn-siguiente:not(:disabled):hover{
-  background:#e0a300;
+.btn-siguiente:hover:not(:disabled) {
+  background: #ffca28;
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 18px rgba(244, 180, 0, 0.15);
 }
+
+.btn-siguiente:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 
 /* PLACEHOLDER */
 
-.placeholder-paso{
-  text-align:center;
-  padding:60px;
-  color:#7b8198;
+.placeholder-paso {
+  text-align: center;
+  padding: 60px;
+  color: #7b8198;
 }
 
-.placeholder-paso h2{
-  color:white;
-  font-size:25px;
-  margin:20px 0 10px;
+.placeholder-paso h2 {
+  color: white;
+  font-size: 25px;
+  margin: 20px 0 10px;
 }
+
 
 /* ESTADOS / ERRORES */
 
-.error-msg{
-  color:#ff6b6b;
-  font-size:13px;
-  margin-top:15px;
-  letter-spacing:0.5px;
+.error-msg {
+  color: #ff6b6b;
+  font-size: 13px;
+  margin-top: 15px;
+  letter-spacing: 0.5px;
 }
 
-.sin-resultados{
-  color:#7b8198;
-  font-size:13px;
-  margin-bottom:20px;
-  letter-spacing:0.5px;
+.sin-resultados {
+  color: #7b8198;
+  font-size: 13px;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
 }
+
 
 /* RESUMEN DE PAGO */
 
-.resumen-reserva{
-  border:1px solid #1a2138;
-  border-radius:6px;
-  overflow:hidden;
-  margin-bottom:25px;
-  max-width:480px;
+.resumen-reserva {
+  border: 1px solid #1a2138;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 25px;
+  max-width: 480px;
 }
 
-.resumen-fila{
-  display:flex;
-  justify-content:space-between;
-  padding:14px 20px;
-  border-bottom:1px solid #1a2138;
-  font-size:13px;
+.resumen-fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #1a2138;
+  font-size: 13px;
 }
 
-.resumen-fila:last-child{
-  border-bottom:none;
+.resumen-fila:last-child {
+  border-bottom: none;
 }
 
-.resumen-fila span{
-  color:#7b8198;
-  letter-spacing:1px;
+.resumen-fila span {
+  color: #7b8198;
+  letter-spacing: 1px;
 }
 
-.resumen-fila strong{
-  color:white;
+.resumen-fila strong {
+  color: white;
 }
 
-.resumen-total{
-  background:#0f1629;
+.resumen-total {
+  background: #0f1629;
 }
 
-.resumen-total strong{
-  color:#00ffd0;
-  font-size:18px;
+.resumen-total strong {
+  color: #00ffd0;
+  font-size: 18px;
 }
+
 
 @media (max-width: 700px) {
-  .asiento {
-    margin-left: 6px;
-    width: 57px;
-    height: 57px;
-    font-size: 14px;
+
+  .superior {
+    padding-top: 5px;
+    padding-bottom: 24px;
+    margin-bottom: 25px;
   }
 
+  .superior h1 {
+    font-size: 36px;
+    line-height: 1.08;
+    letter-spacing: -1px;
+  }
+
+  .superior p {
+    font-size: 13px;
+    max-width: 100%;
+  }
+
+  .superior-etiqueta {
+    font-size: 9px;
+    letter-spacing: 2px;
+  }
+
+
+  /* Stepper */
+
   .stepper {
-    overflow-x: auto;
+    margin-bottom: 30px;
     padding-bottom: 5px;
   }
 
-  /* En mobile no entra el texto de cada paso: se deja solo el número
-     circular (más compacto) y una línea más corta como conector. */
+  .numero {
+    width: 31px;
+    height: 31px;
+    font-size: 11px;
+  }
+
   .label {
     display: none;
   }
 
   .linea {
     width: 20px;
-    margin: 0 5px;
+    margin: 0 6px;
   }
 
-  .campo select,
-  .campo input {
-    min-width: 0;
-    width: 100%;
-  }
+
+  /* Formularios */
 
   .formulario {
     flex-direction: column;
     align-items: stretch;
+    gap: 16px;
   }
+
+  .campo {
+    width: 100%;
+  }
+
+  .campo select,
+  .campo input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .btn-buscar {
+    width: 100%;
+    min-height: 48px;
+  }
+
+
+  /* Resultados */
 
   .resultado-fila {
-    grid-template-columns: 1fr;
-    gap: 6px;
-    text-align: left;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    padding: 18px;
   }
+
+  .res-hora {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .res-info {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .res-duracion {
+    grid-column: 2;
+    grid-row: 1;
+    text-align: right;
+  }
+
+  .res-precio {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: right;
+  }
+
+  .res-estado {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
+  .badge-disponible {
+    width: 100%;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+
+  /* Acciones */
+
+  .acciones {
+    flex-direction: column-reverse;
+    width: 100%;
+  }
+
+  .btn-volver,
+  .btn-siguiente {
+    width: 100%;
+  }
+
+
+  /* Asientos */
+
+  .asientos-grid {
+    grid-template-columns:
+      repeat(2, 57px)
+      24px
+      repeat(2, 57px);
+
+    gap: 10px;
+  }
+
+  .asiento {
+    width: 57px;
+    height: 57px;
+    margin-left: 0;
+    border-radius: 9px;
+  }
+
+
+  /* Confirmación */
+
+  .placeholder-paso {
+    padding: 35px 15px;
+  }
+
 }
 
+
 /* Botón debug flotante */
+
 .btn-debug {
   position: fixed;
   bottom: 30px;
@@ -1101,10 +2091,12 @@ h2{
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+  box-shadow:
+    0 4px 12px rgba(255, 107, 53, 0.4);
   z-index: 999;
   transition: 0.2s;
 }
+
 .btn-debug:hover {
   transform: scale(1.05);
   background: #e55a2b;

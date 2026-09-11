@@ -266,213 +266,603 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
 
 <style scoped>
 
+/* =========================================================
+   PALETA
+   ========================================================= */
+
+:host {
+  --fondo: #0b1023;
+  --panel: #0f1629;
+  --borde: #1a2138;
+  --texto: #ffffff;
+  --texto-suave: #b8bfd4;
+  --texto-muted: #7b8198;
+  --amarillo: #f4b400;
+  --amarillo-hover: #ffcb2b;
+}
+
+
+/* =========================================================
+   VOLVER
+   ========================================================= */
+
 .volver {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  color: #7b8198;
+  gap: 8px;
+  margin-bottom: 30px;
+  padding: 8px 12px;
+  color: #8b92aa;
   text-decoration: none;
+  font-family: 'Inter', sans-serif;
   font-size: 12px;
-  letter-spacing: 1px;
-  margin-bottom: 25px;
-  transition: color 0.2s;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .volver:hover {
+  color: #ffffff;
+  background: #0f1629;
+  border-color: #1a2138;
+}
+
+.volver :deep(.q-icon) {
   color: #f4b400;
 }
 
+/* =========================================================
+   ESTADOS
+   ========================================================= */
+
 .estado-msg {
+  padding: 40px 0;
   color: #7b8198;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
-  letter-spacing: 1px;
+  letter-spacing: 0.05em;
+  text-align: center;
 }
 
 .estado-msg.error {
   color: #ff6b6b;
 }
 
+/* =========================================================
+   ENCABEZADO DE EMPRESA
+   ========================================================= */
+
 .encabezado {
   display: flex;
   align-items: center;
-  gap: 24px;
-  margin-bottom: 30px;
-  padding-bottom: 25px;
+  gap: 28px;
+  margin-bottom: 32px;
+  padding: 0 0 30px;
   border-bottom: 1px solid #1a2138;
 }
 
+
+/* =========================================================
+   LOGO
+   ========================================================= */
+
 .logo-wrap {
-  width: 110px;
-  height: 110px;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
+  position: relative;
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background: #ffffff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.25);
+
+  /*
+    Pequeño borde amarillo muy sutil
+  */
+  border: 1px solid rgba(244, 180, 0, 0.35);
 }
 
 .logo-wrap :deep(img) {
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  padding: 12px;
 }
 
 .logo-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  box-sizing: border-box;
   color: #0b1023;
-  font-weight: bold;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
   text-align: center;
-  padding: 8px;
-  font-size: 12px;
 }
+
+
+/* =========================================================
+   INFORMACIÓN DE EMPRESA
+   ========================================================= */
+
+.encabezado > div:last-child {
+  min-width: 0;
+}
+
+/*
+  Nombre de empresa
+*/
 
 .encabezado h1 {
-  color: white;
-  font-size: 30px;
-  letter-spacing: 1px;
+  margin: 0;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+
+  /*
+    Responsive:
+    móvil → ~35px
+    escritorio → hasta 52px
+  */
+  font-size: clamp(2.2rem, 4vw, 3.25rem);
+  font-weight: 800;
+
+  /*
+    Hace que los títulos grandes se vean
+    más elegantes y compactos.
+  */
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
 }
 
-.subtitulo {
-  color: #7b8198;
-  font-size: 12px;
-  letter-spacing: 1px;
-  margin-top: 4px;
+/*
+  Línea/acento debajo del nombre
+*/
+
+.encabezado h1::after {
+  content: '';
+  display: block;
+  width: 52px;
+  height: 3px;
+  margin-top: 14px;
+  background: #f4b400;
+  border-radius: 20px;
 }
+
+/*
+  Subtítulo
+*/
+
+.subtitulo {
+  margin: 14px 0 0;
+  color: #7b8198;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   GRILLA
+   ========================================================= */
 
 .grilla {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: minmax(0, 2fr) minmax(280px, 1fr);
+  gap: 18px;
+  width: 100%;
 }
 
+
+/* =========================================================
+   TARJETAS
+   ========================================================= */
+
 .tarjeta {
+  position: relative;
+  min-width: 0;
   background: #0f1629;
   border: 1px solid #1a2138;
-  border-radius: 10px;
-  padding: 24px;
-  grid-column: 2;
+  border-radius: 12px;
+  padding: 26px;
+  box-sizing: border-box;
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
+
+/*
+  Una pequeña línea amarilla en la parte superior
+  de la tarjeta principal
+*/
 
 .tarjeta.descripcion {
   grid-row: 1 / 3;
   grid-column: 1;
+  border-top: 2px solid #f4b400;
 }
+
+/*
+  Hover muy sutil.
+  No conviene exagerarlo en un tablero institucional.
+*/
+
+.tarjeta:hover {
+  border-color: #27304c;
+}
+
+/* =========================================================
+   TÍTULOS DE LAS TARJETAS
+   ========================================================= */
 
 .tarjeta h2 {
-  color: white;
-  font-size: 13px;
-  letter-spacing: 2px;
-  margin-bottom: 16px;
+  margin: 0 0 18px;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.tarjeta.descripcion p {
-  color: #b8bfd4;
-  font-size: 14px;
-  line-height: 1.8;
+/*
+  Pequeño detalle amarillo antes del título
+*/
+
+.tarjeta h2::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 9px;
+  vertical-align: 1px;
+  background: #f4b400;
+  border-radius: 50%;
 }
+
+/* =========================================================
+   DESCRIPCIÓN
+   ========================================================= */
+
+.tarjeta.descripcion p {
+  margin: 0;
+  color: #b8bfd4;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.85;
+}
+
+/* =========================================================
+   BOTÓN COMPRAR
+   ========================================================= */
 
 .btn-comprar {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 24px;
-  padding: 12px 22px;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 28px;
+  min-height: 46px;
+  padding: 0 20px;
+  box-sizing: border-box;
   background: #f4b400;
   color: #0b1023;
   text-decoration: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: bold;
-  letter-spacing: 1px;
-  transition: background 0.2s;
+  border-radius: 7px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .btn-comprar:hover {
   background: #ffcb2b;
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 20px rgba(244, 180, 0, 0.18);
 }
 
-.sin-datos {
-  color: #7b8198;
-  font-size: 13px;
-  line-height: 1.6;
+.btn-comprar :deep(.q-icon) {
+  font-size: 18px;
 }
+
+/* =========================================================
+   CONTACTO
+   ========================================================= */
 
 .lista-contacto {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 4px;
 }
 
 .fila-contacto {
   display: flex;
   align-items: center;
-  gap: 10px;
+  min-width: 0;
+  gap: 12px;
+  padding: 10px 8px;
   color: #b8bfd4;
+  font-family: 'Inter', sans-serif;
   font-size: 13px;
   text-decoration: none;
-  transition: color 0.2s;
+  border-radius: 6px;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
 }
 
-a.fila-contacto {
-  cursor: pointer;
-}
-
-a.fila-contacto:hover {
-  color: #f4b400;
+.fila-contacto:hover {
+  color: #ffffff;
+  background: rgba(244, 180, 0, 0.04);
 }
 
 .fila-contacto .q-icon {
+  flex-shrink: 0;
   color: #f4b400;
 }
+
+/*
+  Evita que emails o URLs rompan
+  el diseño en celulares.
+*/
+
+.fila-contacto span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   SIN DATOS
+   ========================================================= */
+
+.sin-datos {
+  margin: 0;
+  color: #7b8198;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* =========================================================
+   RUTAS
+   ========================================================= */
 
 .lista-rutas {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0;
 }
 
 .fila-ruta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 0;
+  gap: 15px;
+  padding: 12px 0;
   border-bottom: 1px solid #1a2138;
-  font-size: 13px;
+  font-family: 'Inter', sans-serif;
 }
+
 
 .fila-ruta:last-child {
   border-bottom: none;
 }
 
+/*
+  Trayecto
+*/
+
 .trayecto {
-  color: white;
   display: flex;
   align-items: center;
-  gap: 6px;
+  min-width: 0;
+  gap: 7px;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
 }
+
 
 .trayecto .q-icon {
+  flex-shrink: 0;
   color: #7b8198;
 }
+
+/*
+  Frecuencia
+*/
 
 .frecuencia {
+  flex-shrink: 0;
   color: #7b8198;
-  font-size: 11px;
-  letter-spacing: 1px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  white-space: nowrap;
 }
 
+/* =========================================================
+   TABLET (adaptacion nueva)
+   ========================================================= */
+
 @media (max-width: 900px) {
+
   .grilla {
     grid-template-columns: 1fr;
   }
+
   .tarjeta,
   .tarjeta.descripcion {
     grid-column: 1;
     grid-row: auto;
   }
+
+}
+
+
+/* =========================================================
+   CELULAR
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+  /*
+    Reducimos el espacio general
+  */
+
+  .volver {
+    margin-bottom: 22px;
+  }
+
+
+  /*
+    Encabezado vertical
+  */
+
   .encabezado {
     flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
     text-align: center;
   }
+
+
+  /*
+    Logo más chico en celular
+  */
+
+  .logo-wrap {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+  }
+
+
+  .logo-wrap :deep(img) {
+    padding: 9px;
+  }
+
+  /*
+    Nombre de empresa
+  */
+
+  .encabezado h1 {
+    font-size: clamp(2rem, 10vw, 2.7rem);
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+
+  /*
+    Centramos el detalle amarillo
+  */
+
+  .encabezado h1::after {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+
+  .subtitulo {
+    margin-top: 12px;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+  }
+
+  /*
+    Tarjetas
+  */
+
+  .tarjeta {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .tarjeta h2 {
+    margin-bottom: 15px;
+  }
+
+  /*
+    Descripción
+  */
+
+  .tarjeta.descripcion p {
+    font-size: 14px;
+    line-height: 1.75;
+  }
+
+  /*
+    Botón ocupa todo el ancho.
+    Esto es mucho más cómodo con el dedo.
+  */
+
+  .btn-comprar {
+    width: 100%;
+    margin-top: 24px;
+    min-height: 48px;
+  }
+
+  /*
+    Contacto
+  */
+
+  .fila-contacto {
+    padding: 11px 6px;
+    font-size: 12px;
+  }
+
+
+  /*
+    Rutas:
+    permitimos que la frecuencia baje
+    debajo del trayecto si falta espacio.
+  */
+
+  .fila-ruta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 5px;
+    padding: 13px 0;
+  }
+
+
+  .trayecto {
+    font-size: 13px;
+  }
+
+
+  .frecuencia {
+    margin-left: 21px;
+
+    font-size: 9px;
+  }
+
 }
+
 
 </style>
