@@ -182,9 +182,15 @@ const cargando = ref(false)
 
 async function cargarReservas() {
   if (!usuario.value) return
+
   cargando.value = true
+
   try {
     reservas.value = await getReservasUsuario(usuario.value.id)
+
+    console.log('RESERVAS:', reservas.value)
+    console.log('ES ARRAY:', Array.isArray(reservas.value))
+
   } catch (e) {
     console.error(e)
   } finally {
@@ -198,9 +204,26 @@ function fechaSalida(r) {
   return new Date(`${r.fecha_viaje}T${r.hora}`)
 }
 
-const proximos = computed(() =>
-  reservas.value.filter(r => r.estado === 'cancelada' ? false : fechaSalida(r) >= new Date())
-)
+const proximos = computed(() => {
+  console.log('--- COMPROBANDO RESERVAS ---')
+
+  reservas.value.forEach(r => {
+    console.log({
+      id: r.id,
+      fecha: r.fecha_viaje,
+      hora: r.hora,
+      estado: r.estado,
+      fechaSalida: fechaSalida(r),
+      ahora: new Date(),
+      esProximo: fechaSalida(r) >= new Date()
+    })
+  })
+
+  return reservas.value.filter(r =>
+    r.estado !== 'cancelada' &&
+    fechaSalida(r) >= new Date()
+  )
+})
 
 const historial = computed(() =>
   reservas.value.filter(r => r.estado === 'cancelada' || fechaSalida(r) < new Date())
@@ -286,6 +309,9 @@ async function guardarPassword() {
     guardandoPassword.value = false
   }
 }
+
+
+
 
 </script>
 

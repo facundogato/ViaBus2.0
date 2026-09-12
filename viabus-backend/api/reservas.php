@@ -44,9 +44,12 @@ if ($method === 'GET') {
     }
 
     // Reservas de un usuario logueado (para la página "Mi Perfil").
+    // Comment de luck: En la linea del primer Select saqué temporalmente el "r.estado_pago" hasta que se arregle bien
+    // el tema de la base de datos y el mercado pago
     if (isset($_GET['usuario_id'])) {
         $stmt = $pdo->prepare("
-            SELECT r.id, r.fecha_viaje, r.asiento, r.estado, r.estado_pago, r.total, r.created_at,
+
+            SELECT r.id, r.fecha_viaje, r.asiento, r.estado, r.total, r.created_at,
                    s.id AS servicio_id, s.hora, s.tipo, s.anden, s.bus,
                    c_o.nombre AS origen, c_d.nombre AS destino,
                    e.nombre   AS empresa,
