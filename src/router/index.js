@@ -12,6 +12,7 @@ import LoginPage from '../pages/LoginPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import CompanyDetailPage from '../pages/CompanyDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import VerificarCorreo from '../pages/VerificarCorreo.vue'
 
 const routes = [
 
@@ -74,7 +75,12 @@ const routes = [
   {
     path: '/:catchAll(.*)*',
     component: NotFoundPage
-  }
+  },
+
+  {
+    path: '/verificar-correo',
+    component: VerificarCorreo
+  },
 
 ]
 

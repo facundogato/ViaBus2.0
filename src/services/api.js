@@ -50,6 +50,13 @@ export function registrarse(payload) {
   })
 }
 
+// Funcion para verificar el correo
+export function verificarCorreo(token) {
+  return request(
+    `auth.php?action=verify&token=${encodeURIComponent(token)}`
+  )
+}
+
 // ---- Ciudades ----
 export function getCiudades() {
   return request('ciudades.php')

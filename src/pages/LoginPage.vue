@@ -1,109 +1,148 @@
-<!-- Página de INICIO DE SESIÓN y REGISTRO (ruta /login).
-     Tiene dos tarjetas: la de la izquierda para entrar con una
-     cuenta ya creada, y la de la derecha para registrarse. -->
-
+<!-- Página de inicio de sesión y registro (ruta /login). Antes: PaginaInicioSesion.vue -->
 <template>
 
   <MainLayout>
 
-    <!-- Pantalla completa, con todo centrado -->
-    <div class="login-page flex flex-center">
+      <!-- Contenedor del login centrado en la pantalla -->
+      <div class="login-page flex flex-center">
 
-      <!-- Agrupa las dos tarjetas (se superponen un poco) -->
-      <div class="login-container row items-center no-wrap">
+        <!-- Contenedor que agrupa las dos tarjetas -->
+        <div class="login-container row items-center no-wrap">
 
-        <!-- ===================== TARJETA LOGIN ===================== -->
-        <q-card flat class="login-card">
+          <!-- ===================== TARJETA LOGIN ===================== -->
+          <q-card flat class="login-card">
 
-          <!-- Logo de la app -->
-          <div class="text-center q-mb-lg">
-            <img :src="logo" alt="Logo" class="logo-small">
-          </div>
+            <!-- Logo -->
+            <div class="text-center q-mb-lg">
+              <img
+                :src="logo"
+                alt="Logo"
+                class="logo-small"
+              >
+            </div>
 
-          <h3 class="title">
-            Inicia sesión en
-            <span class="brand">ViaBus</span>
-          </h3>
+            <!-- Título -->
+            <h3 class="title">
+              Inicia sesión en
+              <span class="brand">ViaBus</span>
+            </h3>
 
-          <!-- Campo de correo. @keyup.enter: si aprietas Enter,
-               hace el login sin necesidad de tocar el botón -->
-          <q-input
-            v-model="loginForm.email"
-            outlined dark type="email"
-            label="Correo electrónico"
-            color="white"
-            class="q-mb-md"
-            @keyup.enter="hacerLogin"
-          />
-
-          <!-- Campo de contraseña (muestra puntitos, no el texto) -->
-          <q-input
-            v-model="loginForm.password"
-            outlined dark
-            label="Contraseña"
-            type="password"
-            color="white"
-            @keyup.enter="hacerLogin"
-          />
-
-          <!-- Mensaje de error si el login falla -->
-          <p v-if="errorLogin" class="error-msg">{{ errorLogin }}</p>
-
-          <!-- Botón de entrar. Mientras espera respuesta dice
-               "Ingresando..." y se desactiva -->
-          <div class="text-center q-mt-xl">
-            <q-btn
-              rounded outline color="white"
-              :label="cargandoLogin ? 'Ingresando...' : 'Iniciar Sesión'"
-              :disable="cargandoLogin"
-              class="login-btn"
-              @click="hacerLogin"
+            <!-- Campo para ingresar el correo -->
+            <q-input
+              v-model="loginForm.email"
+              outlined
+              dark
+              type="email"
+              label="Correo electrónico"
+              color="white"
+              class="q-mb-md"
+              @keyup.enter="hacerLogin"
             />
-          </div>
 
-        </q-card>
+            <!-- Campo para ingresar la contraseña -->
+            <q-input
+              v-model="loginForm.password"
+              outlined
+              dark
+              label="Contraseña"
+              type="password"
+              color="white"
+              @keyup.enter="hacerLogin"
+            />
 
-        <!-- ===================== TARJETA REGISTRO ===================== -->
-        <q-card flat class="register-card">
+            <p v-if="errorLogin" class="error-msg">{{ errorLogin }}</p>
 
-          <h4 class="register-title">¿Aún no estás registrado?</h4>
+            <!-- Botón para iniciar sesión -->
+            <div class="text-center q-mt-xl">
+              <q-btn
+                rounded
+                outline
+                color="white"
+                :label="cargandoLogin ? 'Ingresando...' : 'Iniciar Sesión'"
+                :disable="cargandoLogin"
+                class="login-btn"
+                @click="hacerLogin"
+              />
+            </div>
 
-          <img :src="logo" alt="Logo" class="logo-big">
+          </q-card>
 
-          <!-- Los 4 campos para crear la cuenta -->
-          <div class="registro-form">
-            <q-input v-model="registerForm.nombre" outlined dark dense label="Nombre" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.apellido" outlined dark dense label="Apellido" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.email" outlined dark dense type="email" label="Correo electrónico" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.password" outlined dark dense type="password" label="Contraseña" color="white" class="q-mb-sm" />
+          <!-- ===================== TARJETA REGISTRO ===================== -->
+          <q-card flat class="register-card">
 
-            <!-- Error (rojo) o éxito (verde) del registro -->
-            <p v-if="errorRegistro" class="error-msg">{{ errorRegistro }}</p>
-            <p v-if="mensajeRegistro" class="ok-msg">{{ mensajeRegistro }}</p>
-          </div>
+            <!-- Título -->
+            <h4 class="register-title">
+              ¿Aún no estás registrado?
+            </h4>
 
-          <!-- Botón para crear la cuenta -->
-          <q-btn
-            rounded outline color="white"
-            :label="cargandoRegistro ? 'Creando...' : 'Crear cuenta'"
-            :disable="cargandoRegistro"
-            class="register-btn"
-            @click="hacerRegistro"
-          />
+            <!-- Logo grande -->
+            <img
+              :src="logo"
+              alt="Logo"
+              class="logo-big"
+            >
 
-        </q-card>
+            <!-- Formulario de registro -->
+            <div class="registro-form">
+
+              <q-input
+                v-model="registerForm.nombre"
+                outlined dark dense
+                label="Nombre"
+                color="white"
+                class="q-mb-sm"
+              />
+              <q-input
+                v-model="registerForm.apellido"
+                outlined dark dense
+                label="Apellido"
+                color="white"
+                class="q-mb-sm"
+              />
+              <q-input
+                v-model="registerForm.email"
+                outlined dark dense
+                type="email"
+                label="Correo electrónico"
+                color="white"
+                class="q-mb-sm"
+              />
+              <q-input
+                v-model="registerForm.password"
+                outlined dark dense
+                type="password"
+                label="Contraseña"
+                color="white"
+                class="q-mb-sm"
+              />
+
+              <p v-if="errorRegistro" class="error-msg">{{ errorRegistro }}</p>
+              <p v-if="mensajeRegistro" class="ok-msg">{{ mensajeRegistro }}</p>
+
+            </div>
+
+            <!-- Botón para crear una cuenta -->
+            <q-btn
+              rounded
+              outline
+              color="white"
+              :label="cargandoRegistro ? 'Creando...' : 'Crear cuenta'"
+              :disable="cargandoRegistro"
+              class="register-btn"
+              @click="hacerRegistro"
+            />
+
+          </q-card>
+
+        </div>
 
       </div>
-
-    </div>
 
   </MainLayout>
 
 </template>
 
 <script setup>
-// Lógica: manejar el login y el registro hablando con el servidor,
-// y guardar la sesión del usuario cuando entra.
 
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -112,26 +151,23 @@ import logo from '../assets/logo1.jpg'
 import { login, registrarse } from '../services/api'
 import { useAuth } from '../services/auth'
 
-const route = useRoute()   // para leer la dirección actual
-const router = useRouter() // para navegar a otra página
-const { guardarSesion } = useAuth() // guarda que el usuario ya entró
+const route = useRoute()
+const router = useRouter()
+const { guardarSesion } = useAuth()
 
-// Si el usuario llegó acá porque quería entrar a una página
-// protegida (ej: pagar un pasaje), esa página deja guardado en la
-// dirección adónde quería ir (?redirect=...). Después del login
-// lo mandamos justo ahí. Si no venía de ningún lado, va al inicio.
+// Si llegamos acá desde una ruta protegida (ej. el paso de pago),
+// después de loguearnos volvemos a esa misma ruta.
 function irLuegoDeAutenticar() {
   const destino = typeof route.query.redirect === 'string' ? route.query.redirect : '/terminal'
   router.push(destino)
 }
 
-// ---- LOGIN ----
+// ---- Login ----
 const loginForm = ref({ email: '', password: '' })
 const cargandoLogin = ref(false)
 const errorLogin = ref('')
 
 async function hacerLogin() {
-  // Primero: que no falte nada
   if (!loginForm.value.email || !loginForm.value.password) {
     errorLogin.value = 'Completá correo y contraseña'
     return
@@ -139,20 +175,17 @@ async function hacerLogin() {
   cargandoLogin.value = true
   errorLogin.value = ''
   try {
-    // Le pedimos al servidor que valide los datos
     const usuario = await login(loginForm.value.email, loginForm.value.password)
-    // Si anduvo: guardamos la sesión y nos vamos a donde correspondía
     guardarSesion(usuario)
     irLuegoDeAutenticar()
   } catch (e) {
-    // Datos mal o servidor caído: mostramos el motivo
     errorLogin.value = e.message
   } finally {
     cargandoLogin.value = false
   }
 }
 
-// ---- REGISTRO ----
+// ---- Registro ----
 const registerForm = ref({ nombre: '', apellido: '', email: '', password: '' })
 const cargandoRegistro = ref(false)
 const errorRegistro = ref('')
@@ -160,7 +193,6 @@ const mensajeRegistro = ref('')
 
 async function hacerRegistro() {
   const { nombre, apellido, email, password } = registerForm.value
-  // Que estén los 4 campos completos
   if (!nombre || !apellido || !email || !password) {
     errorRegistro.value = 'Completá todos los campos'
     return
@@ -169,14 +201,10 @@ async function hacerRegistro() {
   errorRegistro.value = ''
   mensajeRegistro.value = ''
   try {
-    // Creamos la cuenta en el servidor
-    const usuario = await registrarse({ nombre, apellido, email, password })
-    // Si salió bien, ya queda logueado directo (sin volver a poner los datos)
-    guardarSesion(usuario)
-    mensajeRegistro.value = '¡Cuenta creada! Ingresando...'
-    // Esperamos medio segundo para que le dé tiempo a leer el mensaje,
-    // y después lo mandamos a la página que correspondía
-    setTimeout(irLuegoDeAutenticar, 600)
+
+    await registrarse({ nombre, apellido, email, password })
+    mensajeRegistro.value = '¡Cuenta creada! Revisá tu correo para confirmar tu cuenta.'
+
   } catch (e) {
     errorRegistro.value = e.message
   } finally {
