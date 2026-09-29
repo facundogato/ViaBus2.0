@@ -8,23 +8,66 @@ handlePreflight();
 $pdo = getConnection();
 $method = $_SERVER['REQUEST_METHOD'];
 
+// NOTA: Todos los viajes salen desde Melo, así que no hay columna origen_id.
+// La columna "origen" se asume como constante (Melo) en todas las queries.
+
 // GET /api/servicios.php              → todos los servicios activos
 // GET /api/servicios.php?id=5         → un servicio por ID
-// GET /api/servicios.php?origen=Melo&destino=Montevideo  → búsqueda
+// GET /api/servicios.php?destino=Montevideo  → búsqueda por destino
 // POST /api/servicios.php             → crear servicio (admin)
 // PUT  /api/servicios.php?id=5        → editar servicio (admin)
 // DELETE /api/servicios.php?id=5      → desactivar servicio (admin)
+
+// --------------------------------------------------------------------
+// Helpers para interpretar la columna "dias" (texto libre en español).
+// --------------------------------------------------------------------
+
+const ORDEN_DIAS = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+
+function normalizarTexto(string $s): string {
+    $s = mb_strtolower(trim($s), 'UTF-8');
+    $mapa = ['á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u'];
+    return strtr($s, $mapa);
+}
+
+// $diasTexto es el valor crudo de la columna "dias" (puede ser NULL,
+// 'Todos', 'Lunes a Viernes', 'Lunes, Martes, Viernes, Sábado', 'Domingo', etc.)
+// $diaSemana es 0=domingo … 6=sábado (mismo formato que PHP date('w')).
+function servicioCorreEseDia(?string $diasTexto, int $diaSemana): bool {
+    if ($diasTexto === null || trim($diasTexto) === '') return true; // sin dato = corre siempre
+
+    $texto = normalizarTexto($diasTexto);
+    if ($texto === 'todos') return true;
+
+    $diaBuscado = ORDEN_DIAS[$diaSemana];
+
+    // Rango: "lunes a viernes", "domingo a viernes", "lunes a sabado"
+    if (preg_match('/^(\w+)\s+a\s+(\w+)$/', $texto, $m)) {
+        $inicio = array_search($m[1], ORDEN_DIAS);
+        $fin    = array_search($m[2], ORDEN_DIAS);
+        if ($inicio === false || $fin === false) return false;
+
+        if ($inicio <= $fin) {
+            return $diaSemana >= $inicio && $diaSemana <= $fin;
+        }
+        // rango que da la vuelta (ej: "viernes a lunes")
+        return $diaSemana >= $inicio || $diaSemana <= $fin;
+    }
+
+    // Lista separada por comas: "lunes, martes, viernes, sabado"
+    $partes = array_map('trim', explode(',', $texto));
+    return in_array($diaBuscado, $partes, true);
+}
 
 if ($method === 'GET') {
 
     // Detalle por ID
     if (isset($_GET['id'])) {
         $stmt = $pdo->prepare("
-            SELECT s.id, c_o.nombre AS origen, c_d.nombre AS destino,
+            SELECT s.id, 'Melo' AS origen, c_d.nombre AS destino,
                    e.nombre AS empresa, e.logo AS empresa_logo, s.hora, s.tipo,
-                   s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado, s.activo
+                   s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado, s.activo, s.dias
             FROM servicios s
-            JOIN ciudades c_o ON s.origen_id  = c_o.id
             JOIN ciudades c_d ON s.destino_id = c_d.id
             JOIN empresas e   ON s.empresa_id = e.id
             WHERE s.id = ?
@@ -35,62 +78,75 @@ if ($method === 'GET') {
         sendResponse($row);
     }
 
-    // Búsqueda por origen + destino
-    if (isset($_GET['origen']) && isset($_GET['destino'])) {
-        $stmt = $pdo->prepare("
-            SELECT s.id, c_o.nombre AS origen, c_d.nombre AS destino,
+    // Búsqueda por destino (origen siempre es Melo)
+    if (isset($_GET['destino'])) {
+        $sql = "
+            SELECT s.id, 'Melo' AS origen, c_d.nombre AS destino,
                    e.nombre AS empresa, e.logo AS empresa_logo, s.hora,
-                   s.tipo, s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado
+                   s.tipo, s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado, s.dias
             FROM servicios s
-            JOIN ciudades c_o ON s.origen_id  = c_o.id
             JOIN ciudades c_d ON s.destino_id = c_d.id
             JOIN empresas e   ON s.empresa_id = e.id
-            WHERE c_o.nombre = ? AND c_d.nombre = ? AND s.activo = 1
+            WHERE c_d.nombre = ? AND s.activo = 1
             ORDER BY s.hora
-        ");
-        $stmt->execute([$_GET['origen'], $_GET['destino']]);
-        sendResponse($stmt->fetchAll());
+        ";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$_GET['destino']]);
+        $servicios = $stmt->fetchAll();
+
+        // Si el frontend mandó una fecha, filtramos en PHP por día de la semana
+        // (la columna "dias" es texto libre: "Todos", rangos, listas — no se
+        // puede resolver de forma confiable con un LIKE en SQL).
+        if (!empty($_GET['fecha'])) {
+            $fecha = DateTime::createFromFormat('Y-m-d', $_GET['fecha']);
+            if ($fecha) {
+                $diaSemana = (int)$fecha->format('w'); // 0=domingo … 6=sábado
+                $servicios = array_values(array_filter(
+                    $servicios,
+                    fn($s) => servicioCorreEseDia($s['dias'], $diaSemana)
+                ));
+            }
+        }
+
+        sendResponse($servicios);
     }
 
     // Todos los servicios
     $stmt = $pdo->query("
-        SELECT s.id, c_o.nombre AS origen, c_d.nombre AS destino,
+        SELECT s.id, 'Melo' AS origen, c_d.nombre AS destino,
                e.nombre AS empresa, e.logo AS empresa_logo, s.hora,
-               s.tipo, s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado, s.activo
+               s.tipo, s.duracion, s.precio, s.asientos, s.anden, s.bus, s.estado, s.activo, s.dias
         FROM servicios s
-        JOIN ciudades c_o ON s.origen_id  = c_o.id
         JOIN ciudades c_d ON s.destino_id = c_d.id
         JOIN empresas e   ON s.empresa_id = e.id
         WHERE s.activo = 1
-        ORDER BY c_o.nombre, s.hora
+        ORDER BY s.hora
     ");
     sendResponse($stmt->fetchAll());
 }
 
 if ($method === 'POST') {
     $body = getRequestBody();
-    $required = ['origen', 'destino', 'empresa', 'hora', 'tipo'];
+    // Origen es Melo siempre, no se pide en el POST
+    $required = ['destino', 'empresa', 'hora', 'tipo'];
     foreach ($required as $field) {
         if (empty($body[$field])) sendError("El campo '$field' es obligatorio");
     }
 
-    // Resolver IDs
-    $stmtO   = $pdo->prepare("SELECT id FROM ciudades WHERE nombre = ?"); $stmtO->execute([$body['origen']]);
+    // Resolver IDs (origen no se necesita porque es siempre Melo)
     $stmtD   = $pdo->prepare("SELECT id FROM ciudades WHERE nombre = ?"); $stmtD->execute([$body['destino']]);
     $stmtE   = $pdo->prepare("SELECT id FROM empresas  WHERE nombre = ?"); $stmtE->execute([$body['empresa']]);
-    $oid = $stmtO->fetchColumn();
     $did = $stmtD->fetchColumn();
     $eid = $stmtE->fetchColumn();
-    if (!$oid) sendError('Ciudad de origen no encontrada');
     if (!$did) sendError('Ciudad de destino no encontrada');
     if (!$eid) sendError('Empresa no encontrada');
 
     $stmt = $pdo->prepare("
-        INSERT INTO servicios (origen_id,destino_id,empresa_id,hora,tipo,duracion,precio,asientos,anden,bus,estado)
+        INSERT INTO servicios (destino_id,empresa_id,hora,tipo,duracion,precio,asientos,anden,bus,estado,dias)
         VALUES (?,?,?,?,?,?,?,?,?,?,?)
     ");
     $stmt->execute([
-        $oid, $did, $eid,
+        $did, $eid,
         $body['hora'],
         $body['tipo'],
         $body['duracion'] ?? null,
@@ -99,6 +155,7 @@ if ($method === 'POST') {
         $body['anden']    ?? null,
         $body['bus']      ?? null,
         $body['estado']   ?? 'horario',
+        $body['dias']     ?? null,
     ]);
     sendResponse(['id' => $pdo->lastInsertId(), 'message' => 'Servicio creado'], 201);
 }
@@ -110,8 +167,7 @@ if ($method === 'PUT') {
 
     $fields = [];
     $values = [];
-   foreach (['hora','tipo','duracion','precio','asientos','bus'] as $f) {
-
+    foreach (['hora','tipo','duracion','precio','asientos','bus','dias'] as $f) {
         if (array_key_exists($f, $body)) {
             $fields[] = "$f = ?";
             $values[] = $body[$f];

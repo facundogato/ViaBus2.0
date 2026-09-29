@@ -35,17 +35,26 @@ function obtenerEmpresa(PDO $pdo, int $id): void {
     // Rutas que opera esta empresa, con la cantidad de frecuencias diarias
     // de cada una. Es información real, calculada a partir de sus
     // servicios activos (no hay que cargarla a mano en ningún lado).
+    // Nota: todos los servicios parten de Melo (no existe origen_id en la
+    // tabla servicios, el origen es fijo por diseño), así que el origen
+    // se agrega a mano acá y no se consulta a la base.
     $stmt = $pdo->prepare("
-        SELECT c_o.nombre AS origen, c_d.nombre AS destino, COUNT(*) AS frecuencias
+        SELECT c_d.nombre AS destino, COUNT(*) AS frecuencias
         FROM servicios s
-        JOIN ciudades c_o ON s.origen_id  = c_o.id
         JOIN ciudades c_d ON s.destino_id = c_d.id
         WHERE s.empresa_id = ? AND s.activo = 1
-        GROUP BY c_o.nombre, c_d.nombre
-        ORDER BY c_o.nombre, c_d.nombre
+        GROUP BY c_d.nombre
+        ORDER BY c_d.nombre
     ");
     $stmt->execute([$id]);
-    $empresa['rutas'] = $stmt->fetchAll();
+    $rutas = $stmt->fetchAll();
+
+    foreach ($rutas as &$r) {
+        $r['origen'] = 'Melo';
+    }
+    unset($r);
+
+    $empresa['rutas'] = $rutas;
 
     sendResponse($empresa);
 }

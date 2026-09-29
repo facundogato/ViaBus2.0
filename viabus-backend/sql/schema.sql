@@ -50,18 +50,20 @@ CREATE TABLE ciudades (
 );
 
 CREATE TABLE servicios (
-    id SERIAL PRIMARY KEY,
-    destino_id INT NOT NULL,
-    empresa_id INT NOT NULL,
-    hora TIME NOT NULL,
-    tipo VARCHAR(50) NOT NULL DEFAULT 'De Linea',
-    duracion VARCHAR(20),
-    precio DECIMAL(10,2),
-    asientos INT,
-    anden VARCHAR(10),
-    bus VARCHAR(20) NOT NULL,
-    estado VARCHAR(20) DEFAULT 'horario',
-    dias VARCHAR(100) NOT NULL,
+    id          SERIAL PRIMARY KEY,
+    destino_id  INT NOT NULL,
+    empresa_id  INT NOT NULL,
+    hora        VARCHAR(5) NOT NULL,
+    tipo        VARCHAR(80) NOT NULL DEFAULT 'De Linea',
+    duracion    VARCHAR(50) DEFAULT NULL,
+    precio      DECIMAL(10,2) DEFAULT NULL,
+    asientos    INTEGER DEFAULT 40,
+    anden       VARCHAR(10) DEFAULT NULL,
+    bus         VARCHAR(30) DEFAULT NULL,
+    estado      VARCHAR(20) DEFAULT 'horario',
+    activo      INTEGER DEFAULT 1,
+    dias        VARCHAR(60) DEFAULT NULL,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (destino_id) REFERENCES ciudades(id),
     FOREIGN KEY (empresa_id) REFERENCES empresas(id)
 );

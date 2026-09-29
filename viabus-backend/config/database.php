@@ -25,13 +25,24 @@ function getConnection(): PDO {
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-            // Si la tabla principal no existe todavía, inicializamos el
-            // esquema completo (equivalente a lo que antes hacía SQLite
-            // automáticamente al crear el archivo .sqlite).
+            // Verificar si la tabla principal Y la columna "dias" existen.
+            // Esto permite reinicializar la BD cuando actualizás schema.sql
+            // (sin tener que borrarla manualmente). Si alguna de las dos
+            // no existe, se ejecuta el script completo de schema.sql.
             $stmt = $pdo->query("SELECT to_regclass('public.usuarios')");
-            $existe = $stmt->fetchColumn();
+            $existe_usuarios = $stmt->fetchColumn();
+            
+            $stmt = $pdo->query("
+                SELECT EXISTS(
+                    SELECT 1 FROM information_schema.columns 
+                    WHERE table_name='servicios' AND column_name='dias'
+                )
+            ");
+            $existe_dias = $stmt->fetchColumn();
 
-            if (!$existe && file_exists(DB_SCHEMA)) {
+            // Si no existe la tabla de usuarios O no existe la columna "dias"
+            // en servicios, es porque schema.sql se actualizó. Reinicializamos todo.
+            if ((!$existe_usuarios || !$existe_dias) && file_exists(DB_SCHEMA)) {
                 $pdo->exec(file_get_contents(DB_SCHEMA));
             }
         } catch (PDOException $e) {

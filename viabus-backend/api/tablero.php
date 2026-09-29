@@ -25,16 +25,17 @@ if ($method === 'GET') {
     $hoy   = date('Y-m-d');
     $ahora = date('H:i');
 
+    // Todos los viajes salen desde Melo, así que no necesitamos hacer JOIN
+    // a origen. Solo traemos los servicios activos ordenados por hora.
     $stmt = $pdo->prepare("
         SELECT s.id, c_d.nombre AS destino, e.nombre AS empresa, e.logo AS empresa_logo,
                s.hora, s.tipo, s.bus,
                COALESCE(ed.demorado, 0) AS demorado
         FROM servicios s
         JOIN ciudades c_d ON s.destino_id = c_d.id
-        JOIN ciudades c_o ON s.origen_id  = c_o.id
         JOIN empresas e   ON s.empresa_id = e.id
         LEFT JOIN estado_diario ed ON ed.servicio_id = s.id AND ed.fecha = ?
-        WHERE c_o.nombre = 'Melo' AND s.activo = 1
+        WHERE s.activo = 1
         ORDER BY s.hora
     ");
     $stmt->execute([$hoy]);

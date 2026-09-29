@@ -462,11 +462,9 @@ async function cargarCiudades() {
 // =========================================================
 
 const busqueda = ref({
-  origen: 'Melo',
-  destino: 'Montevideo',
-  fecha: new Date().toISOString().slice(0, 10)
+  destino: 'Montevideo',  // ← IMPORTANTE: un destino válido
+  fecha: new Date().toISOString().slice(0, 10), // ← hoy
 })
-
 
 const servicioSeleccionado = ref(null)
 
@@ -556,9 +554,9 @@ async function buscar() {
 
     serviciosFiltrados.value =
       await buscarServicios(
-        busqueda.value.origen,
-        busqueda.value.destino
-      )
+    busqueda.value.destino,
+    busqueda.value.fecha
+ )
 
     pasoActual.value = 1
 

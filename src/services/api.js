@@ -56,8 +56,8 @@ export function getEmpresa(id) {
 }
 
 // ---- Servicios ----
-export function buscarServicios(origen, destino) {
-  const params = new URLSearchParams({ origen, destino })
+export function buscarServicios(destino, fecha) {
+  const params = new URLSearchParams({ destino, fecha })
   return request(`servicios.php?${params}`)
 }
 
