@@ -292,10 +292,10 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
   gap: 8px;
   margin-bottom: 30px;
   padding: 8px 12px;
-  color: #8b92aa;
+  color: var(--color-texto-suave);
   text-decoration: none;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.04em;
   border: 1px solid transparent;
@@ -448,9 +448,9 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
 
 .subtitulo {
   margin: 14px 0 0;
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -476,7 +476,7 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
 .tarjeta {
   position: relative;
   min-width: 0;
-  background: #0f1629;
+  background: var(--color-tarjeta);
   border: 1px solid #1a2138;
   border-radius: 12px;
   padding: 26px;
@@ -514,7 +514,7 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
   margin: 0 0 18px;
   color: #ffffff;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: 14.5px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -541,9 +541,9 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
 
 .tarjeta.descripcion p {
   margin: 0;
-  color: #b8bfd4;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 400;
   line-height: 1.85;
 }
@@ -602,9 +602,9 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
   min-width: 0;
   gap: 12px;
   padding: 10px 8px;
-  color: #b8bfd4;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
-  font-size: 13px;
+  font-size: 17px;
   text-decoration: none;
   border-radius: 6px;
   transition:
@@ -679,7 +679,7 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
   min-width: 0;
   gap: 7px;
   color: #ffffff;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 500;
 }
 
@@ -695,8 +695,8 @@ watch(() => route.params.id, (nuevoId) => cargarEmpresa(nuevoId))
 
 .frecuencia {
   flex-shrink: 0;
-  color: #7b8198;
-  font-size: 10px;
+  color: var(--color-texto-secundario);
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.08em;
   text-transform: uppercase;

@@ -41,7 +41,7 @@
   align-items: center;
   gap: 18px;
   width: 50%;
-  background: #0f1629;
+  background: var(--color-tarjeta);
   border: 1px solid #1a2138;
   border-radius: 10px;
   padding: 24px 28px;

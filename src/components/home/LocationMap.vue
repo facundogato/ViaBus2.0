@@ -31,7 +31,7 @@
   align-items: center;
   gap: 10px;
   padding: 14px 20px;
-  background: #0f1629;
+  background: var(--color-tarjeta);
   border-bottom: 1px solid #1a2138;
   color: #7b8198;
   font-size: 12px;
@@ -42,5 +42,11 @@ iframe {
   display: block;
   border: none;
   filter: grayscale(30%) invert(5%);
+}
+
+.mapa-header span {
+  font-size: 14px;
+  color: var(--color-texto-suave);
+  font-weight: bold;
 }
 </style>

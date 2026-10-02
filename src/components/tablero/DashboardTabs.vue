@@ -42,7 +42,7 @@ const tabs = [
 
 .tab{
   padding:14px 28px;
-  background:transparent;
+  background: var(--color-tarjeta);
   border:none;
   color:#7b8198;
   font-size:12px;

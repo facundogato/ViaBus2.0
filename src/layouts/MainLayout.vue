@@ -15,16 +15,18 @@
 <template>
   <div class="layout">
 
-    <div class="layout-body">
-      <AppSidebar v-model="sidebarAbierta" />
+    <AppSidebar v-model="sidebarAbierta" />
 
-      <div class="contenido" :class="{ 'contenido--full': !sidebarAbierta }">
+    <!-- Columna principal: se corre/ensancha según el sidebar.
+         Adentro van el contenido y el footer, así ambos reaccionan igual. -->
+    <div class="principal" :class="{ 'principal--full': !sidebarAbierta }">
+      <div class="contenido">
         <TopBar />
         <slot />
       </div>
-    </div>
 
-    <Appfooter />
+      <Appfooter />
+    </div>
 
   </div>
 </template>
@@ -34,7 +36,6 @@ import { ref, onMounted } from 'vue'
 import AppSidebar from './AppSidebar.vue'
 import TopBar from './TopBar.vue'
 import Appfooter from './Appfooter.vue'
-
 // En pantallas grandes el sidebar empuja el contenido, así que arranca
 // abierto. En pantallas chicas es un panel flotante que se superpone,
 // así que arranca cerrado (igual que antes).
@@ -48,41 +49,43 @@ onMounted(() => {
 <style scoped>
 
 .layout{
-  display:flex;
-  flex-direction: column;
-  background:#0b1023;
-  min-height:100dvh;
+  background: var(--color-fondo);
+  min-height: 100dvh;
 }
 
-.layout-body{
-  display:flex;
-  flex: 1;
-}
-
-.contenido{
-  margin-left:240px;
-  width:calc(100% - 240px);
-  padding:40px;
+/* Columna que reserva el espacio del sidebar. Es el único lugar donde
+   se calcula el margen, así contenido y footer siempre quedan alineados. */
+.principal{
+  display: flex;
+  flex-direction: column;     /* contenido arriba, footer abajo */
+  min-height: 100dvh;         /* para que el footer quede siempre al pie */
+  margin-left: 240px;
+  width: calc(100% - 240px);
   transition: margin-left 0.3s, width 0.3s;
 }
 
-/* Sidebar cerrado: el contenido pasa a ocupar el 100% del ancho */
-.contenido--full{
-  margin-left:0;
-  width:100%;
+/* Sidebar cerrado: la columna (contenido + footer) ocupa el 100% */
+.principal--full{
+  margin-left: 0;
+  width: 100%;
+}
+
+/* El padding queda solo en el contenido; el footer usa el suyo propio */
+.contenido{
+  flex: 1;                    /* empuja el footer hacia abajo */
+  padding: 40px;
 }
 
 @media(max-width:700px){
 
-  .layout{
-    display:block;
+  /* En celular el sidebar flota encima, no reserva espacio */
+  .principal{
+    margin-left: 0;
+    width: 100%;
   }
 
   .contenido{
-    margin-left:0;
-    width:100%;
-    padding:10px;
-    min-height:100vh;
+    padding: 10px;
   }
 
 }

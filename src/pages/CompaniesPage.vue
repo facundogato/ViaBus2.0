@@ -153,7 +153,7 @@ import CompanyList from '../components/company/CompanyList.vue'
 .superior p {
   max-width: 700px;
   margin: 17px auto 0;
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
   font-size: clamp(1.125rem, 1.5vw, 1.25rem);
   font-weight: 400;
@@ -199,7 +199,7 @@ import CompanyList from '../components/company/CompanyList.vue'
 
 .seccion-hint {
   margin: 0 0 22px 17px;
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
   font-size: 17px;
   font-weight: 400;
@@ -229,7 +229,7 @@ import CompanyList from '../components/company/CompanyList.vue'
   flex-direction: column;
   align-items: center;
   padding: 26px 20px 24px;
-  background: #0f1629;
+  background: var(--color-sidebar);
   border: 1px solid #1a2138;
   border-radius: 11px;
   text-align: center;
@@ -264,7 +264,7 @@ import CompanyList from '../components/company/CompanyList.vue'
 
 .info-card:hover {
   transform: translateY(-3px);
-  background: #111a30;
+  background: var(--bg-card-hover);
   border-color: rgba(244, 180, 0, 0.35);
 }
 
@@ -299,7 +299,7 @@ import CompanyList from '../components/company/CompanyList.vue'
 
 .info-card p {
   margin: 0;
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-family: 'Inter', sans-serif;
   font-size: 12px;
   font-weight: 400;

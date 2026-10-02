@@ -10,6 +10,6 @@
 </template>
 <style>
 body {
-  background:#0b1023
+  background:var(--color-fondo)
 }
 </style>

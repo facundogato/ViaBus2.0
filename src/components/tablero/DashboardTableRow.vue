@@ -97,7 +97,7 @@ defineEmits(['toggle-demora'])
 
 /* SUBTÍTULOS */
 .subtitulo {
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-size: 10px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -137,7 +137,7 @@ defineEmits(['toggle-demora'])
 
 .empresa,
 .tipo {
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-size: 13px;
   letter-spacing: 1px;
 }

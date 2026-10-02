@@ -138,7 +138,7 @@ p {
 
   letter-spacing: 0.08em;
 
-  color: #7b8198;
+  color: var(--color-texto);
 }
 
 

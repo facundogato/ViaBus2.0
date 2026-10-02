@@ -48,7 +48,7 @@ defineEmits(['toggle-demora'])
 
 .tab {
   padding: 11px 22px;
-  background: transparent;
+  background: var(--color-tarjeta);
   border: none;
   color: #7b8198;
   font-size: 10px;

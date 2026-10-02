@@ -1,0 +1,63 @@
+/* ==========================================================================
+   VARIABLES DE COLOR DE VIABUS  (modo oscuro + modo claro)
+
+   Este archivo se carga solo porque quasar.config.js tiene css: ['app.css'].
+   Todos los componentes usan estas variables con var(--nombre).
+
+   - :root           -> modo OSCURO (los colores que ya tenía el proyecto)
+   - body.modo-claro -> modo CLARO  (base #4169e1)
+   ========================================================================== */
+
+:root {
+  /* Fondos */
+  --color-fondo: #0b1023;        /* fondo de las páginas */
+  --color-sidebar: #0b1023;      /* sidebar, footer, zonas "profundas" */
+  --color-sidebar-rgb: 11, 16, 35;
+  --color-tarjeta: #0f1629;      /* tarjetas y paneles */
+  --color-hover: #1a2138;        /* fondo al pasar el mouse / ítem activo */
+  --color-borde: #1a2138;        /* bordes y divisores */
+
+  /* Amarillo terminal (acento) */
+  --color-principal: #f4b400;
+  --color-principal-rgb: 244, 180, 0;
+  --color-principal-hover: #ffcb2b;
+  --color-principal-oscuro: #e0a300;
+  --color-texto-sobre-principal: #0b1023;  /* texto dentro de botones amarillos */
+
+  /* Textos */
+  --color-texto: #ffffff;
+  --color-texto-suave: #b8bfd4;
+  --color-secundario: #7b8198;
+
+  /* Estados */
+  --color-error: #ff6b6b;
+}
+
+body.modo-claro {
+  /* Fondos: escala de azules a partir de #4169e1 */
+  --color-fondo: #4169e1;        /* BASE */
+  --color-sidebar: #2f4fb8;      /* más oscuro que la base */
+  --color-sidebar-rgb: 47, 79, 184;
+  --color-tarjeta: #2445af;
+  --color-hover: #4a70e8;        /* más claro que la base */
+  --color-borde: #7d9bf0;
+
+  /* El amarillo se aclara un poco para que se vea bien sobre azul */
+  --color-principal: #ffc928;
+  --color-principal-rgb: 255, 201, 40;
+  --color-principal-hover: #ffd75e;
+  --color-principal-oscuro: #f0b400;
+  --color-texto-sobre-principal: #0b1023;
+
+  /* Textos: tonos azulados claros en lugar de grises */
+  --color-texto: #1d1d1d;
+  --color-texto-suave: #e8eeff;
+  --color-secundario: #414141;
+
+  --color-error: #ffb3b3;
+}
+
+/* Transición suave al cambiar de tema */
+body {
+  transition: background-color 0.25s, color 0.25s;
+}

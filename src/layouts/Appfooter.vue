@@ -85,7 +85,8 @@
 
 .app-footer {
   position: relative;
-  background: #0b1023;
+  background: var(--color-tarjeta);
+  border-top: 1px solid #1a2138;
   color: #e0e0e0;
   padding: 48px 24px 0;
   width: 100%;
@@ -139,7 +140,7 @@
 .footer-desc {
   font-size: 13px;
   line-height: 1.6;
-  color: #7b8198;
+  color: var(--color-texto-suave);
   max-width: 280px;
 }
 

@@ -21,7 +21,7 @@ defineProps({
 <style scoped>
 
 .stat-card {
-  background: #0f1629;
+  background: var(--color-tarjeta);
   border: 1px solid #1a2138;
   border-radius: 10px;
   text-align: center;
@@ -81,7 +81,7 @@ p {
   font-size: 11px;
   font-weight: bold;
   letter-spacing: 3px;
-  color: #7b8198;
+  color: var(--color-texto-suave);
 }
 
 .linea {

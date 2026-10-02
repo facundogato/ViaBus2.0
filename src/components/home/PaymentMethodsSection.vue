@@ -44,7 +44,7 @@
         margin: 40px auto 0;
         padding: 30px 40px;
         text-align: center;
-        background-color: #0f1629;
+        background-color: var(--color-tarjeta);
         border-radius: 8px;
         border: 1px solid #1a2138;
     }
@@ -55,12 +55,14 @@
         justify-content: center;
         gap: 10px;
         color: #f4b400;
-        font-size: 22px;
+        font-size: 27px;
         margin-bottom: 10px;
+        font-weight: bold;
     }
 
     .metodos-desc {
-        color: #9aa4bf;
+        color: var(--color-texto-suave);
+        font-size: 15px;
         margin-bottom: 20px;
     }
 
@@ -75,7 +77,7 @@
         display: flex;
         align-items: center;
         gap: 8px;
-        background-color: #151d33;
+        background-color: var(--color-sidebar);
         font-size: 1.2em;
         border-radius: 8px;
         border: 1px solid #1a2138;

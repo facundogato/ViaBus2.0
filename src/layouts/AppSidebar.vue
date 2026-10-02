@@ -15,7 +15,7 @@
       left: 10px;
       z-index: 2000;
       color: white;
-      background: #0b1023;
+      background: var(--q-color-primary);
     "
   />
 
@@ -43,6 +43,8 @@
     <!-- SEPARADOR OPERACIONES -->
     <div class="seccion-label">OPERACIONES</div>
 
+
+
     <NavMenuItem to="/tablero" icono="dashboard" etiqueta="Tablero" />
     <NavMenuItem to="/comprar" icono="receipt" etiqueta="Comprar Pasaje" />
     <NavMenuItem to="/info" icono="menu_book" etiqueta="Info general" tamano-icono="22px" />
@@ -55,6 +57,8 @@
 
     <!-- SEPARADOR MI CUENTA -->
     <div class="seccion-label">MI CUENTA</div>
+
+    <BotonTema />
 
     <router-link to="/perfil" class="boton-menu">
       <q-icon name="person" size="20px" />
@@ -92,6 +96,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import NavMenuItem from './NavMenuItem.vue'
 import LogoutButton from './LogoutButton.vue'
 import { useAuth } from '../services/auth'
+import BotonTema from './BotonTema.vue'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false }
@@ -141,7 +146,7 @@ onUnmounted(() => {
 .sidebar{
   width:260px;
   height:100dvh;
-  background:#0b1023;
+  background:var(--color-sidebar);
   border-right:1px solid #1a2138;
   display:flex;
   flex-direction:column;
@@ -192,18 +197,18 @@ onUnmounted(() => {
 }
 
 .boton-menu:hover{
-  background:#1a2138;
+  background:var(--color-hover);
   border-left:3px solid #f4b400;
 }
 
 .router-link-active{
-  background:#1a2138;
+  background:var(--color-hover);
   border-left:3px solid #f4b400;
 }
 
 .badge{
   margin-left:auto;
-  background:#f4b400;
+  background:var(--color-badge);
   color:black;
   font-size:11px;
   font-weight:bold;
@@ -226,7 +231,7 @@ onUnmounted(() => {
 .avatar{
   width:38px;
   height:38px;
-  background:#f4b400;
+  background:var(--color-principal);
   color:black;
   display:flex;
   justify-content:center;
@@ -248,6 +253,11 @@ onUnmounted(() => {
   margin:0;
 }
 
+.seccion-label{
+  color: var(--color-texto);
+  font-size: 12px;
+  font-weight: bold;
+}
 @media(max-width:700px){
 
   .sidebar{

@@ -1508,7 +1508,7 @@ watch(
 
 .superior p {
   margin: 14px 0 0;
-  color: #858da7;
+  color: var(--color-texto-suave);
   font-size: 20px;
   line-height: 1.6;
   letter-spacing: 0.3px;
@@ -1547,8 +1547,8 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #69718a;
-  background: #0b1023;
+  color: var(--color-texto-suave);
+  background: var(--color-primary);
   font-size: 17px;
   font-weight: 700;
   transition: all 0.25s ease;
@@ -1558,9 +1558,9 @@ watch(
 /* Paso actual */
 
 .paso.activo .numero {
-  background: #f4b400;
-  border-color: #f4b400;
-  color: #0b1023;
+  background: var(--color-principal-oscuro);
+  border-color: var(--color-principal);
+  color: var(--color-texto-sobre-principal);
   box-shadow:
     0 0 0 5px rgba(244, 180, 0, 0.08);
 }
@@ -1569,15 +1569,15 @@ watch(
 /* Pasos terminados */
 
 .paso.completado .numero {
-  background: #00d99a;
-  border-color: #00d99a;
-  color: #07101e;
+  background: var(--color-success);
+  border-color: var(--color-success);
+  color: var(--color-texto-sobre-success);
   box-shadow:
     0 0 0 4px rgba(0, 217, 154, 0.06);
 }
 
 .label {
-  color: #69718a;
+  color: var(--color-texto-suave);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 1.2px;
@@ -1627,7 +1627,7 @@ watch(
 }
 
 .campo label {
-  color: #7b8198;
+  color: var(--color-texto-suave);
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 1.8px;
@@ -1638,7 +1638,7 @@ watch(
   width: 100%;
   min-width: 200px;
   box-sizing: border-box;
-  background: #0c1325;
+  background: var(--color-sidebar);
   border: 1px solid #252e47;
   color: #ffffff;
   padding: 13px 15px;
@@ -1661,13 +1661,13 @@ watch(
   border-color: #f4b400;
   box-shadow:
     0 0 0 3px rgba(244, 180, 0, 0.08);
-  background: #0f172c;
+  background: var(--color-sidebar);
 }
 
 .btn-buscar {
   min-height: 45px;
-  background: #f4b400;
-  color: #0b1023;
+  background: var(--color-principal);
+  color: var(--color-texto-sobre-principal);
   border: none;
   border-radius: 7px;
   padding: 0 28px;
@@ -1686,7 +1686,7 @@ watch(
 }
 
 .btn-buscar:hover {
-  background: #ffca28;
+  background: var(--color-principal-hover);
   transform: translateY(-1px);
   box-shadow:
     0 8px 20px rgba(244, 180, 0, 0.15);
@@ -1708,7 +1708,7 @@ watch(
   border-radius: 10px;
   overflow: hidden;
   margin-bottom: 22px;
-  background: #0b1023;
+  background: var(--color-tarjeta);
 }
 
 .resultado-fila {
@@ -1735,13 +1735,13 @@ watch(
 }
 
 .resultado-fila:hover {
-  background: #10182c;
+  background: var(--color-sidebar);
 }
 
 .resultado-fila.seleccionado {
-  background: #101a2f;
+  background: var(--color-sidebar);
   box-shadow:
-    inset 3px 0 0 #f4b400;
+    inset 3px 0 0 var(--color-principal);
 }
 
 .res-hora {
@@ -1760,14 +1760,14 @@ watch(
 
 .res-tipo {
   display: block;
-  color: #707991;
+  color: var(--color-texto-suave);
   font-size: 11px;
   margin-top: 4px;
   letter-spacing: 0.8px;
 }
 
 .res-duracion {
-  color: #858da7;
+  color: var(--color-texto-suave);
   font-size: 13px;
 }
 
@@ -1781,7 +1781,7 @@ watch(
   display: inline-flex;
   align-items: center;
   width: fit-content;
-  background: rgba(0, 255, 153, 0.04);
+  background: var(--color-texto-sobre-principal);
   color: #00e6a0;
   padding: 6px 10px;
   border-radius: 5px;
@@ -1817,25 +1817,25 @@ watch(
 
 
 .btn-volver {
-  background: transparent;
+  background: var(--color-sidebar);
   border: 1px solid #252e47;
-  color: #858da7;
+  color: var(--color-texto);
 }
 
 .btn-volver:hover {
   border-color: #48536f;
   color: white;
-  background: #0f1629;
+  background: var(--color-sidebar);
 }
 
 .btn-siguiente {
-  background: #f4b400;
-  border: 1px solid #f4b400;
-  color: #0b1023;
+  background: var(--color-principal);
+  border: 1px solid var(--color-principal);
+  color: var(--color-texto-sobre-principal);
 }
 
 .btn-siguiente:hover:not(:disabled) {
-  background: #ffca28;
+  background: var(--color-principal-hover);
   transform: translateY(-1px);
   box-shadow:
     0 7px 18px rgba(244, 180, 0, 0.15);
@@ -1861,6 +1861,9 @@ watch(
   margin: 20px 0 10px;
 }
 
+.placeholder-paso p {
+  font-size: 14px;
+  color: var(--color-secundario)}
 
 /* ESTADOS / ERRORES */
 
@@ -1941,6 +1944,7 @@ watch(
 
   .superior-etiqueta {
     font-size: 9px;
+    font-weight: 700;
     letter-spacing: 2px;
   }
 

@@ -32,7 +32,7 @@
 }
 
 .overlay {
-  background: linear-gradient(to top, rgba(11,16,35,0.97) 0%, rgba(11,16,35,0.4) 50%, transparent 100%);
+  background: linear-gradient(to top, var(--color-overlay-start) 0%, var(--color-overlay-mid) 50%, transparent 100%);
   width: 100%;
   height: 100%;
   padding: 35px 45px;
@@ -40,8 +40,12 @@
   flex-direction: column;
   justify-content: flex-end;
   gap: 10px;
+
 }
 
+.overlay h1 {
+  background-color: var(--color-overlay-start);
+}
 .badge {
   display: inline-flex;
   align-items: center;

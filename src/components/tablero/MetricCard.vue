@@ -44,13 +44,13 @@ defineProps({
 
   position: relative;
 
-  background: #0d1328;
+  background: var(--color-tarjeta);
 
   border: 1px solid rgba(255,255,255,0.07);
 
   border-radius: 14px;
 
-  color: white;
+  color: var(--color-texto);
 
   overflow: hidden;
 
@@ -125,7 +125,7 @@ defineProps({
 
   margin:0;
 
-  color:#8b92a8;
+  color:var(--color-texto-suave);
 
   font-family:'Inter',sans-serif;
 
@@ -170,7 +170,7 @@ h1{
 
 .subtitulo{
 
-  color:#9ca3b8;
+  color:var(--color-texto-suave);
 
   font-family:'Inter',sans-serif;
 

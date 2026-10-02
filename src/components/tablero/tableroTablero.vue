@@ -142,6 +142,7 @@ onUnmounted(() => {
 <style scoped>
 
 .tabla-contenedor {
+  background: var(--color-tarjeta);
   width: 100%;
   border: 1px solid #1a2138;
   border-radius: 6px;

@@ -53,18 +53,18 @@ defineProps({
 }
 
 .nav-menu-item:hover{
-  background:#1a2138;
+  background:var(--color-hover);
   border-left:3px solid #f4b400;
 }
 
 .router-link-active{
-  background:#1a2138;
+  background:var(--color-hover);
   border-left:3px solid #f4b400;
 }
 
 .badge{
   margin-left:auto;
-  background:#f4b400;
+  background:var(--color-principal);
   color:black;
   font-size:11px;
   font-weight:bold;
@@ -74,7 +74,7 @@ defineProps({
 
 .badge-prox{
   margin-left:auto;
-  background:#1a2138;
+  background:var(--color-hover);
   color:#7b8198;
   font-size:10px;
   font-weight:bold;
