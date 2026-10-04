@@ -10,15 +10,25 @@ async function request(path, options = {}) {
     ...options
   })
 
-  let data = null
+  const texto = await res.text()
+
+  console.log('RESPUESTA API:', path, texto)
+
+  let data
+
   try {
-    data = await res.json()
+    data = JSON.parse(texto)
   } catch {
-    data = null
+    throw new Error(
+      `El servidor no devolvió JSON válido. Respuesta: ${texto}`
+    )
   }
 
   if (!res.ok) {
-    const message = data?.error || `Error ${res.status} al comunicarse con el servidor`
+    const message =
+      data?.error ||
+      `Error ${res.status} al comunicarse con el servidor`
+
     throw new Error(message)
   }
 
@@ -56,8 +66,8 @@ export function getEmpresa(id) {
 }
 
 // ---- Servicios ----
-export function buscarServicios(destino, fecha) {
-  const params = new URLSearchParams({ destino, fecha })
+export function buscarServicios(origen, destino) {
+  const params = new URLSearchParams({ origen, destino })
   return request(`servicios.php?${params}`)
 }
 

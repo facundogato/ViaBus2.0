@@ -58,4 +58,21 @@ if ($method === 'POST' && $action === 'register') {
     }
 }
 
+// Después de login exitoso
+$metricsService = new MetricsService($pdo);
+$metricsService->logUserEvent(
+    $userId,
+    'login',
+    $_SERVER['REMOTE_ADDR'],
+    session_id()
+);
+
+// En tu ruta de logout
+$metricsService = new MetricsService($pdo);
+$metricsService->logUserEvent(
+    $_SESSION['user_id'],
+    'logout',
+    $_SERVER['REMOTE_ADDR'],
+    session_id()
+);
 sendError('Método no soportado', 405);

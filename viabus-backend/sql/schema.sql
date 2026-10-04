@@ -39,8 +39,7 @@ CREATE TABLE usuarios (
     apellido       VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    rol            VARCHAR(20) NOT NULL DEFAULT 'cliente' CHECK(rol IN ('cliente','admin')),
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    rol            VARCHAR(20) NOT NULL DEFAULT 'cliente' CHECK(rol IN ('cliente','admin'))
 );
 
 CREATE TABLE ciudades (
@@ -133,6 +132,19 @@ CREATE TABLE pagos (
     updated_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (reserva_id) REFERENCES reservas(id)
 );
+
+-- Agregar a tu migración de PostgreSQL
+CREATE TABLE user_metrics_log (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER,
+    event_type VARCHAR(50), -- 'login' o 'logout'
+    event_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    ip_address VARCHAR(45),
+    session_id VARCHAR(255)
+);
+
+CREATE INDEX idx_user_metrics_timestamp ON user_metrics_log(event_timestamp);
+CREATE INDEX idx_user_id_metrics ON user_metrics_log(user_id);
 
 CREATE TRIGGER trg_pagos_updated_at
 BEFORE UPDATE ON pagos
