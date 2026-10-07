@@ -27,16 +27,37 @@ async function request(path, options = {}) {
 
 // ---- Autenticación ----
 export function login(email, password) {
-  return request('auth.php?action=login', {
+  return request('auth/login.php', {
     method: 'POST',
     body: JSON.stringify({ email, password })
   })
 }
 
 export function registrarse(payload) {
-  return request('auth.php?action=register', {
+  return request('auth/registrer.php', {
     method: 'POST',
     body: JSON.stringify(payload)
+  })
+}
+
+export function sendVerificationCode(email) {
+  return request('auth/sendVerificationCode.php', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  })
+}
+
+export function verifyCode(userId, code) {
+  return request('auth/verifycode.php', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, code })
+  })
+}
+
+export function resendCode(userId) {
+  return request('auth/resendcode.php', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId })
   })
 }
 
@@ -56,8 +77,8 @@ export function getEmpresa(id) {
 }
 
 // ---- Servicios ----
-export function buscarServicios(destino, fecha) {
-  const params = new URLSearchParams({ destino, fecha })
+export function buscarServicios(origen, destino) {
+  const params = new URLSearchParams({ origen, destino })
   return request(`servicios.php?${params}`)
 }
 

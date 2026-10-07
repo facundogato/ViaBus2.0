@@ -1,99 +1,81 @@
-<!-- Página de INICIO DE SESIÓN y REGISTRO (ruta /login).
-     Tiene dos tarjetas: la de la izquierda para entrar con una
-     cuenta ya creada, y la de la derecha para registrarse. -->
-
+<!-- Página de inicio de sesión (ruta /login) -->
 <template>
 
   <MainLayout>
 
-    <!-- Pantalla completa, con todo centrado -->
+    <!-- Contenedor del login centrado en la pantalla -->
     <div class="login-page flex flex-center">
 
-      <!-- Agrupa las dos tarjetas (se superponen un poco) -->
-      <div class="login-container row items-center no-wrap">
+      <!-- ===================== TARJETA LOGIN ===================== -->
+      <q-card flat class="login-card">
+        <!-- Logo -->
+        <div class="text-center q-mb-lg">
+          <img
+            :src="logo"
+            alt="Logo"
+            class="logo-small"
+          >
+        </div>
 
-        <!-- ===================== TARJETA LOGIN ===================== -->
-        <q-card flat class="login-card">
+        <!-- Título -->
+        <h3 class="title">
+          Inicia sesión en
+          <span class="brand">ViaBus</span>
+        </h3>
 
-          <!-- Logo de la app -->
-          <div class="text-center q-mb-lg">
-            <img :src="logo" alt="Logo" class="logo-small">
-          </div>
+        <!-- Campo para ingresar el correo -->
+        <q-input
+          v-model="loginForm.email"
+          outlined
+          dark
+          type="email"
+          label="Correo electrónico"
+          color="white"
+          class="q-mb-md"
+          :disable="cargando"
+          @keyup.enter="hacerLogin"
+        />
 
-          <h3 class="title">
-            Inicia sesión en
-            <span class="brand">ViaBus</span>
-          </h3>
+        <!-- Campo para ingresar la contraseña -->
+        <q-input
+          v-model="loginForm.password"
+          outlined
+          dark
+          label="Contraseña"
+          type="password"
+          color="white"
+          :disable="cargando"
+          @keyup.enter="hacerLogin"
+        />
 
-          <!-- Campo de correo. @keyup.enter: si aprietas Enter,
-               hace el login sin necesidad de tocar el botón -->
-          <q-input
-            v-model="loginForm.email"
-            outlined dark type="email"
-            label="Correo electrónico"
-            color="white"
-            class="q-mb-md"
-            @keyup.enter="hacerLogin"
-          />
+        <!-- Mensaje de error -->
+        <p v-if="error" class="error-msg">{{ error }}</p>
 
-          <!-- Campo de contraseña (muestra puntitos, no el texto) -->
-          <q-input
-            v-model="loginForm.password"
-            outlined dark
-            label="Contraseña"
-            type="password"
-            color="white"
-            @keyup.enter="hacerLogin"
-          />
+        <!-- Mensaje si email no verificado -->
+        <p v-if="mensajeVerificacion" class="info-msg">{{ mensajeVerificacion }}</p>
 
-          <!-- Mensaje de error si el login falla -->
-          <p v-if="errorLogin" class="error-msg">{{ errorLogin }}</p>
-
-          <!-- Botón de entrar. Mientras espera respuesta dice
-               "Ingresando..." y se desactiva -->
-          <div class="text-center q-mt-xl">
-            <q-btn
-              rounded outline color="white"
-              :label="cargandoLogin ? 'Ingresando...' : 'Iniciar Sesión'"
-              :disable="cargandoLogin"
-              class="login-btn"
-              @click="hacerLogin"
-            />
-          </div>
-
-        </q-card>
-
-        <!-- ===================== TARJETA REGISTRO ===================== -->
-        <q-card flat class="register-card">
-
-          <h4 class="register-title">¿Aún no estás registrado?</h4>
-
-          <img :src="logo" alt="Logo" class="logo-big">
-
-          <!-- Los 4 campos para crear la cuenta -->
-          <div class="registro-form">
-            <q-input v-model="registerForm.nombre" outlined dark dense label="Nombre" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.apellido" outlined dark dense label="Apellido" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.email" outlined dark dense type="email" label="Correo electrónico" color="white" class="q-mb-sm" />
-            <q-input v-model="registerForm.password" outlined dark dense type="password" label="Contraseña" color="white" class="q-mb-sm" />
-
-            <!-- Error (rojo) o éxito (verde) del registro -->
-            <p v-if="errorRegistro" class="error-msg">{{ errorRegistro }}</p>
-            <p v-if="mensajeRegistro" class="ok-msg">{{ mensajeRegistro }}</p>
-          </div>
-
-          <!-- Botón para crear la cuenta -->
+        <!-- Botón para iniciar sesión -->
+        <div class="text-center q-mt-xl">
           <q-btn
-            rounded outline color="white"
-            :label="cargandoRegistro ? 'Creando...' : 'Crear cuenta'"
-            :disable="cargandoRegistro"
-            class="register-btn"
-            @click="hacerRegistro"
+            rounded
+            outline
+            color="white"
+            :label="cargando ? 'Ingresando...' : 'Iniciar Sesión'"
+            :disable="cargando"
+            class="login-btn"
+            @click="hacerLogin"
           />
+        </div>
 
-        </q-card>
+        <!-- Link para registrarse -->
+        <div class="text-center q-mt-lg">
+          <p class="signup-link">
+            ¿No tienes cuenta?
+            <router-link to="/registro">Regístrate aquí</router-link>
+          </p>
+        </div>
 
-      </div>
+      </q-card>
 
     </div>
 
@@ -102,85 +84,55 @@
 </template>
 
 <script setup>
-// Lógica: manejar el login y el registro hablando con el servidor,
-// y guardar la sesión del usuario cuando entra.
 
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import logo from '../assets/logo1.jpg'
-import { login, registrarse } from '../services/api'
+import { login } from '../services/api'
 import { useAuth } from '../services/auth'
 
-const route = useRoute()   // para leer la dirección actual
-const router = useRouter() // para navegar a otra página
-const { guardarSesion } = useAuth() // guarda que el usuario ya entró
+const route = useRoute()
+const router = useRouter()
+const { guardarSesion } = useAuth()
 
-// Si el usuario llegó acá porque quería entrar a una página
-// protegida (ej: pagar un pasaje), esa página deja guardado en la
-// dirección adónde quería ir (?redirect=...). Después del login
-// lo mandamos justo ahí. Si no venía de ningún lado, va al inicio.
+// Si llegamos acá desde una ruta protegida (ej. el paso de pago),
+// después de loguearnos volvemos a esa misma ruta.
 function irLuegoDeAutenticar() {
   const destino = typeof route.query.redirect === 'string' ? route.query.redirect : '/terminal'
   router.push(destino)
 }
 
-// ---- LOGIN ----
+// ---- Login ----
 const loginForm = ref({ email: '', password: '' })
-const cargandoLogin = ref(false)
-const errorLogin = ref('')
+const cargando = ref(false)
+const error = ref('')
+const mensajeVerificacion = ref('')
 
 async function hacerLogin() {
-  // Primero: que no falte nada
   if (!loginForm.value.email || !loginForm.value.password) {
-    errorLogin.value = 'Completá correo y contraseña'
+    error.value = 'Completá correo y contraseña'
     return
   }
-  cargandoLogin.value = true
-  errorLogin.value = ''
+  cargando.value = true
+  error.value = ''
+  mensajeVerificacion.value = ''
   try {
-    // Le pedimos al servidor que valide los datos
     const usuario = await login(loginForm.value.email, loginForm.value.password)
-    // Si anduvo: guardamos la sesión y nos vamos a donde correspondía
-    guardarSesion(usuario)
+    guardarSesion(usuario.user)
     irLuegoDeAutenticar()
   } catch (e) {
-    // Datos mal o servidor caído: mostramos el motivo
-    errorLogin.value = e.message
+    // Si el error menciona verificación de email, ofrecemos redirigir a verificar
+    if (e.message.includes('verificar') || e.message.includes('EMAIL_NOT_VERIFIED')) {
+      mensajeVerificacion.value = 'Debes verificar tu email. Redirigiendo...'
+      setTimeout(() => {
+        router.push({ path: '/verificar', query: { email: loginForm.value.email } })
+      }, 1500)
+    } else {
+      error.value = e.message
+    }
   } finally {
-    cargandoLogin.value = false
-  }
-}
-
-// ---- REGISTRO ----
-const registerForm = ref({ nombre: '', apellido: '', email: '', password: '' })
-const cargandoRegistro = ref(false)
-const errorRegistro = ref('')
-const mensajeRegistro = ref('')
-
-async function hacerRegistro() {
-  const { nombre, apellido, email, password } = registerForm.value
-  // Que estén los 4 campos completos
-  if (!nombre || !apellido || !email || !password) {
-    errorRegistro.value = 'Completá todos los campos'
-    return
-  }
-  cargandoRegistro.value = true
-  errorRegistro.value = ''
-  mensajeRegistro.value = ''
-  try {
-    // Creamos la cuenta en el servidor
-    const usuario = await registrarse({ nombre, apellido, email, password })
-    // Si salió bien, ya queda logueado directo (sin volver a poner los datos)
-    guardarSesion(usuario)
-    mensajeRegistro.value = '¡Cuenta creada! Ingresando...'
-    // Esperamos medio segundo para que le dé tiempo a leer el mensaje,
-    // y después lo mandamos a la página que correspondía
-    setTimeout(irLuegoDeAutenticar, 600)
-  } catch (e) {
-    errorRegistro.value = e.message
-  } finally {
-    cargandoRegistro.value = false
+    cargando.value = false
   }
 }
 
@@ -189,152 +141,113 @@ async function hacerRegistro() {
 <style scoped>
 
 /* Fondo de la pantalla del login */
-.login-page{
-  background: #060c22;
+.login-page {
+  background: transparent;
   width: 100%;
   min-height: 100vh;
-
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;     /* Centra verticalmente */
-}
-
-/* Contenedor de las tarjetas */
-.login-container{
-  position: relative;
-}
-
-/* Estilos compartidos entre ambas tarjetas */
-.login-card,
-.register-card{
-  background: #0a1028;
-  border: 3px solid white;
-  border-radius: 30px;
-  color: white;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
 
 /* Tarjeta del login */
-.login-card{
-  width: 520px;
+.login-card {
+  background: var(--color-sidebar);
+  border: 3px solid white;
+  border-radius: 30px;
+  color: white;
+  width: 100%;
+  max-width: 520px;
   padding: 40px;
-  position: relative;
-  z-index: 2; /* Hace que quede por delante de la otra tarjeta */
-}
-
-/* Tarjeta del registro */
-.register-card{
-  width: 520px;
-  padding: 50px;
-
-  /* Desplaza la tarjeta hacia la izquierda para superponerla */
-  margin-left: -40px;
-
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 /* Título del login */
-.title{
+.title {
   font-size: 2.5rem;
   font-weight: 300;
   margin-bottom: 35px;
+  text-align: center;
 }
 
 /* Color del nombre de la aplicación */
-.brand{
+.brand {
   color: #f4b400;
   font-weight: bold;
 }
 
 /* Tamaño del logo pequeño */
-.logo-small{
+.logo-small {
   width: 120px;
   border-radius: 12px;
 }
 
-/* Tamaño del logo grande */
-.logo-big{
-  width: 140px;
-  margin: 20px 0;
-  border-radius: 12px;
+/* Redondea los bordes de los QInput de Quasar */
+:deep(.q-field__control) {
+  border-radius: 18px;
 }
 
-/* Formulario de registro */
-.registro-form{
-  width: 100%;
-}
-
-/* Tamaño de ambos botones */
-.login-btn,
-.register-btn{
+/* Tamaño del botón */
+.login-btn {
   width: 250px;
   font-size: 1.2rem;
 }
 
-.register-btn{
-  margin-top: 10px;
-}
-
-/* Título de la tarjeta de registro */
-.register-title{
-  font-size: 1.6rem;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 5px;
-}
-
-/* Redondea los bordes de los QInput de Quasar */
-:deep(.q-field__control){
-  border-radius: 18px;
-}
-
 /* Mensajes de estado */
-.error-msg{
+.error-msg {
   color: #ff6b6b;
   font-size: 0.85rem;
   margin-top: 12px;
   text-align: center;
 }
 
-.ok-msg{
-  color: #00ff99;
+.info-msg {
+  color: #4db8ff;
   font-size: 0.85rem;
   margin-top: 12px;
   text-align: center;
+  font-weight: 500;
 }
 
-@media (max-width: 900px) {
+/* Link para registro */
+.signup-link {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.signup-link a {
+  color: #f4b400;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s;
+}
+
+.signup-link a:hover {
+  color: #ffd700;
+  text-decoration: underline;
+}
+
+@media (max-width: 700px) {
   .login-page {
-    padding: 20px 0;
+    padding: 20px;
     min-height: auto;
   }
 
-  .login-container {
-    flex-direction: column;
-    width: 100%;
-    max-width: 420px;
-  }
-
-  .login-card,
-  .register-card {
+  .login-card {
     width: 100%;
     padding: 30px 25px;
-    margin-left: 0;
-  }
-
-  .register-card {
-    margin-top: -20px;
   }
 
   .title {
     font-size: 1.8rem;
   }
 
-  .login-btn,
-  .register-btn {
+  .login-btn {
     width: 100%;
+  }
+
+  .logo-small {
+    width: 100px;
   }
 }
 

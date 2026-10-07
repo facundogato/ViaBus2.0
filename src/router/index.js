@@ -9,6 +9,8 @@ import DashboardPage from '../pages/paginaTablero.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
 import CompaniesPage from '../pages/CompaniesPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
+import RegisterPage from '../pages/RegisterPage.vue'
+import VerifyPage from '../pages/VerifyPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import CompanyDetailPage from '../pages/CompanyDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
@@ -61,6 +63,18 @@ const routes = [
   {
     path: '/login',
     component: LoginPage
+  },
+
+  // REGISTRO
+  {
+    path: '/registro',
+    component: RegisterPage
+  },
+
+  // VERIFICACIÓN DE EMAIL
+  {
+    path: '/verificar',
+    component: VerifyPage
   },
 
   // PANEL DE ADMINISTRADOR (gestión de viajes) — requiere sesión con rol admin

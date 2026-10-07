@@ -1,37 +1,43 @@
 -- =============================================================
---  ViaBus - Base de Datos (PostgreSQL)
---  Generado a partir de los datos reales del frontend (Origen: Melo)
+-- ViaBus - Base de Datos PostgreSQL
+-- ESQUEMA COMPLETO CORREGIDO
 -- =============================================================
 
--- Función auxiliar para actualizar automáticamente "updated_at" en cada UPDATE.
-CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
+BEGIN;
+
+-- =============================================================
+-- FUNCIÓN AUXILIAR
+-- =============================================================
+
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TABLE IF EXISTS pagos;
-DROP TABLE IF EXISTS reservas;
-DROP TABLE IF EXISTS pasajeros;
-DROP TABLE IF EXISTS estado_diario;
-DROP TABLE IF EXISTS servicio_paradas;
-DROP TABLE IF EXISTS servicios;
-DROP TABLE IF EXISTS ciudades;
-DROP TABLE IF EXISTS empresas;
-DROP TABLE IF EXISTS usuarios;
 
-CREATE TABLE empresas (
-    id          SERIAL PRIMARY KEY,
-    nombre      VARCHAR(100) NOT NULL UNIQUE,
-    logo        VARCHAR(255) DEFAULT NULL,
-    descripcion TEXT DEFAULT NULL,
-    telefono    VARCHAR(30)  DEFAULT NULL,
-    email       VARCHAR(100) DEFAULT NULL,
-    sitio_web   VARCHAR(150) DEFAULT NULL,
-    direccion   VARCHAR(150) DEFAULT NULL,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- =============================================================
+-- ELIMINAR TABLAS EXISTENTES
+-- =============================================================
+
+DROP TABLE IF EXISTS pagos CASCADE;
+DROP TABLE IF EXISTS reservas CASCADE;
+DROP TABLE IF EXISTS pasajeros CASCADE;
+DROP TABLE IF EXISTS estado_diario CASCADE;
+DROP TABLE IF EXISTS servicio_paradas CASCADE;
+DROP TABLE IF EXISTS email_verification_codes CASCADE;
+DROP TABLE IF EXISTS servicios CASCADE;
+DROP TABLE IF EXISTS ciudades CASCADE;
+DROP TABLE IF EXISTS empresas CASCADE;
+DROP TABLE IF EXISTS user_metrics_log CASCADE;
+DROP TABLE IF EXISTS usuarios CASCADE;
+
+
+-- =============================================================
+-- USUARIOS
+-- =============================================================
 
 CREATE TABLE usuarios (
     id             SERIAL PRIMARY KEY,
@@ -39,117 +45,411 @@ CREATE TABLE usuarios (
     apellido       VARCHAR(100) NOT NULL,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    rol            VARCHAR(20) NOT NULL DEFAULT 'cliente' CHECK(rol IN ('cliente','admin')),
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    rol            VARCHAR(20) NOT NULL DEFAULT 'cliente'
+                   CHECK (
+                       rol IN ('cliente', 'admin')
+                   ),
+
+    email_verified BOOLEAN NOT NULL DEFAULT FALSE
 );
+
+
+-- =============================================================
+-- EMPRESAS
+-- =============================================================
+
+CREATE TABLE empresas (
+    id          SERIAL PRIMARY KEY,
+    nombre      VARCHAR(100) NOT NULL UNIQUE,
+    logo        VARCHAR(255) DEFAULT NULL,
+    descripcion TEXT DEFAULT NULL,
+    telefono    VARCHAR(30) DEFAULT NULL,
+    email       VARCHAR(100) DEFAULT NULL,
+    sitio_web   VARCHAR(150) DEFAULT NULL,
+    direccion   VARCHAR(150) DEFAULT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+-- =============================================================
+-- CÓDIGOS DE VERIFICACIÓN DE EMAIL
+-- IMPORTANTE:
+-- usuarios debe existir antes de esta tabla.
+-- =============================================================
+
+CREATE TABLE email_verification_codes (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL,
+    email       VARCHAR(150) NOT NULL,
+    code        VARCHAR(6) NOT NULL,
+
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    expires_at  TIMESTAMP NOT NULL,
+    verified_at TIMESTAMP DEFAULT NULL,
+
+    CONSTRAINT fk_email_verification_user
+        FOREIGN KEY (user_id)
+        REFERENCES usuarios(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_email_verification_user
+    ON email_verification_codes(user_id);
+
+CREATE INDEX idx_email_verification_expires
+    ON email_verification_codes(expires_at);
+
+
+-- =============================================================
+-- CIUDADES
+-- =============================================================
 
 CREATE TABLE ciudades (
     id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL UNIQUE,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- =============================================================
+-- SERVICIOS
+-- =============================================================
 
 CREATE TABLE servicios (
     id          SERIAL PRIMARY KEY,
-    destino_id  INT NOT NULL,
-    empresa_id  INT NOT NULL,
+
+    destino_id  INTEGER NOT NULL,
+    empresa_id  INTEGER NOT NULL,
+
     hora        VARCHAR(5) NOT NULL,
     tipo        VARCHAR(80) NOT NULL DEFAULT 'De Linea',
     duracion    VARCHAR(50) DEFAULT NULL,
     precio      DECIMAL(10,2) DEFAULT NULL,
+
     asientos    INTEGER DEFAULT 40,
     anden       VARCHAR(10) DEFAULT NULL,
     bus         VARCHAR(30) DEFAULT NULL,
+
     estado      VARCHAR(20) DEFAULT 'horario',
     activo      INTEGER DEFAULT 1,
     dias        VARCHAR(60) DEFAULT NULL,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (destino_id) REFERENCES ciudades(id),
-    FOREIGN KEY (empresa_id) REFERENCES empresas(id)
+
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_servicios_destino
+        FOREIGN KEY (destino_id)
+        REFERENCES ciudades(id),
+
+    CONSTRAINT fk_servicios_empresa
+        FOREIGN KEY (empresa_id)
+        REFERENCES empresas(id)
 );
 
+
+-- =============================================================
+-- PARADAS DE SERVICIO
+-- =============================================================
+
 CREATE TABLE servicio_paradas (
-    id SERIAL PRIMARY KEY,
-    servicio_id INT NOT NULL,
-    ciudad_id INT NOT NULL,
-    orden SMALLINT NOT NULL,
-    hora_llegada TIME,
-    FOREIGN KEY (servicio_id) REFERENCES servicios(id) ON DELETE CASCADE,
-    FOREIGN KEY (ciudad_id) REFERENCES ciudades(id)
+    id            SERIAL PRIMARY KEY,
+    servicio_id   INTEGER NOT NULL,
+    ciudad_id     INTEGER NOT NULL,
+    orden         SMALLINT NOT NULL,
+    hora_llegada  TIME DEFAULT NULL,
+
+    CONSTRAINT fk_servicio_paradas_servicio
+        FOREIGN KEY (servicio_id)
+        REFERENCES servicios(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_servicio_paradas_ciudad
+        FOREIGN KEY (ciudad_id)
+        REFERENCES ciudades(id)
 );
+
+
+-- =============================================================
+-- PASAJEROS
+-- =============================================================
 
 CREATE TABLE pasajeros (
     id          SERIAL PRIMARY KEY,
     nombre      VARCHAR(100) NOT NULL,
     apellido    VARCHAR(100) NOT NULL,
-    documento   VARCHAR(20)  NOT NULL UNIQUE,
+    documento   VARCHAR(20) NOT NULL UNIQUE,
     email       VARCHAR(150) DEFAULT NULL,
-    telefono    VARCHAR(30)  DEFAULT NULL,
-    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    telefono    VARCHAR(30) DEFAULT NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- =============================================================
+-- ESTADO DIARIO
+-- =============================================================
 
 CREATE TABLE estado_diario (
     id          SERIAL PRIMARY KEY,
+
     servicio_id INTEGER NOT NULL,
     fecha       DATE NOT NULL,
+
     demorado    INTEGER NOT NULL DEFAULT 0,
-    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (servicio_id) REFERENCES servicios(id),
-    UNIQUE (servicio_id, fecha)
+
+    updated_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_estado_diario_servicio
+        FOREIGN KEY (servicio_id)
+        REFERENCES servicios(id),
+
+    CONSTRAINT uq_estado_diario
+        UNIQUE (servicio_id, fecha)
 );
+
+
+CREATE INDEX idx_estado_diario_servicio_fecha
+    ON estado_diario(servicio_id, fecha);
+
+
+-- =============================================================
+-- RESERVAS
+-- =============================================================
 
 CREATE TABLE reservas (
     id              SERIAL PRIMARY KEY,
+
     servicio_id     INTEGER NOT NULL,
     pasajero_id     INTEGER NOT NULL,
     usuario_id      INTEGER DEFAULT NULL,
+
     fecha_viaje     DATE NOT NULL,
     asiento         INTEGER NOT NULL,
-    estado          VARCHAR(20) DEFAULT 'pendiente' CHECK(estado IN ('pendiente','confirmada','cancelada')),
-    estado_pago     VARCHAR(20) DEFAULT 'pendiente' CHECK(estado_pago IN ('pendiente','pagado','rechazado','cancelado')),
+
+    estado          VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+                    CHECK (
+                        estado IN (
+                            'pendiente',
+                            'confirmada',
+                            'cancelada'
+                        )
+                    ),
+
+    estado_pago     VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+                    CHECK (
+                        estado_pago IN (
+                            'pendiente',
+                            'pagado',
+                            'rechazado',
+                            'cancelado'
+                        )
+                    ),
+
     total           DECIMAL(10,2) DEFAULT NULL,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (servicio_id) REFERENCES servicios(id),
-    FOREIGN KEY (pasajero_id) REFERENCES pasajeros(id),
-    FOREIGN KEY (usuario_id)  REFERENCES usuarios(id),
-    UNIQUE (servicio_id, fecha_viaje, asiento)
+
+    created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_reservas_servicio
+        FOREIGN KEY (servicio_id)
+        REFERENCES servicios(id),
+
+    CONSTRAINT fk_reservas_pasajero
+        FOREIGN KEY (pasajero_id)
+        REFERENCES pasajeros(id),
+
+    CONSTRAINT fk_reservas_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES usuarios(id),
+
+    CONSTRAINT uq_reserva_asiento
+        UNIQUE (servicio_id, fecha_viaje, asiento)
 );
+
+
+CREATE INDEX idx_reservas_servicio_fecha
+    ON reservas(servicio_id, fecha_viaje);
+
+CREATE INDEX idx_reservas_usuario
+    ON reservas(usuario_id);
+
+CREATE INDEX idx_reservas_pasajero
+    ON reservas(pasajero_id);
+
 
 CREATE TRIGGER trg_reservas_updated_at
 BEFORE UPDATE ON reservas
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
+
+-- =============================================================
+-- PAGOS
+-- =============================================================
+
 CREATE TABLE pagos (
     id                          SERIAL PRIMARY KEY,
+
     reserva_id                  INTEGER NOT NULL UNIQUE,
-    mercadopago_preference_id   VARCHAR(255),
-    mercadopago_payment_id      VARCHAR(255),
-    estado                      VARCHAR(20) DEFAULT 'pendiente' CHECK(estado IN ('pendiente','pagado','rechazado','cancelado')),
-    monto                       DECIMAL(10,2),
-    respuesta_mp                TEXT,
-    created_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at                  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (reserva_id) REFERENCES reservas(id)
+
+    mercadopago_preference_id   VARCHAR(255) DEFAULT NULL,
+    mercadopago_payment_id      VARCHAR(255) DEFAULT NULL,
+
+    estado                      VARCHAR(20) NOT NULL DEFAULT 'pendiente'
+                                CHECK (
+                                    estado IN (
+                                        'pendiente',
+                                        'pagado',
+                                        'rechazado',
+                                        'cancelado'
+                                    )
+                                ),
+
+    monto                       DECIMAL(10,2) DEFAULT NULL,
+
+    respuesta_mp                TEXT DEFAULT NULL,
+
+    created_at                  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_pagos_reserva
+        FOREIGN KEY (reserva_id)
+        REFERENCES reservas(id)
+        ON DELETE CASCADE
 );
+
+
+CREATE INDEX idx_pagos_estado
+    ON pagos(estado);
+
+CREATE INDEX idx_pagos_mp_preference
+    ON pagos(mercadopago_preference_id);
+
+CREATE INDEX idx_pagos_mp_payment
+    ON pagos(mercadopago_payment_id);
+
 
 CREATE TRIGGER trg_pagos_updated_at
 BEFORE UPDATE ON pagos
 FOR EACH ROW
 EXECUTE FUNCTION set_updated_at();
 
--- Empresas
-INSERT INTO empresas (nombre, logo, descripcion, telefono, email, sitio_web, direccion) VALUES
-    ('Decatur', 'Decatur-logo.jpg', 'Decatur es una empresa de transporte de pasajeros y agencia de viajes ubicada en Melo, Cerro Largo.', '4642 4877', 'decatur@adinet.com.uy', NULL, 'Ansina 330, Melo, Cerro Largo'),
-    ('Ega', 'Ega-logo.jpg', 'EGA es una empresa uruguaya de transporte de pasajeros y turismo.', '4642 0505', 'comercial@ega.com.uy', 'www.ega.com.uy', 'Terminal de Ómnibus de Melo, Cerro Largo'),
-    ('La Flotta', 'Laflota-logo.jpg', 'La Flota es una empresa de transporte de pasajeros con sede en la ciudad de Melo.', '4642 7668', NULL, NULL, 'Terminal de Ómnibus de Melo, Cerro Largo'),
-    ('Nuñez', 'Nunez-logo.jpg', 'Nuñez Transporte y Turismo es una empresa uruguaya fundada en 1964 en Melo.', '4642 2566', NULL, 'www.nunez.com.uy', 'Manuela Lestido S/N, Melo, Cerro Largo'),
-    ('Posada', 'Posada-logo.jpg', 'Posada es una empresa familiar de transporte de pasajeros fundada en 1993.', '4642 0302', NULL, NULL, 'Terminal de Ómnibus de Melo, Cerro Largo'),
-    ('Turismar', 'Turismar-logo.jpg', 'Turismar es una empresa de transporte uruguayo fundada en 1976.', '4642 5214', NULL, 'www.turismar.com.uy', 'Terminal de Ómnibus de Melo, Cerro Largo'),
-    ('Unitur', 'Unitur-logo.jpg', 'Unitur es una empresa de transporte de pasajeros, turismo y encomiendas.', '4643 1233', NULL, NULL, 'Melo, Cerro Largo');
-    
--- Ciudades
+
+-- =============================================================
+-- MÉTRICAS DE USUARIOS
+-- =============================================================
+
+CREATE TABLE user_metrics_log (
+    id                SERIAL PRIMARY KEY,
+
+    user_id           INTEGER DEFAULT NULL,
+
+    event_type        VARCHAR(50) DEFAULT NULL,
+
+    event_timestamp   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    ip_address        VARCHAR(45) DEFAULT NULL,
+
+    session_id        VARCHAR(255) DEFAULT NULL,
+
+    CONSTRAINT fk_user_metrics_user
+        FOREIGN KEY (user_id)
+        REFERENCES usuarios(id)
+        ON DELETE SET NULL
+);
+
+
+CREATE INDEX idx_user_metrics_timestamp
+    ON user_metrics_log(event_timestamp);
+
+CREATE INDEX idx_user_id_metrics
+    ON user_metrics_log(user_id);
+
+CREATE INDEX idx_user_metrics_event_type
+    ON user_metrics_log(event_type);
+
+
+-- =============================================================
+-- EMPRESAS
+-- =============================================================
+
+INSERT INTO empresas (
+    nombre,
+    logo,
+    descripcion,
+    telefono,
+    email,
+    sitio_web,
+    direccion
+) VALUES
+(
+    'Decatur',
+    'Decatur-logo.jpg',
+    'Decatur es una empresa de transporte de pasajeros y agencia de viajes ubicada en Melo, Cerro Largo.',
+    '4642 4877',
+    'decatur@adinet.com.uy',
+    NULL,
+    'Ansina 330, Melo, Cerro Largo'
+),
+(
+    'Ega',
+    'Ega-logo.jpg',
+    'EGA es una empresa uruguaya de transporte de pasajeros y turismo.',
+    '4642 0505',
+    'comercial@ega.com.uy',
+    'www.ega.com.uy',
+    'Terminal de Ómnibus de Melo, Cerro Largo'
+),
+(
+    'La Flotta',
+    'Laflota-logo.jpg',
+    'La Flota es una empresa de transporte de pasajeros con sede en la ciudad de Melo.',
+    '4642 7668',
+    NULL,
+    NULL,
+    'Terminal de Ómnibus de Melo, Cerro Largo'
+),
+(
+    'Nuñez',
+    'Nunez-logo.jpg',
+    'Nuñez Transporte y Turismo es una empresa uruguaya fundada en 1964 en Melo.',
+    '4642 2566',
+    NULL,
+    'www.nunez.com.uy',
+    'Manuela Lestido S/N, Melo, Cerro Largo'
+),
+(
+    'Posada',
+    'Posada-logo.jpg',
+    'Posada es una empresa familiar de transporte de pasajeros fundada en 1993.',
+    '4642 0302',
+    NULL,
+    NULL,
+    'Terminal de Ómnibus de Melo, Cerro Largo'
+),
+(
+    'Turismar',
+    'Turismar-logo.jpg',
+    'Turismar es una empresa de transporte uruguayo fundada en 1976.',
+    '4642 5214',
+    NULL,
+    'www.turismar.com.uy',
+    'Terminal de Ómnibus de Melo, Cerro Largo'
+),
+(
+    'Unitur',
+    'Unitur-logo.jpg',
+    'Unitur es una empresa de transporte de pasajeros, turismo y encomiendas.',
+    '4643 1233',
+    NULL,
+    NULL,
+    'Melo, Cerro Largo'
+);
+
+
+-- =============================================================
+-- CIUDADES
+-- =============================================================
+
 INSERT INTO ciudades (nombre) VALUES
     ('Aceguá'),
     ('Batlle y Ordóñez'),
@@ -174,7 +474,11 @@ INSERT INTO ciudades (nombre) VALUES
     ('Treinta y Tres'),
     ('Tupambaé');
 
--- Servicios (Solo salidas con Origen en Melo)
+
+-- =============================================================
+-- SERVICIOS
+-- =============================================================
+-- -- Servicios (Solo salidas con Origen en Melo)
 INSERT INTO servicios (destino_id, empresa_id, hora, tipo, duracion, precio, asientos, anden, bus, estado, dias) VALUES
     -- NUÑEZ
     ((SELECT id FROM ciudades WHERE nombre='Punta del Este'),(SELECT id FROM empresas WHERE nombre='Nuñez'),'00:30','De Linea','5h 00m',540.0,39,'A-01','MELPUN-9174','demorado','Lunes, Martes, Viernes, Sábado'),
@@ -292,7 +596,41 @@ INSERT INTO servicios (destino_id, empresa_id, hora, tipo, duracion, precio, asi
     ((SELECT id FROM ciudades WHERE nombre='Montevideo'),(SELECT id FROM empresas WHERE nombre='Turismar'),'18:00','Directo Domingo','5h 44m',610.0,36,'A-03','MELMON-6186','horario','Domingo'),
     ((SELECT id FROM ciudades WHERE nombre='Montevideo'),(SELECT id FROM empresas WHERE nombre='Turismar'),'02:15','Directo Lunes','5h 44m',610.0,43,'A-04','MELMON-8874','demorado','Lunes');
 
--- Usuarios de prueba
-INSERT INTO usuarios (nombre, apellido, email, password_hash, rol) VALUES
-    ('Admin', 'Terminal', 'admin@terminal.com', '$2y$12$wU6LMu.SDhYvfijWxfptKeCTiTTUJraNZWUDynEwFVrgCM7eSxH4S', 'admin'),
-    ('Cliente', 'De Prueba', 'cliente@ejemplo.com', '$2y$12$msY/pEnsL.NTLy.bnmxLIuMv9Gr/fdMLeyBHOfPZtzeQClCYyJZxe', 'cliente');
+
+-- =============================================================
+-- USUARIOS DE PRUEBA
+-- =============================================================
+
+INSERT INTO usuarios (
+    nombre,
+    apellido,
+    email,
+    password_hash,
+    rol,
+    email_verified
+) VALUES
+(
+    'Admin',
+    'Terminal',
+    'admin@terminal.com',
+    '$2y$12$wU6LMu.SDhYvfijWxfptKeCTiTTUJraNZWUDynEwFVrgCM7eSxH4S',
+    'admin',
+    TRUE
+),
+(
+    'Cliente',
+    'De Prueba',
+    'cliente@ejemplo.com',
+    '$2y$12$msY/pEnsL.NTLy.bnmxLIuMv9Gr/fdMLeyBHOfPZtzeQClCYyJZxe',
+    'cliente',
+    TRUE
+);
+
+
+-- =============================================================
+-- FINALIZAR
+-- =============================================================
+
+COMMIT;
+
+
