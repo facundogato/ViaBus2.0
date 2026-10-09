@@ -338,35 +338,15 @@ EXECUTE FUNCTION set_updated_at();
 -- MÉTRICAS DE USUARIOS
 -- =============================================================
 
-CREATE TABLE user_metrics_log (
-    id                SERIAL PRIMARY KEY,
-
-    user_id           INTEGER DEFAULT NULL,
-
-    event_type        VARCHAR(50) DEFAULT NULL,
-
-    event_timestamp   TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    ip_address        VARCHAR(45) DEFAULT NULL,
-
-    session_id        VARCHAR(255) DEFAULT NULL,
-
-    CONSTRAINT fk_user_metrics_user
-        FOREIGN KEY (user_id)
-        REFERENCES usuarios(id)
-        ON DELETE SET NULL
+CREATE TABLE IF NOT EXISTS user_metrics_log (
+    id          SERIAL PRIMARY KEY,
+    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    event       VARCHAR(10) NOT NULL CHECK (event IN ('login', 'logout')),
+    created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
-
-CREATE INDEX idx_user_metrics_timestamp
-    ON user_metrics_log(event_timestamp);
-
-CREATE INDEX idx_user_id_metrics
-    ON user_metrics_log(user_id);
-
-CREATE INDEX idx_user_metrics_event_type
-    ON user_metrics_log(event_type);
-
+CREATE INDEX IF NOT EXISTS idx_umlog_event_time ON user_metrics_log (event, created_at);
+CREATE INDEX IF NOT EXISTS idx_umlog_user_time  ON user_metrics_log (user_id, created_at);
 
 -- =============================================================
 -- EMPRESAS

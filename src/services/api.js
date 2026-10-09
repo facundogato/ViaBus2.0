@@ -18,10 +18,11 @@ async function request(path, options = {}) {
   }
 
   if (!res.ok) {
-    const message = data?.error || `Error ${res.status} al comunicarse con el servidor`
-    throw new Error(message)
-  }
-
+  const message = data?.error || `Error ${res.status} al comunicarse con el servidor`
+  const err = new Error(message)
+  err.data = data   // acá viene code y user_id cuando la cuenta no está verificada
+  throw err
+}
   return data
 }
 
@@ -77,8 +78,8 @@ export function getEmpresa(id) {
 }
 
 // ---- Servicios ----
-export function buscarServicios(origen, destino) {
-  const params = new URLSearchParams({ origen, destino })
+export function buscarServicios( destino) {
+  const params = new URLSearchParams({  destino })
   return request(`servicios.php?${params}`)
 }
 

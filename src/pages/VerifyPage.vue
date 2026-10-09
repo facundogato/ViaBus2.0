@@ -141,10 +141,9 @@ const emailMostrado = computed(() => {
 
 // Cargar datos al montar
 onMounted(() => {
-  // Intentar obtener de query params o localStorage
   email = route.query.email || localStorage.getItem('email_pendiente')
   userId = parseInt(
-    localStorage.getItem('user_id_pendiente') || 0
+    route.query.user_id || localStorage.getItem('user_id_pendiente') || 0
   )
 
   if (!userId || !email) {

@@ -122,11 +122,14 @@ async function hacerLogin() {
     guardarSesion(usuario.user)
     irLuegoDeAutenticar()
   } catch (e) {
-    // Si el error menciona verificación de email, ofrecemos redirigir a verificar
-    if (e.message.includes('verificar') || e.message.includes('EMAIL_NOT_VERIFIED')) {
+    if (e.data?.code === 'EMAIL_NOT_VERIFIED') {
       mensajeVerificacion.value = 'Debes verificar tu email. Redirigiendo...'
+      const userId = e.data.user_id
       setTimeout(() => {
-        router.push({ path: '/verificar', query: { email: loginForm.value.email } })
+        router.push({
+          path: '/verificar',
+          query: { email: loginForm.value.email, user_id: userId }
+        })
       }, 1500)
     } else {
       error.value = e.message

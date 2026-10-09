@@ -48,6 +48,13 @@ if (
 
 unset($usuario['password_hash']);
 
+try {
+    $stmt = $pdo->prepare("INSERT INTO user_metrics_log (user_id, event) VALUES (?, 'login')");
+    $stmt->execute([$usuario['id']]);
+} catch (Throwable $e) {
+    error_log('login.php metrics: ' . $e->getMessage());
+}
+
 sendResponse([
     'success' => true,
     'user' => $usuario
