@@ -48,7 +48,7 @@
     <NavMenuItem to="/tablero" icono="dashboard" etiqueta="Tablero" />
     <NavMenuItem to="/comprar" icono="receipt" etiqueta="Comprar Pasaje" />
     <NavMenuItem to="/info" icono="menu_book" etiqueta="Info general" tamano-icono="22px" />
-
+    <NavMenuItem to="/consultas" icono="question_answer" etiqueta="Consultas" tamano-icono="22px" />
     <!-- SEPARADOR ADMINISTRACION: solo visible si el usuario logueado es admin -->
     <template v-if="isAdmin">
       <div class="seccion-label">ADMINISTRACIÓN</div>
@@ -179,7 +179,7 @@ onUnmounted(() => {
 }
 
 .seccion-label{
-  padding:12px 25px 6px;
+  padding:16px 30px 6px;
   color:#7b8198;
   font-size:10px;
   letter-spacing:2px;
@@ -254,8 +254,9 @@ onUnmounted(() => {
 }
 
 .seccion-label{
-  color: var(--color-texto);
-  font-size: 12px;
+  color: var(--color-texto-suave);
+  -webkit-text-stroke: 0.2px black;
+  font-size: 16px;
   font-weight: bold;
 }
 @media(max-width:700px){

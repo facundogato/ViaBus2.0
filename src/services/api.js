@@ -137,6 +137,16 @@ export function cancelarReserva(id) {
   })
 }
 
+
+// Marca una reserva como confirmada y pagada (pago provisorio o confirmación manual).
+export function confirmarReservaPagada(id) {
+  return request(`reservas.php?id=${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ estado: 'confirmada', estado_pago: 'pagado' })
+  })
+}
+
+
 // ---- Perfil de usuario ----
 export function actualizarPerfil(id, payload) {
   return request(`usuarios.php?id=${id}`, {

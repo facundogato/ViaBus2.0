@@ -14,6 +14,7 @@ import VerifyPage from '../pages/VerifyPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import CompanyDetailPage from '../pages/CompanyDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import ConsultasPage from '../pages/ConsultasPage.vue'
 
 const routes = [
 
@@ -88,6 +89,11 @@ const routes = [
   {
     path: '/:catchAll(.*)*',
     component: NotFoundPage
+  },
+
+  {
+    path: '/consultas',
+    component: ConsultasPage
   }
 
 ]

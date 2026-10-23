@@ -55,7 +55,16 @@ try {
     error_log('login.php metrics: ' . $e->getMessage());
 }
 
+// Crear sesión: el token real solo viaja al cliente, en la base queda su hash
+$token = bin2hex(random_bytes(32));
+$stmt = $pdo->prepare("
+    INSERT INTO sesiones (usuario_id, token_hash, expira_en)
+    VALUES (?, ?, NOW() + INTERVAL '24 hours')
+");
+$stmt->execute([$usuario['id'], hash('sha256', $token)]);
+
 sendResponse([
     'success' => true,
-    'user' => $usuario
+    'user'    => $usuario,
+    'token'   => $token
 ]);

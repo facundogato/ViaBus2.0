@@ -25,7 +25,9 @@
         <slot />
       </div>
 
+      <MenuConsultas />
       <Appfooter />
+      <ChatConsultas endpoint="/api/ChatBot/consultas.php" />
     </div>
 
   </div>
@@ -36,6 +38,8 @@ import { ref, onMounted } from 'vue'
 import AppSidebar from './AppSidebar.vue'
 import TopBar from './TopBar.vue'
 import Appfooter from './Appfooter.vue'
+import MenuConsultas from './MenuConsultas.vue'
+import ChatConsultas from './ChatConsultas.vue'
 // En pantallas grandes el sidebar empuja el contenido, así que arranca
 // abierto. En pantallas chicas es un panel flotante que se superpone,
 // así que arranca cerrado (igual que antes).
