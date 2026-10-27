@@ -1,8 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/helpers.php';
-require_once __DIR__ . '/../../config/auth.php';
-
+require_once __DIR__ . '/../../api/auth/auth.php';
 setCorsHeaders();
 handlePreflight();
 requireMethod('GET');

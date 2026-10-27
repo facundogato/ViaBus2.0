@@ -15,6 +15,8 @@ import NotFoundPage from '../pages/NotFoundPage.vue'
 import CompanyDetailPage from '../pages/CompanyDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
 import ConsultasPage from '../pages/ConsultasPage.vue'
+import ChoferEscanerPage from '../pages/ChoferEscanerPage.vue'
+import AdminTarjetasPage from '../pages/AdminTarjetasPage.vue'
 
 const routes = [
 
@@ -23,7 +25,6 @@ const routes = [
     path: '/',
     redirect: '/terminal'
   },
-
   // LA TERMINAL (home)
   {
     path: '/terminal',
@@ -90,6 +91,17 @@ const routes = [
     path: '/:catchAll(.*)*',
     component: NotFoundPage
   },
+
+  {
+    path: '/escaner',
+    component: ChoferEscanerPage,
+  },
+
+ {
+    path: '/tarjetas',
+    component: AdminTarjetasPage,
+  },
+
 
   {
     path: '/consultas',

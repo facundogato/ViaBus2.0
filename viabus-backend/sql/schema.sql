@@ -677,6 +677,39 @@ INSERT INTO usuarios (
 );
 
 
+-- desarrollo: agregar extensión para generar UIDs de tarjetas y columna para fecha de impresión
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+ALTER TABLE tarjetas ADD COLUMN impresa_en TIMESTAMP;
+
+-- Crear tarjeta a quienes todavía no tienen una activa
+INSERT INTO tarjetas (card_uid, usuario_id)
+SELECT 'VB' || upper(encode(gen_random_bytes(8), 'hex')), u.id
+FROM usuarios u
+WHERE u.id IN (12, 25, 31)   -- ids de los usuarios a los que les toca tarjeta
+  AND NOT EXISTS (
+      SELECT 1 FROM tarjetas t WHERE t.usuario_id = u.id AND t.activa
+  );
+
+
+  ALTER TABLE tarjetas
+  ADD COLUMN estado        VARCHAR(20) NOT NULL DEFAULT 'solicitada',
+  ADD COLUMN solicitada_en TIMESTAMP   NOT NULL DEFAULT NOW(),
+  ADD COLUMN entregada_en  TIMESTAMP;
+
+-- Conservar lo que ya hayas creado en pruebas
+UPDATE tarjetas SET estado = CASE
+    WHEN NOT activa             THEN 'anulada'
+    WHEN impresa_en IS NOT NULL THEN 'impresa'
+    ELSE 'solicitada' END;
+
+ALTER TABLE tarjetas DROP COLUMN activa;
+
+-- Una sola tarjeta vigente por usuario (también frena el doble clic)
+CREATE UNIQUE INDEX tarjeta_vigente_unica ON tarjetas (usuario_id) WHERE estado <> 'anulada';
+
+UPDATE usuarios SET rol = 'chofer' WHERE email = 'chofer@ejemplo.com';
+UPDATE servicios SET chofer_id = (SELECT id FROM usuarios WHERE email = 'chofer@ejemplo.com') WHERE id = 123;
 -- =============================================================
 -- FINALIZAR
 -- =============================================================

@@ -53,6 +53,8 @@
     <template v-if="isAdmin">
       <div class="seccion-label">ADMINISTRACIÓN</div>
       <NavMenuItem to="/admin" icono="admin_panel_settings" etiqueta="Panel Admin" tamano-icono="22px" />
+      <NavMenuItem to="/tarjetas" icono="credit_card" etiqueta="Tarjetas" tamano-icono="22px" />
+      <NavMenuItem to="/escaner" icono="qr_code_scanner" etiqueta="Escáner de abordaje" tamano-icono="22px" />
     </template>
 
     <!-- SEPARADOR MI CUENTA -->

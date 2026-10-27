@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../config/helpers.php';
-require_once __DIR__ . '/../../config/auth.php';
+require_once __DIR__ . '/../../api/auth/auth.php';
 
 setCorsHeaders();
 handlePreflight();
@@ -30,7 +30,7 @@ $stmt = $pdo->prepare("
     SELECT t.id AS tarjeta_id, u.id AS usuario_id, u.nombre
     FROM tarjetas t
     JOIN usuarios u ON u.id = t.usuario_id
-    WHERE t.card_uid = ? AND t.activa = TRUE
+    WHERE t.card_uid = ? AND t.estado = 'entregada'
 ");
 $stmt->execute([$cardUid]);
 $tarjeta = $stmt->fetch();

@@ -147,6 +147,8 @@
               <small v-if="!puedeCancelar(r)" class="nota">
                 Faltan menos de {{ PLAZO_HORAS }} hs
               </small>
+
+              <TarjetaQrSeccion></TarjetaQrSeccion>
             </template>
           </div>
         </article>
@@ -157,6 +159,7 @@
 </template>
 
 <script setup>
+import TarjetaQrSeccion from 'src/components/tarjeta/TarjetaQrSeccion.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
