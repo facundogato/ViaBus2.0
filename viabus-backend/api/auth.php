@@ -1,61 +1,53 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/helpers.php';
 
-setCorsHeaders();
-handlePreflight();
+// Devuelve el usuario dueño del token Bearer, o corta con 401
+function obtenerUsuarioAutenticado(PDO $pdo): array
+{
+    $header = $_SERVER['HTTP_AUTHORIZATION']
+        ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION']
+        ?? '';
 
-$pdo    = getConnection();
-$method = $_SERVER['REQUEST_METHOD'];
-$action = $_GET['action'] ?? '';
-
-// POST /api/auth.php?action=login    → iniciar sesión (email + password)
-// POST /api/auth.php?action=register → crear una cuenta nueva (rol "cliente")
-
-if ($method === 'POST' && $action === 'login') {
-    $body = getRequestBody();
-
-    if (empty($body['email']) || empty($body['password'])) {
-        sendError('Correo y contraseña son obligatorios');
+    if (!$header && function_exists('getallheaders')) {
+        $h = array_change_key_case(getallheaders(), CASE_LOWER);
+        $header = $h['authorization'] ?? '';
     }
 
-    $stmt = $pdo->prepare("SELECT * FROM usuarios WHERE email = ?");
-    $stmt->execute([$body['email']]);
+    if (!preg_match('/^Bearer\s+(\S+)$/i', $header, $m)) {
+        sendError('No autenticado', 401);
+    }
+
+    $stmt = $pdo->prepare("
+        SELECT u.*
+        FROM sesiones s
+        JOIN usuarios u ON u.id = s.usuario_id
+        WHERE s.token_hash = ? AND s.expira_en > NOW()
+    ");
+    $stmt->execute([hash('sha256', $m[1])]);
     $usuario = $stmt->fetch();
 
-    if (!$usuario || !password_verify($body['password'], $usuario['password_hash'])) {
-        sendError('Correo o contraseña incorrectos', 401);
+    if (!$usuario) {
+        sendError('Sesión inválida o vencida', 401);
     }
 
     unset($usuario['password_hash']);
-    sendResponse($usuario);
+    return $usuario;
 }
 
-if ($method === 'POST' && $action === 'register') {
-    $body = getRequestBody();
-
-    foreach (['nombre', 'apellido', 'email', 'password'] as $f) {
-        if (empty($body[$f])) sendError("El campo '$f' es obligatorio");
+function obtenerChoferAutenticado(PDO $pdo): array
+{
+    $usuario = obtenerUsuarioAutenticado($pdo);
+    if (($usuario['rol'] ?? '') !== 'chofer') {
+        sendError('Acceso solo para choferes', 403);
     }
-    if (strlen($body['password']) < 6) {
-        sendError('La contraseña debe tener al menos 6 caracteres');
-    }
-
-    try {
-        $hash = password_hash($body['password'], PASSWORD_DEFAULT);
-        $pdo->prepare("
-            INSERT INTO usuarios (nombre, apellido, email, password_hash, rol)
-            VALUES (?, ?, ?, ?, 'cliente')
-        ")->execute([$body['nombre'], $body['apellido'], $body['email'], $hash]);
-
-        $id = $pdo->lastInsertId();
-        $stmt = $pdo->prepare("SELECT id, nombre, apellido, email, rol, created_at FROM usuarios WHERE id = ?");
-        $stmt->execute([$id]);
-        sendResponse($stmt->fetch(), 201);
-    } catch (\PDOException $e) {
-        if ($e->getCode() === '23000') sendError('Ese correo ya está registrado');
-        throw $e;
-    }
+    return $usuario;
 }
 
-sendError('Método no soportado', 405);
+
+function obtenerAdminAutenticado(PDO $pdo): array
+{
+    $usuario = obtenerUsuarioAutenticado($pdo);
+    if (($usuario['rol'] ?? '') !== 'admin') {
+        sendError('Acceso solo para administradores', 403);
+    }
+    return $usuario;
+}

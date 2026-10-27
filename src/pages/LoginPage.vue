@@ -119,7 +119,7 @@ async function hacerLogin() {
   mensajeVerificacion.value = ''
   try {
     const usuario = await login(loginForm.value.email, loginForm.value.password)
-    guardarSesion(usuario.user)
+    guardarSesion(usuario.user, usuario.token)
     irLuegoDeAutenticar()
   } catch (e) {
     if (e.data?.code === 'EMAIL_NOT_VERIFIED') {

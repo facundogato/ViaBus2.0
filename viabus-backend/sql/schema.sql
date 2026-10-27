@@ -364,7 +364,7 @@ EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE IF NOT EXISTS user_metrics_log (
     id          SERIAL PRIMARY KEY,
-    user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id     INTEGER NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
     event       VARCHAR(10) NOT NULL CHECK (event IN ('login', 'logout')),
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
 );

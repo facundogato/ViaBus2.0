@@ -92,14 +92,18 @@ const routes = [
     component: NotFoundPage
   },
 
+  // ESCÁNER DE ABORDAJE — solo choferes
   {
     path: '/escaner',
     component: ChoferEscanerPage,
+    meta: { requiresChofer: true }
   },
 
- {
+  // TARJETAS QR (imprimir, entregar, administrar) — solo admin
+  {
     path: '/tarjetas',
     component: AdminTarjetasPage,
+    meta: { requiresAdmin: true }
   },
 
 
@@ -119,13 +123,16 @@ const router = createRouter({
 // Sin sesión se manda a /login (guardando a dónde quería ir); con sesión
 // pero sin ser admin en una ruta de admin, se manda al inicio.
 router.beforeEach((to) => {
-  if (to.meta.requiresAdmin || to.meta.requiresAuth) {
-    const { isAuthenticated, isAdmin } = useAuth()
+  if (to.meta.requiresAdmin || to.meta.requiresAuth || to.meta.requiresChofer) {
+    const { isAuthenticated, isAdmin, isChofer } = useAuth()
 
     if (!isAuthenticated.value) {
       return { path: '/login', query: { redirect: to.fullPath } }
     }
     if (to.meta.requiresAdmin && !isAdmin.value) {
+      return { path: '/terminal' }
+    }
+    if (to.meta.requiresChofer && !isChofer.value) {
       return { path: '/terminal' }
     }
   }

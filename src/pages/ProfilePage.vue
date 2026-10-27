@@ -79,6 +79,9 @@
         </section>
       </transition>
 
+      <!-- MI TARJETA QR: solicitud con los datos del perfil y seguimiento -->
+      <TarjetaQrSeccion v-if="usuario" />
+
       <!-- PESTAÑAS -->
       <nav class="pestanas">
         <button
@@ -147,8 +150,6 @@
               <small v-if="!puedeCancelar(r)" class="nota">
                 Faltan menos de {{ PLAZO_HORAS }} hs
               </small>
-
-              <TarjetaQrSeccion></TarjetaQrSeccion>
             </template>
           </div>
         </article>

@@ -54,6 +54,11 @@
       <div class="seccion-label">ADMINISTRACIÓN</div>
       <NavMenuItem to="/admin" icono="admin_panel_settings" etiqueta="Panel Admin" tamano-icono="22px" />
       <NavMenuItem to="/tarjetas" icono="credit_card" etiqueta="Tarjetas" tamano-icono="22px" />
+    </template>
+
+    <!-- CHOFER: solo visible si el usuario logueado tiene rol chofer -->
+    <template v-if="isChofer">
+      <div class="seccion-label">CHOFER</div>
       <NavMenuItem to="/escaner" icono="qr_code_scanner" etiqueta="Escáner de abordaje" tamano-icono="22px" />
     </template>
 
@@ -106,7 +111,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue'])
 
-const { usuario, isAuthenticated, isAdmin } = useAuth()
+const { usuario, isAuthenticated, isAdmin, isChofer } = useAuth()
 
 const inicialUsuario = computed(() =>
   usuario.value

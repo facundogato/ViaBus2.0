@@ -41,7 +41,8 @@ if (!$tarjeta) {
 // 3. Pasaje confirmado para este servicio
 $stmt = $pdo->prepare("
     SELECT 1 FROM reservas
-    WHERE usuario_id = ? AND servicio_id = ? AND estado = 'confirmada'   -- ajustá
+    WHERE usuario_id = ? AND servicio_id = ? AND estado = 'confirmada'
+      AND fecha_viaje = timezone('America/Montevideo', NOW())::date   -- el pasaje tiene que ser de HOY
     LIMIT 1
 ");
 $stmt->execute([$tarjeta['usuario_id'], $servicioId]);
@@ -51,9 +52,9 @@ if (!$stmt->fetch()) {
 
 // 4. Registrar (el UNIQUE evita duplicados)
 $stmt = $pdo->prepare("
-    INSERT INTO abordajes (servicio_id, usuario_id, tarjeta_id, chofer_id)
-    VALUES (?, ?, ?, ?)
-    ON CONFLICT (servicio_id, usuario_id) DO NOTHING
+    INSERT INTO abordajes (servicio_id, usuario_id, tarjeta_id, chofer_id, fecha)
+    VALUES (?, ?, ?, ?, timezone('America/Montevideo', NOW())::date)
+    ON CONFLICT (servicio_id, usuario_id, fecha) DO NOTHING
 ");
 $stmt->execute([$servicioId, $tarjeta['usuario_id'], $tarjeta['tarjeta_id'], $chofer['id']]);
 
