@@ -41,3 +41,13 @@ function obtenerChoferAutenticado(PDO $pdo): array
     }
     return $usuario;
 }
+
+
+function obtenerAdminAutenticado(PDO $pdo): array
+{
+    $usuario = obtenerUsuarioAutenticado($pdo);
+    if (($usuario['rol'] ?? '') !== 'admin') {
+        sendError('Acceso solo para administradores', 403);
+    }
+    return $usuario;
+}

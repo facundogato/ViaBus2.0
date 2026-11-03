@@ -212,24 +212,19 @@
     <!-- PASO 5: PAGO -->
     <div v-if="pasoActual === 4" class="paso-content">
 
-      <PaymentStep
-        :resumen="resumenPago"
-        :fase="fasePago"
-        :mensaje-error="mensajeErrorPago"
-        @volver="subirAlPaso(3)"
-        @pagar="iniciarPago"
-        @reintentar="iniciarPago"
-      />
+     <PaymentStep
+  :resumen="resumenPago"
+  :fase="fasePago"
+  :mensaje-error="mensajeErrorPago"
+  @volver="subirAlPaso(3)"
+  @pagar="iniciarPago"
+  @reintentar="iniciarPago"
+  @saltear="saltearPago"
+/>
 
       <!-- Botón de demo: crea la reserva real, la confirma y avanza -->
       <div v-if="debugMode" class="contenedor-debug">
-  <button
-    class="btn-debug"
-    :disabled="fasePago === 'procesando'"
-    @click="avanzarDemo"
-  >
-    ⏩ Avanzar a Confirmación
-  </button>
+
 </div>
 
     </div>
@@ -770,6 +765,68 @@ onMounted(() => {
     router.replace({ path: '/comprar' })
   }
 })
+
+
+
+
+
+
+async function saltearPago() {
+  try {
+    // Si todavía no existe una reserva, crear una provisoria.
+    if (!reservaCreada.value) {
+      if (!servicioSeleccionado.value || !asientoSeleccionado.value) {
+        $q.notify({
+          type: 'warning',
+          message: 'Primero seleccioná un servicio y un asiento.'
+        })
+        return
+      }
+
+      reservaCreada.value = await crearReserva({
+        servicio_id: servicioSeleccionado.value.id,
+        fecha_viaje: busqueda.value.fecha,
+        asiento: asientoSeleccionado.value,
+        total: Number(servicioSeleccionado.value.precio) || 1,
+        pasajero: pasajero.value,
+        usuario_id: usuario.value?.id
+      })
+    }
+
+    // Asegurar un importe positivo para mostrar la reserva.
+    const total = Number(
+      reservaCreada.value.total ??
+      servicioSeleccionado.value?.precio
+    )
+
+    if (!Number.isFinite(total) || total <= 0) {
+      reservaCreada.value.total =
+        Number(servicioSeleccionado.value?.precio) || 1
+    } else {
+      reservaCreada.value.total = total
+    }
+
+    // Ir del paso 5 directamente al paso 6.
+    fasePago.value = 'resumen'
+    mensajeErrorPago.value = ''
+    pasoActual.value = 5
+
+  } catch (e) {
+    console.error('Error al saltear el pago:', e)
+    $q.notify({
+      type: 'negative',
+      message: 'No se pudo crear la reserva: ' + e.message
+    })
+  }
+}
+
+
+const emit = defineEmits([
+  'volver',
+  'pagar',
+  'reintentar',
+  'saltear'
+])
 
 </script>
 

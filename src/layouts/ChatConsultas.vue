@@ -9,7 +9,7 @@
   Las preguntas y respuestas viven en el servidor (consultas_faq.php).
 -->
 <script setup>
-import { ref, nextTick, watch, onMounted } from 'vue'
+import { ref, nextTick, watch, onMounted, onBeforeUnmount } from 'vue'
 
 const props = defineProps({
   // URL de consultas.php, sin parámetros
@@ -102,7 +102,13 @@ watch(abierto, (valor) => {
   irAlFinal()
 })
 
+// La página de preguntas frecuentes puede abrir el chat con este evento
+const abrirDesdeAfuera = () => { abierto.value = true }
+
+onBeforeUnmount(() => window.removeEventListener('viabus:abrir-chat', abrirDesdeAfuera))
+
 onMounted(async () => {
+  window.addEventListener('viabus:abrir-chat', abrirDesdeAfuera)
   try {
     preguntas.value = (await api('faq')).preguntas
   } catch {

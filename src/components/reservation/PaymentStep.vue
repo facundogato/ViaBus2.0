@@ -128,6 +128,10 @@
           <q-icon name="payment" size="18px" />
           Pagar con Mercado Pago
         </button>
+
+        <button @click="$emit('saltear')">
+  Saltear
+</button>
       </div>
 
     </template>
