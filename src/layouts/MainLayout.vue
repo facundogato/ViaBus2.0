@@ -20,10 +20,13 @@
     <!-- Columna principal: se corre/ensancha según el sidebar.
          Adentro van el contenido y el footer, así ambos reaccionan igual. -->
     <div class="principal" :class="{ 'principal--full': !sidebarAbierta }">
-      <div class="contenido">
-        <TopBar />
-        <slot />
-      </div>
+     <div class="contenido">
+  <TopBar />
+
+  <div class="contenido-pagina">
+    <slot />
+  </div>
+</div>
 
       <Appfooter />
       <ChatConsultas endpoint="/api/ChatBot/consultas.php" />
@@ -92,4 +95,71 @@ onMounted(() => {
 
 }
 
+
+/* =====================================
+   TRANSICIONES ENTRE PÁGINAS
+===================================== */
+
+.pagina-enter-from {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+.pagina-enter-active {
+  transition:
+    opacity 0.4s ease,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pagina-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pagina-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.pagina-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.pagina-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .pagina-enter-active,
+  .pagina-leave-active {
+    transition: none;
+  }
+}
+
+
+.contenido-pagina {
+  animation: entrada-contenido 0.5s ease both;
+}
+
+@keyframes entrada-contenido {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contenido-pagina {
+    animation: none;
+  }
+}
 </style>

@@ -119,14 +119,15 @@ onMounted(async () => {
 
 <template>
   <div class="chat">
-    <section
-      v-show="abierto"
-      id="chat-panel"
-      class="chat__panel"
-      role="dialog"
-      aria-label="Asistente de consultas"
-      @keydown.esc="abierto = false"
-    >
+    <Transition name="chat-entrada">
+  <section
+    v-if="abierto"
+    id="chat-panel"
+    class="chat__panel"
+    role="dialog"
+    aria-label="Asistente de consultas"
+    @keydown.esc="abierto = false"
+  >
       <header class="chat__cabecera">
         <h2 class="chat__titulo">{{ titulo }}</h2>
         <button class="chat__cerrar" type="button" aria-label="Cerrar chat" @click="abierto = false">
@@ -185,6 +186,7 @@ onMounted(async () => {
         <button class="chat__enviar" type="submit" :disabled="!texto.trim() || enviando">Enviar</button>
       </form>
     </section>
+    </Transition>
 
     <button
       class="chat__lanzador"
@@ -443,5 +445,73 @@ onMounted(async () => {
   .chat__flecha {
     transition: none;
   }
+}
+
+/* =========================================
+   ANIMACIÓN DE APERTURA Y CIERRE DEL CHAT
+========================================= */
+
+/* Estado inicial al abrir */
+.chat-entrada-enter-from {
+  opacity: 0;
+  transform: translateY(35px) scale(0.92);
+}
+
+/* Estado final al abrir */
+.chat-entrada-enter-to {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Animación de entrada */
+.chat-entrada-enter-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Estado inicial al cerrar */
+.chat-entrada-leave-from {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Estado final al cerrar */
+.chat-entrada-leave-to {
+  opacity: 0;
+  transform: translateY(25px) scale(0.95);
+}
+
+/* Animación de salida */
+.chat-entrada-leave-active {
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  pointer-events: none;
+}
+
+/* Respeta la configuración de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .chat-entrada-enter-active,
+  .chat-entrada-leave-active {
+    transition: none;
+  }
+}
+
+.chat__lanzador {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.chat__lanzador:hover {
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+}
+
+.chat__lanzador:active {
+  transform: scale(0.95);
 }
 </style>

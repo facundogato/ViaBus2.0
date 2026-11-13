@@ -80,7 +80,7 @@
       </transition>
 
       <!-- MI TARJETA QR: solicitud con los datos del perfil y seguimiento -->
-      <TarjetaQrSeccion v-if="usuario" />
+
 
       <!-- PESTAÑAS -->
       <nav class="pestanas">

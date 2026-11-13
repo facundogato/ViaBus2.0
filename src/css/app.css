@@ -62,3 +62,31 @@ body.modo-claro {
 body {
   transition: background-color 0.25s, color 0.25s;
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+/* un azul todavía más oscuro que tu fondo para el carril */
+::-webkit-scrollbar-track {
+  background: #0d1b2a; /* poné un tono bien oscuro de tu paleta */
+  border-radius: 4px;
+}
+
+/* el pulgar con tu amarillo de detalles */
+::-webkit-scrollbar-thumb {
+  background: #ffdb00; /* tu color amarillo */
+  border-radius: 4px;
+}
+
+/* cuando pasás el mouse se vuelve un toque más oscuro o brillante */
+::-webkit-scrollbar-thumb:hover {
+  background: #e6c200; 
+}
+
+/* soporte para firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ffdb00 #0d1b2a;
+}
