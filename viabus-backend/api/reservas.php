@@ -10,6 +10,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // Hasta cuántas horas antes de la salida se puede cancelar una reserva.
 const PLAZO_CANCELACION_HORAS = 3;
+// Ciudad de la terminal: todos los servicios salen desde acá.
+const CIUDAD_ORIGEN = 'Melo';
 
 // GET  /api/reservas.php                        → todas las reservas (uso interno/admin)
 // GET  /api/reservas.php?id=3                   → reserva por ID
@@ -44,23 +46,26 @@ if ($method === 'GET') {
     }
 
     // Reservas de un usuario logueado (para la página "Mi Perfil").
-    if (isset($_GET['usuario_id'])) {
+       if (isset($_GET['usuario_id'])) {
         $stmt = $pdo->prepare("
             SELECT r.id, r.fecha_viaje, r.asiento, r.estado, r.estado_pago, r.total, r.created_at,
                    s.id AS servicio_id, s.hora, s.tipo, s.anden, s.bus,
-                   c_o.nombre AS origen, c_d.nombre AS destino,
+                   :origen AS origen,
+                   c_d.nombre AS destino,
                    e.nombre   AS empresa,
                    (p.nombre || ' ' || p.apellido) AS pasajero
             FROM reservas r
-            JOIN servicios s ON r.servicio_id = s.id
-            JOIN ciudades c_o ON s.origen_id  = c_o.id
-            JOIN ciudades c_d ON s.destino_id = c_d.id
-            JOIN empresas e   ON s.empresa_id = e.id
+            JOIN servicios s  ON r.servicio_id = s.id
+            JOIN ciudades c_d ON s.destino_id  = c_d.id
+            JOIN empresas e   ON s.empresa_id  = e.id
             JOIN pasajeros p  ON r.pasajero_id = p.id
-            WHERE r.usuario_id = ?
+            WHERE r.usuario_id = :usuario_id
             ORDER BY r.fecha_viaje DESC, s.hora DESC
         ");
-        $stmt->execute([(int)$_GET['usuario_id']]);
+        $stmt->execute([
+            ':origen'     => CIUDAD_ORIGEN,
+            ':usuario_id' => (int)$_GET['usuario_id'],
+        ]);
         sendResponse($stmt->fetchAll());
     }
 
@@ -157,8 +162,9 @@ if ($method === 'PUT') {
     if (!in_array($estado, ['pendiente','confirmada','cancelada'])) {
         sendError('Estado inválido. Use: pendiente | confirmada | cancelada');
     }
-    $pdo->prepare("UPDATE reservas SET estado=? WHERE id=?")->execute([$estado, $id]);
-    sendResponse(['message' => 'Estado actualizado']);
+        $estadoPago = $body['estado_pago'] ?? null;
+    $pdo->prepare("UPDATE reservas SET estado = ?, estado_pago = COALESCE(?, estado_pago) WHERE id = ?")
+        ->execute([$estado, $estadoPago, $id]);
 }
 
 if ($method === 'DELETE') {

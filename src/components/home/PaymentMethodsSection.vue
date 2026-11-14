@@ -40,7 +40,7 @@
 
    <style scoped>
     .metodos-pago-container {
-        max-width: 700px;
+        max-width: 7000px;
         margin: 40px auto 0;
         padding: 30px 40px;
         text-align: center;

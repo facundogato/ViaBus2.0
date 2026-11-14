@@ -18,25 +18,47 @@ async function request(path, options = {}) {
   }
 
   if (!res.ok) {
-    const message = data?.error || `Error ${res.status} al comunicarse con el servidor`
-    throw new Error(message)
-  }
-
+  const message = data?.error || `Error ${res.status} al comunicarse con el servidor`
+  const err = new Error(message)
+  err.data = data   // acá viene code y user_id cuando la cuenta no está verificada
+  throw err
+}
   return data
 }
 
 // ---- Autenticación ----
 export function login(email, password) {
-  return request('auth.php?action=login', {
+  return request('auth/login.php', {
     method: 'POST',
     body: JSON.stringify({ email, password })
   })
 }
 
 export function registrarse(payload) {
-  return request('auth.php?action=register', {
+  return request('auth/registrer.php', {
     method: 'POST',
     body: JSON.stringify(payload)
+  })
+}
+
+export function sendVerificationCode(email) {
+  return request('auth/sendVerificationCode.php', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  })
+}
+
+export function verifyCode(userId, code) {
+  return request('auth/verifycode.php', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId, code })
+  })
+}
+
+export function resendCode(userId) {
+  return request('auth/resendcode.php', {
+    method: 'POST',
+    body: JSON.stringify({ user_id: userId })
   })
 }
 
@@ -56,8 +78,8 @@ export function getEmpresa(id) {
 }
 
 // ---- Servicios ----
-export function buscarServicios(destino, fecha) {
-  const params = new URLSearchParams({ destino, fecha })
+export function buscarServicios( destino) {
+  const params = new URLSearchParams({  destino })
   return request(`servicios.php?${params}`)
 }
 
@@ -114,6 +136,16 @@ export function cancelarReserva(id) {
     method: 'DELETE'
   })
 }
+
+
+// Marca una reserva como confirmada y pagada (pago provisorio o confirmación manual).
+export function confirmarReservaPagada(id) {
+  return request(`reservas.php?id=${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ estado: 'confirmada', estado_pago: 'pagado' })
+  })
+}
+
 
 // ---- Perfil de usuario ----
 export function actualizarPerfil(id, payload) {

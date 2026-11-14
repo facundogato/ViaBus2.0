@@ -1,14 +1,15 @@
 // Manejo de sesión del lado del cliente.
 //
-// El backend no usa tokens ni cookies de sesión (para no meter una capa de
-// seguridad completa en un proyecto académico): auth.php simplemente valida
-// el email/contraseña contra la tabla `usuarios` y devuelve los datos del
-// usuario. Acá guardamos esos datos en localStorage y con eso alcanza para
-// mostrar/ocultar cosas en la interfaz y proteger rutas en el router.
+// Al iniciar sesión, el backend (api/auth/login.php) devuelve los datos del
+// usuario y un TOKEN. Acá guardamos las dos cosas en localStorage:
+//   - viabus_usuario: los datos (nombre, rol, etc.) para mostrar/ocultar cosas
+//   - token:          se manda en la cabecera "Authorization: Bearer ..." a las
+//                     APIs protegidas (tarjetas, panel de tarjetas, escáner del chofer)
 
 import { ref, computed } from 'vue'
 
 const STORAGE_KEY = 'viabus_usuario'
+const TOKEN_KEY = 'token'
 
 function cargarUsuarioGuardado() {
   try {
@@ -22,19 +23,29 @@ function cargarUsuarioGuardado() {
 // Estado compartido entre todos los componentes que llamen a useAuth().
 const usuario = ref(cargarUsuarioGuardado())
 
+// Token de la sesión actual (o null si no hay)
+export function obtenerToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
 export function useAuth() {
   const isAuthenticated = computed(() => usuario.value !== null)
   const isAdmin = computed(() => usuario.value?.rol === 'admin')
+  const isChofer = computed(() => usuario.value?.rol === 'chofer')
 
-  function guardarSesion(datosUsuario) {
+  // El token es opcional: al editar el perfil se vuelve a llamar sin token
+  // y se conserva el que ya estaba guardado.
+  function guardarSesion(datosUsuario, token) {
     usuario.value = datosUsuario
     localStorage.setItem(STORAGE_KEY, JSON.stringify(datosUsuario))
+    if (token) localStorage.setItem(TOKEN_KEY, token)
   }
 
   function cerrarSesion() {
     usuario.value = null
     localStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(TOKEN_KEY)
   }
 
-  return { usuario, isAuthenticated, isAdmin, guardarSesion, cerrarSesion }
+  return { usuario, isAuthenticated, isAdmin, isChofer, guardarSesion, cerrarSesion }
 }

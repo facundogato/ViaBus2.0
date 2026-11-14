@@ -1,174 +1,180 @@
-<!-- Página de perfil del usuario: datos personales, próximos viajes e historial (ruta /perfil). -->
+<!-- Página de perfil del usuario (ruta /perfil) -->
 <template>
-
   <MainLayout>
+    <div class="perfil">
 
-    <!-- SUPERIOR -->
-    <div class="superior">
-      <div>
-        <h1>MI PERFIL</h1>
-        <p>Reservas · Historial de viajes · Datos personales</p>
-      </div>
-    </div>
+      <!-- ENCABEZADO -->
+      <header class="encabezado">
+        <h1>Mi <span>perfil</span></h1>
+        <p>Tus reservas, tu historial y tus datos</p>
+      </header>
 
-    <!-- CARD USUARIO -->
-    <div class="card-usuario">
+      <!-- TARJETA DEL USUARIO -->
+      <section class="tarjeta-usuario">
+        <div class="avatar">{{ inicial }}</div>
 
-      <div class="avatar-grande">{{ inicial }}</div>
-
-      <div class="datos-usuario">
-        <h2>{{ usuario.nombre }} {{ usuario.apellido }}</h2>
-        <p>{{ usuario.email }}</p>
-      </div>
-
-      <div class="stats-usuario">
-        <div class="stat">
-          <span class="stat-numero">{{ viajesTotales }}</span>
-          <span class="stat-label">VIAJES TOTALES</span>
+        <div class="identidad">
+          <h2>{{ usuario?.nombre }} {{ usuario?.apellido }}</h2>
+          <p>{{ usuario?.email }}</p>
         </div>
-        <div class="stat">
-          <span class="stat-numero verde">${{ totalInvertido }}</span>
-          <span class="stat-label">TOTAL INVERTIDO</span>
+
+        <div class="estadisticas">
+          <div class="estadistica">
+            <span class="numero">{{ viajesTotales }}</span>
+            <span class="etiqueta">Viajes</span>
+          </div>
+          <div class="estadistica">
+            <span class="numero">${{ totalInvertido }}</span>
+            <span class="etiqueta">Invertido</span>
+          </div>
         </div>
-      </div>
 
-      <button class="btn-editar" @click="mostrarEdicion = !mostrarEdicion">
-        <q-icon name="edit" size="16px" />
-        {{ mostrarEdicion ? 'Cerrar' : 'Editar mis datos' }}
-      </button>
-
-    </div>
-
-    <!-- EDICION DE DATOS -->
-    <div v-if="mostrarEdicion" class="panel-edicion">
-
-      <div class="columna">
-        <h3>DATOS PERSONALES</h3>
-
-        <label>Nombre</label>
-        <input type="text" v-model="formDatos.nombre" />
-
-        <label>Apellido</label>
-        <input type="text" v-model="formDatos.apellido" />
-
-        <label>Correo electrónico</label>
-        <input type="email" v-model="formDatos.email" />
-
-        <p v-if="errorDatos" class="error-msg">{{ errorDatos }}</p>
-        <p v-if="okDatos" class="ok-msg">{{ okDatos }}</p>
-
-        <button class="btn-guardar" :disabled="guardandoDatos" @click="guardarDatos">
-          {{ guardandoDatos ? 'Guardando...' : 'Guardar cambios' }}
+        <button class="boton-secundario" @click="mostrarEdicion = !mostrarEdicion">
+          <q-icon name="edit" size="16px" />
+          {{ mostrarEdicion ? 'Cerrar' : 'Editar datos' }}
         </button>
-      </div>
+      </section>
 
-      <div class="columna">
-        <h3>CAMBIAR CONTRASEÑA</h3>
+      <!-- EDICIÓN -->
+      <transition name="desplegar">
+        <section v-if="mostrarEdicion" class="panel-edicion">
 
-        <label>Contraseña actual</label>
-        <input type="password" v-model="formPassword.actual" />
+          <div class="columna">
+            <h3>Datos personales</h3>
 
-        <label>Contraseña nueva</label>
-        <input type="password" v-model="formPassword.nueva" />
+            <label>Nombre</label>
+            <input v-model="formDatos.nombre" type="text" />
 
-        <p v-if="errorPassword" class="error-msg">{{ errorPassword }}</p>
-        <p v-if="okPassword" class="ok-msg">{{ okPassword }}</p>
+            <label>Apellido</label>
+            <input v-model="formDatos.apellido" type="text" />
 
-        <button class="btn-guardar" :disabled="guardandoPassword" @click="guardarPassword">
-          {{ guardandoPassword ? 'Guardando...' : 'Cambiar contraseña' }}
+            <label>Correo electrónico</label>
+            <input v-model="formDatos.email" type="email" />
+
+            <p v-if="errorDatos" class="mensaje error">{{ errorDatos }}</p>
+            <p v-if="okDatos" class="mensaje ok">{{ okDatos }}</p>
+
+            <button class="boton-principal" :disabled="guardandoDatos" @click="guardarDatos">
+              {{ guardandoDatos ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </div>
+
+          <div class="columna">
+            <h3>Cambiar contraseña</h3>
+
+            <label>Contraseña actual</label>
+            <input v-model="formPassword.actual" type="password" />
+
+            <label>Contraseña nueva</label>
+            <input v-model="formPassword.nueva" type="password" />
+
+            <p v-if="errorPassword" class="mensaje error">{{ errorPassword }}</p>
+            <p v-if="okPassword" class="mensaje ok">{{ okPassword }}</p>
+
+            <button class="boton-principal" :disabled="guardandoPassword" @click="guardarPassword">
+              {{ guardandoPassword ? 'Guardando...' : 'Cambiar contraseña' }}
+            </button>
+          </div>
+
+        </section>
+      </transition>
+
+      <!-- MI TARJETA QR: solicitud con los datos del perfil y seguimiento -->
+
+
+      <!-- PESTAÑAS -->
+      <nav class="pestanas">
+        <button
+          :class="{ activa: pestana === 'proximos' }"
+          @click="pestana = 'proximos'"
+        >
+          Próximos viajes
+          <span class="contador">{{ proximos.length }}</span>
         </button>
+        <button
+          :class="{ activa: pestana === 'historial' }"
+          @click="pestana = 'historial'"
+        >
+          Historial
+          <span class="contador">{{ historial.length }}</span>
+        </button>
+      </nav>
+
+      <!-- ESTADOS -->
+      <p v-if="cargando" class="estado-vacio">Cargando tus reservas...</p>
+
+      <div
+        v-else-if="listaActual.length === 0"
+        class="estado-vacio"
+      >
+        <q-icon name="confirmation_number" size="40px" />
+        <p>
+          {{ pestana === 'proximos'
+            ? 'No tenés viajes próximos.'
+            : 'Todavía no tenés viajes en tu historial.' }}
+        </p>
+      </div>
+
+      <!-- LISTA DE RESERVAS -->
+      <div v-else class="lista-reservas">
+        <article
+          v-for="r in listaActual"
+          :key="r.id"
+          class="reserva"
+          :class="{ cancelada: r.estado === 'cancelada' }"
+        >
+          <div class="reserva-fecha">
+            <span class="codigo">#{{ r.id }}</span>
+            <span class="dia">{{ formatearFecha(r.fecha_viaje) }}</span>
+            <span class="hora">{{ formatearHora(r.hora) }}</span>
+          </div>
+
+          <div class="reserva-detalle">
+            <h3>{{ r.origen }} <span class="flecha">→</span> {{ r.destino }}</h3>
+            <p>{{ r.empresa }} · Bus {{ r.bus || '-' }}</p>
+            <p>Asiento {{ r.asiento }} · Andén {{ r.anden || '-' }}</p>
+          </div>
+
+          <div class="reserva-acciones">
+            <span class="estado" :class="claseEstado(r)">{{ etiquetaEstado(r) }}</span>
+            <span class="precio">${{ r.total }}</span>
+
+            <template v-if="pestana === 'proximos' && r.estado !== 'cancelada'">
+              <button
+                class="boton-cancelar"
+                :disabled="!puedeCancelar(r) || cancelando === r.id"
+                @click="cancelar(r)"
+              >
+                {{ cancelando === r.id ? 'Cancelando...' : 'Cancelar' }}
+              </button>
+              <small v-if="!puedeCancelar(r)" class="nota">
+                Faltan menos de {{ PLAZO_HORAS }} hs
+              </small>
+            </template>
+          </div>
+        </article>
       </div>
 
     </div>
-
-    <!-- PROXIMOS VIAJES -->
-    <h2 class="seccion-titulo">PRÓXIMOS VIAJES</h2>
-
-    <p v-if="cargando" class="sin-resultados">Cargando reservas...</p>
-    <p v-else-if="proximos.length === 0" class="sin-resultados">No tenés viajes próximos.</p>
-
-    <div v-else class="pasajes">
-      <div v-for="r in proximos" :key="r.id" class="fila-pasaje">
-
-        <div class="codigo">
-          <span>#{{ r.id }}</span>
-          <span class="metodo-pago">{{ r.fecha_viaje }}</span>
-        </div>
-
-        <div class="info-pasaje">
-          <span class="ruta">{{ r.origen }} → {{ r.destino }}</span>
-          <span class="detalles">
-            {{ r.hora }} · Asiento {{ r.asiento }} · Andén {{ r.anden || '-' }}
-          </span>
-          <span class="detalles">{{ r.empresa }} · Bus {{ r.bus || '-' }}</span>
-        </div>
-
-        <div class="estado-precio">
-          <span class="badge-estado" :class="r.estado">{{ etiquetaEstado(r) }}</span>
-          <span class="precio">${{ r.total }}</span>
-
-          <button
-            v-if="r.estado !== 'cancelada'"
-            class="btn-cancelar"
-            :disabled="!puedeCancelar(r) || cancelando === r.id"
-            @click="cancelar(r)"
-          >
-            {{ cancelando === r.id ? 'Cancelando...' : 'Cancelar' }}
-          </button>
-          <span v-if="r.estado !== 'cancelada' && !puedeCancelar(r)" class="nota-plazo">
-            Ya no se puede cancelar (faltan menos de {{ PLAZO_HORAS }}hs)
-          </span>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- HISTORIAL -->
-    <h2 class="seccion-titulo">HISTORIAL DE VIAJES</h2>
-
-    <p v-if="!cargando && historial.length === 0" class="sin-resultados">Todavía no tenés viajes en tu historial.</p>
-
-    <div v-else-if="historial.length" class="pasajes">
-      <div v-for="r in historial" :key="r.id" class="fila-pasaje">
-
-        <div class="codigo">
-          <span>#{{ r.id }}</span>
-          <span class="metodo-pago">{{ r.fecha_viaje }}</span>
-        </div>
-
-        <div class="info-pasaje">
-          <span class="ruta">{{ r.origen }} → {{ r.destino }}</span>
-          <span class="detalles">{{ r.hora }} · Asiento {{ r.asiento }}</span>
-          <span class="detalles">{{ r.empresa }} · Bus {{ r.bus || '-' }}</span>
-        </div>
-
-        <div class="estado-precio">
-          <span class="badge-estado" :class="r.estado === 'cancelada' ? 'cancelada' : 'completado'">
-            {{ r.estado === 'cancelada' ? 'CANCELADO' : 'COMPLETADO' }}
-          </span>
-          <span class="precio">${{ r.total }}</span>
-        </div>
-
-      </div>
-    </div>
-
   </MainLayout>
-
 </template>
 
 <script setup>
-
+import TarjetaQrSeccion from 'src/components/tarjeta/TarjetaQrSeccion.vue'
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import MainLayout from '../layouts/MainLayout.vue'
 import { useAuth } from '../services/auth'
-import { getReservasUsuario, cancelarReserva, actualizarPerfil, cambiarPassword } from '../services/api'
+import {
+  getReservasUsuario,
+  cancelarReserva,
+  actualizarPerfil,
+  cambiarPassword
+} from '../services/api'
 
 const router = useRouter()
 const { usuario, guardarSesion } = useAuth()
 
-// El guard del router ya exige sesión para entrar a /perfil, pero por las
-// dudas (ej. localStorage borrado a mano) si no hay usuario se manda a login.
 if (!usuario.value) {
   router.push('/login')
 }
@@ -179,14 +185,18 @@ const inicial = computed(() => usuario.value?.nombre?.charAt(0).toUpperCase() ||
 const PLAZO_HORAS = 3
 const reservas = ref([])
 const cargando = ref(false)
+const pestana = ref('proximos')
+const cancelando = ref(null)
 
 async function cargarReservas() {
   if (!usuario.value) return
   cargando.value = true
   try {
-    reservas.value = await getReservasUsuario(usuario.value.id)
+    const res = await getReservasUsuario(usuario.value.id)
+    reservas.value = Array.isArray(res) ? res : (res?.data ?? [])
   } catch (e) {
-    console.error(e)
+    console.error('Error cargando reservas:', e)
+    reservas.value = []
   } finally {
     cargando.value = false
   }
@@ -194,19 +204,41 @@ async function cargarReservas() {
 
 onMounted(cargarReservas)
 
+// Combina fecha (YYYY-MM-DD) y hora (HH:MM), tolere el formato que venga del servidor
 function fechaSalida(r) {
-  return new Date(`${r.fecha_viaje}T${r.hora}`)
+  const fecha = String(r.fecha_viaje).slice(0, 10)
+  const hora = String(r.hora).slice(0, 5)
+  return new Date(`${fecha}T${hora}:00`)
+}
+
+function formatearFecha(fecha) {
+  const d = new Date(`${String(fecha).slice(0, 10)}T12:00:00`)
+  return d.toLocaleDateString('es-UY', { weekday: 'short', day: '2-digit', month: 'short' })
+}
+
+function formatearHora(hora) {
+  return String(hora).slice(0, 5)
 }
 
 const proximos = computed(() =>
-  reservas.value.filter(r => r.estado === 'cancelada' ? false : fechaSalida(r) >= new Date())
+  reservas.value
+    .filter(r => r.estado !== 'cancelada' && fechaSalida(r) >= new Date())
+    .sort((a, b) => fechaSalida(a) - fechaSalida(b))
 )
 
 const historial = computed(() =>
-  reservas.value.filter(r => r.estado === 'cancelada' || fechaSalida(r) < new Date())
+  reservas.value
+    .filter(r => r.estado === 'cancelada' || fechaSalida(r) < new Date())
+    .sort((a, b) => fechaSalida(b) - fechaSalida(a))
 )
 
-const viajesTotales = computed(() => reservas.value.filter(r => r.estado !== 'cancelada').length)
+const listaActual = computed(() =>
+  pestana.value === 'proximos' ? proximos.value : historial.value
+)
+
+const viajesTotales = computed(() =>
+  reservas.value.filter(r => r.estado !== 'cancelada').length
+)
 
 const totalInvertido = computed(() =>
   reservas.value
@@ -215,16 +247,21 @@ const totalInvertido = computed(() =>
 )
 
 function puedeCancelar(r) {
-  const horasRestantes = (fechaSalida(r).getTime() - Date.now()) / 3_600_000
-  return horasRestantes >= PLAZO_HORAS
+  const horas = (fechaSalida(r).getTime() - Date.now()) / 3_600_000
+  return horas >= PLAZO_HORAS
 }
 
 function etiquetaEstado(r) {
-  if (r.estado === 'confirmada') return 'CONFIRMADA'
-  return 'PENDIENTE'
+  if (r.estado === 'cancelada') return 'Cancelado'
+  if (pestana.value === 'historial') return 'Completado'
+  return r.estado === 'confirmada' ? 'Confirmado' : 'Pendiente'
 }
 
-const cancelando = ref(null)
+function claseEstado(r) {
+  if (r.estado === 'cancelada') return 'rojo'
+  if (pestana.value === 'historial') return 'azul'
+  return r.estado === 'confirmada' ? 'verde' : 'amarillo'
+}
 
 async function cancelar(r) {
   if (!confirm(`¿Cancelar el viaje ${r.origen} → ${r.destino} del ${r.fecha_viaje}?`)) return
@@ -239,9 +276,8 @@ async function cancelar(r) {
   }
 }
 
-// ---- Edición de datos personales ----
+// ---- Edición de datos ----
 const mostrarEdicion = ref(false)
-
 const formDatos = ref({
   nombre: usuario.value?.nombre || '',
   apellido: usuario.value?.apellido || '',
@@ -286,366 +322,372 @@ async function guardarPassword() {
     guardandoPassword.value = false
   }
 }
-
 </script>
 
 <style scoped>
-
-.superior{
-  padding-bottom:20px;
-  border-bottom:1px solid #1a2138;
-  margin-bottom:30px;
+.perfil {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 10px 20px 60px;
+  color: white;
 }
 
-h1{
-  font-size:45px;
-  letter-spacing:3px;
-  color:white;
+/* Encabezado */
+.encabezado h1 {
+  font-size: 42px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  margin: 0;
+}
+.encabezado h1 span {
+  color: #f4b400;
+  font-weight: 700;
+}
+.encabezado p {
+  color:var(--color-texto-suave);
+  font-size: 17px;
+  letter-spacing: 1px;
+  margin: 6px 0 30px;
 }
 
-.superior p{
-  color:#7b8198;
-  margin-top:8px;
-  font-size:13px;
-  letter-spacing:1px;
+/* Tarjeta usuario */
+.tarjeta-usuario {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, #0f1629 0%, #0a1028 100%);
+  border: 1px solid #1a2138;
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 28px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background: #f4b400;
+  color: #060c22;
+  font-size: 30px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.identidad {
+  flex: 1;
+  min-width: 180px;
+}
+.identidad h2 {
+  font-size: 24px;
+  letter-spacing: 1px;
+  margin: 0 0 4px;
+}
+.identidad p {
+  color: #7b8198;
+  font-size: 13px;
+  margin: 0;
+}
+.estadisticas {
+  display: flex;
+  gap: 32px;
+}
+.estadistica {
+  text-align: center;
+}
+.numero {
+  display: block;
+  color: #f4b400;
+  font-size: 30px;
+  font-weight: 700;
+}
+.etiqueta {
+  color: #7b8198;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
-/* CARD USUARIO */
-
-.card-usuario{
-  background:#0f1629;
-  border:1px solid #1a2138;
-  border-top:3px solid #00ffd0;
-  border-radius:6px;
-  padding:30px;
-  display:flex;
-  align-items:center;
-  gap:25px;
-  margin-bottom:20px;
-  flex-wrap:wrap;
+/* Botones */
+.boton-secundario {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid #1a2138;
+  color: #9aa1b8;
+  padding: 10px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+.boton-secundario:hover {
+  color: white;
+  border-color: #f4b400;
+}
+.boton-principal {
+  background: #f4b400;
+  border: none;
+  color: #060c22;
+  padding: 12px 20px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  transition: 0.2s;
+}
+.boton-principal:hover:not(:disabled) {
+  background: #ffd24d;
+}
+.boton-principal:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.avatar-grande{
-  width:70px;
-  height:70px;
-  background:#f4b400;
-  color:black;
-  font-size:28px;
-  font-weight:bold;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:4px;
-  flex-shrink:0;
+/* Panel de edición */
+.panel-edicion {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: #0a0f22;
+  border: 1px solid #1a2138;
+  border-radius: 16px;
+  padding: 26px;
+  margin-bottom: 30px;
+}
+.columna {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.columna h3 {
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #f4b400;
+  margin: 0 0 6px;
+}
+.columna label {
+  color: #7b8198;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.columna input {
+  background: #0f1629;
+  border: 1px solid #1a2138;
+  color: white;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.columna input:focus {
+  border-color: #f4b400;
 }
 
-.datos-usuario{
-  flex:1;
-  min-width:200px;
+/* Mensajes */
+.mensaje {
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+.mensaje.error { color: #ff6b6b; }
+.mensaje.ok { color: #00ff99; }
+
+/* Pestañas */
+.pestanas {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #1a2138;
+}
+.pestanas button {
+  background: transparent;
+  border: none;
+  color: var(--color-secundario);
+  padding: 12px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pestanas button:hover {
+  color: white;
+}
+.pestanas button.activa {
+  color: #f4b400;
+  border-bottom-color: #f4b400;
+}
+.contador {
+  background: var(--color-sidebar);
+  border: 1px solid #1a2138;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 11px;
 }
 
-.datos-usuario h2{
-  color:white;
-  font-size:26px;
-  letter-spacing:2px;
-  margin:0 0 6px;
+/* Estados vacíos */
+.estado-vacio {
+  text-align: center;
+  color: var(--color-secundario);
+  padding: 50px 20px;
+  font-size: 14px;
+  border: 1px dashed #1a2138;
+  border-radius: 16px;
+}
+.estado-vacio p {
+  margin: 10px 0 0;
 }
 
-.datos-usuario p{
-  color:#7b8198;
-  font-size:13px;
-  margin:0;
+/* Reservas */
+.lista-reservas {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.reserva {
+  display: grid;
+  grid-template-columns: 150px 1fr auto;
+  gap: 24px;
+  align-items: center;
+  background: #0f1629;
+  border: 1px solid #1a2138;
+  border-left: 3px solid #f4b400;
+  border-radius: 14px;
+  padding: 22px 24px;
+  transition: transform 0.2s, border-color 0.2s;
+}
+.reserva:hover {
+  transform: translateY(-2px);
+  border-color: #2a3550;
+}
+.reserva.cancelada {
+  border-left-color: #ff6b6b;
+  opacity: 0.7;
+}
+.reserva-fecha {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.codigo {
+  color: #7b8198;
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.dia {
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+.hora {
+  color: #f4b400;
+  font-size: 20px;
+  font-weight: 700;
+}
+.reserva-detalle h3 {
+  font-size: 17px;
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+.flecha {
+  color: #f4b400;
+  margin: 0 4px;
+}
+.reserva-detalle p {
+  color: #7b8198;
+  font-size: 12px;
+  margin: 3px 0 0;
+}
+.reserva-acciones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 140px;
+}
+.estado {
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+}
+.estado.verde { color: #00ff99; border-color: #00ff99; }
+.estado.amarillo { color: #f4b400; border-color: #f4b400; }
+.estado.azul { color: #4db8ff; border-color: #4db8ff; }
+.estado.rojo { color: #ff6b6b; border-color: #ff6b6b; }
+.precio {
+  color: #f4b400;
+  font-size: 22px;
+  font-weight: 700;
+}
+.boton-cancelar {
+  background: transparent;
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
+}
+.boton-cancelar:hover:not(:disabled) {
+  background: #ff6b6b;
+  color: #060c22;
+}
+.boton-cancelar:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.nota {
+  color: #7b8198;
+  font-size: 11px;
+  text-align: right;
 }
 
-.stats-usuario{
-  display:flex;
-  gap:50px;
+/* Animación del panel de edición */
+.desplegar-enter-active,
+.desplegar-leave-active {
+  transition: all 0.25s ease;
+}
+.desplegar-enter-from,
+.desplegar-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 
-.stat{
-  text-align:center;
-}
-
-.stat-numero{
-  display:block;
-  color:#f4b400;
-  font-size:40px;
-  font-weight:bold;
-}
-
-.stat-numero.verde{
-  color:#f4b400;
-}
-
-.stat-label{
-  color:#7b8198;
-  font-size:11px;
-  letter-spacing:1px;
-}
-
-.btn-editar{
-  background:transparent;
-  border:1px solid #1a2138;
-  color:#7b8198;
-  padding:10px 18px;
-  border-radius:4px;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-size:13px;
-  transition:0.2s;
-}
-
-.btn-editar:hover{
-  color:white;
-  border-color:#7b8198;
-}
-
-/* PANEL DE EDICION */
-
-.panel-edicion{
-  display:flex;
-  gap:25px;
-  flex-wrap:wrap;
-  border:1px solid #1a2138;
-  border-radius:6px;
-  padding:25px;
-  margin-bottom:35px;
-  background:#0a0f22;
-}
-
-.columna{
-  flex:1;
-  min-width:260px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.columna h3{
-  color:white;
-  font-size:14px;
-  letter-spacing:2px;
-  margin-bottom:5px;
-}
-
-.columna label{
-  color:#7b8198;
-  font-size:11px;
-  letter-spacing:1px;
-}
-
-.columna input{
-  background:#0f1629;
-  border:1px solid #1a2138;
-  color:white;
-  padding:12px 15px;
-  border-radius:4px;
-  font-size:14px;
-}
-
-.btn-guardar{
-  background:#f4b400;
-  border:none;
-  color:black;
-  padding:12px 20px;
-  cursor:pointer;
-  font-size:13px;
-  font-weight:bold;
-  letter-spacing:1px;
-  border-radius:4px;
-  margin-top:5px;
-  transition:0.2s;
-}
-
-.btn-guardar:disabled{
-  opacity:0.4;
-  cursor:not-allowed;
-}
-
-.btn-guardar:not(:disabled):hover{
-  background:#e0a300;
-}
-
-/* PASAJES */
-
-.seccion-titulo{
-  color:white;
-  font-size:16px;
-  letter-spacing:3px;
-  margin-bottom:20px;
-  margin-top:35px;
-}
-
-.pasajes{
-  display:flex;
-  flex-direction:column;
-  gap:0;
-  border:1px solid #1a2138;
-  border-radius:6px;
-  overflow:hidden;
-}
-
-.fila-pasaje{
-  display:grid;
-  grid-template-columns:160px 1fr 220px;
-  align-items:center;
-  padding:22px 25px;
-  border-bottom:1px solid #1a2138;
-  gap:20px;
-  transition:0.2s;
-}
-
-.fila-pasaje:last-child{
-  border-bottom:none;
-}
-
-.fila-pasaje:hover{
-  background:#0f1629;
-}
-
-.codigo span:first-child{
-  display:block;
-  color:#f4b400;
-  font-size:18px;
-  font-weight:bold;
-  letter-spacing:1px;
-}
-
-.metodo-pago{
-  color:#7b8198;
-  font-size:12px;
-  margin-top:4px;
-}
-
-.ruta{
-  display:block;
-  color:white;
-  font-size:16px;
-  font-weight:600;
-  margin-bottom:5px;
-}
-
-.detalles{
-  display:block;
-  color:#7b8198;
-  font-size:12px;
-  margin-top:3px;
-}
-
-.estado-precio{
-  text-align:right;
-}
-
-.badge-estado{
-  display:inline-block;
-  font-size:11px;
-  letter-spacing:1px;
-  padding:5px 12px;
-  border-radius:3px;
-  margin-bottom:8px;
-}
-
-.badge-estado.confirmada,
-.badge-estado.completado{
-  border:1px solid #00ff99;
-  color:#00ff99;
-}
-
-.badge-estado.pendiente{
-  border:1px solid #f4b400;
-  color:#f4b400;
-}
-
-.badge-estado.cancelada{
-  border:1px solid #ff6b6b;
-  color:#ff6b6b;
-}
-
-.precio{
-  display:block;
-  color:#f4b400;
-  font-size:22px;
-  font-weight:bold;
-}
-
-.btn-cancelar{
-  margin-top:10px;
-  background:transparent;
-  border:1px solid #ff6b6b;
-  color:#ff6b6b;
-  padding:6px 14px;
-  border-radius:4px;
-  cursor:pointer;
-  font-size:12px;
-  transition:0.2s;
-}
-
-.btn-cancelar:disabled{
-  opacity:0.35;
-  cursor:not-allowed;
-}
-
-.btn-cancelar:not(:disabled):hover{
-  background:#ff6b6b;
-  color:black;
-}
-
-.nota-plazo{
-  display:block;
-  margin-top:8px;
-  color:#7b8198;
-  font-size:11px;
-  max-width:180px;
-}
-
-.error-msg{
-  color:#ff6b6b;
-  font-size:13px;
-}
-
-.ok-msg{
-  color:#00ff99;
-  font-size:13px;
-}
-
-.sin-resultados{
-  color:#7b8198;
-  font-size:13px;
-  margin-bottom:20px;
-}
-
-@media (max-width: 700px) {
-  h1 {
-    font-size: 28px;
-  }
-
-  .card-usuario {
-    padding: 20px;
-    text-align: center;
+/* Responsive */
+@media (max-width: 760px) {
+  .encabezado h1 { font-size: 30px; }
+  .tarjeta-usuario {
     justify-content: center;
+    text-align: center;
+    padding: 22px;
   }
-
-  .stats-usuario {
-    width: 100%;
-    justify-content: space-around;
-    gap: 20px;
-  }
-
-  .panel-edicion {
-    padding: 18px;
-  }
-
-  .fila-pasaje {
+  .estadisticas { width: 100%; justify-content: space-around; }
+  .reserva {
     grid-template-columns: 1fr;
-    gap: 10px;
-    padding: 18px;
+    gap: 14px;
   }
-
-  .estado-precio {
-    text-align: left;
+  .reserva-acciones {
+    align-items: flex-start;
   }
+  .nota { text-align: left; }
 }
-
 </style>

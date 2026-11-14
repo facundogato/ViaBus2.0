@@ -9,9 +9,14 @@ import DashboardPage from '../pages/paginaTablero.vue'
 import ProfilePage from '../pages/ProfilePage.vue'
 import CompaniesPage from '../pages/CompaniesPage.vue'
 import LoginPage from '../pages/LoginPage.vue'
+import RegisterPage from '../pages/RegisterPage.vue'
+import VerifyPage from '../pages/VerifyPage.vue'
 import NotFoundPage from '../pages/NotFoundPage.vue'
 import CompanyDetailPage from '../pages/CompanyDetailPage.vue'
 import AdminPage from '../pages/AdminPage.vue'
+import ConsultasPage from '../pages/ConsultasPage.vue'
+import ChoferEscanerPage from '../pages/ChoferEscanerPage.vue'
+import AdminTarjetasPage from '../pages/AdminTarjetasPage.vue'
 
 const routes = [
 
@@ -20,7 +25,6 @@ const routes = [
     path: '/',
     redirect: '/terminal'
   },
-
   // LA TERMINAL (home)
   {
     path: '/terminal',
@@ -63,6 +67,18 @@ const routes = [
     component: LoginPage
   },
 
+  // REGISTRO
+  {
+    path: '/registro',
+    component: RegisterPage
+  },
+
+  // VERIFICACIÓN DE EMAIL
+  {
+    path: '/verificar',
+    component: VerifyPage
+  },
+
   // PANEL DE ADMINISTRADOR (gestión de viajes) — requiere sesión con rol admin
   {
     path: '/admin',
@@ -74,21 +90,51 @@ const routes = [
   {
     path: '/:catchAll(.*)*',
     component: NotFoundPage
+  },
+
+  // ESCÁNER DE ABORDAJE — solo choferes
+  {
+    path: '/escaner',
+    component: ChoferEscanerPage,
+    meta: { requiresChofer: true }
+  },
+
+  // TARJETAS QR (imprimir, entregar, administrar) — solo admin
+  {
+    path: '/tarjetas',
+    component: AdminTarjetasPage,
+    meta: { requiresAdmin: true }
+  },
+
+
+  {
+    path: '/consultas',
+    component: ConsultasPage
   }
 
 ]
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    }
+
+    return {
+      top: 0,
+      behavior: 'smooth'
+    }
+  }
 })
 
 // Protege /admin (requiere rol admin) y /perfil (requiere cualquier sesión).
 // Sin sesión se manda a /login (guardando a dónde quería ir); con sesión
 // pero sin ser admin en una ruta de admin, se manda al inicio.
 router.beforeEach((to) => {
-  if (to.meta.requiresAdmin || to.meta.requiresAuth) {
-    const { isAuthenticated, isAdmin } = useAuth()
+  if (to.meta.requiresAdmin || to.meta.requiresAuth || to.meta.requiresChofer) {
+    const { isAuthenticated, isAdmin, isChofer } = useAuth()
 
     if (!isAuthenticated.value) {
       return { path: '/login', query: { redirect: to.fullPath } }
@@ -96,7 +142,11 @@ router.beforeEach((to) => {
     if (to.meta.requiresAdmin && !isAdmin.value) {
       return { path: '/terminal' }
     }
+    if (to.meta.requiresChofer && !isChofer.value) {
+      return { path: '/terminal' }
+    }
   }
 })
+
 
 export default router
