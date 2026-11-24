@@ -308,7 +308,7 @@ watch(
   display: flex;
   align-items: center;
   gap: 20px;
-  background: linear-gradient(135deg, #0f1629 0%, #0a1028 100%);
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-radius: 16px;
   padding: 24px;
@@ -347,7 +347,7 @@ watch(
 .buscador-contenido input {
   width: 100%;
   box-sizing: border-box;
-  background: #080e20;
+  background: var(--color-tarjeta);
   border: 1px solid #1a2138;
   border-radius: 10px;
   color: white;
@@ -359,7 +359,7 @@ watch(
 }
 
 .buscador-contenido input::placeholder {
-  color: #7b8198;
+  color: var(--color-texto-suave, #9aa1b8);
 }
 
 .buscador-contenido input:focus {
@@ -368,7 +368,7 @@ watch(
 }
 
 .buscador-ayuda {
-  color: #7b8198;
+  color: var(--color-texto-suave, #9aa1b8);
   font-size: 12px;
   line-height: 1.5;
 }
@@ -392,7 +392,7 @@ watch(
 }
 
 .contador-texto {
-  color: #7b8198;
+  color: var(--color-texto-suave, #9aa1b8);
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -444,7 +444,7 @@ watch(
 
 .pregunta-item {
   overflow: hidden;
-  background: #0f1629;
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-left: 3px solid #1a2138;
   border-radius: 13px;
@@ -460,7 +460,7 @@ watch(
 .pregunta-item[open] {
   border-color: #2a3550;
   border-left-color: #f4b400;
-  background: #0c1327;
+  background: var(--color-tarjeta, #0a0f22);
 }
 
 .pregunta-item summary {
@@ -560,7 +560,7 @@ watch(
   text-align: center;
   color: #7b8198;
   padding: 45px 24px;
-  background: #0a0f22;
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px dashed #1a2138;
   border-radius: 16px;
 }
@@ -599,7 +599,7 @@ watch(
   gap: 20px;
   margin-top: 32px;
   padding: 25px;
-  background: linear-gradient(135deg, #0f1629 0%, #0a1028 100%);
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
@@ -613,7 +613,7 @@ watch(
   align-items: center;
   justify-content: center;
   border-radius: 16px;
-  background: #f4b400;
+  background: var(--color-accent, #f4b400);
   color: #060c22;
 }
 
@@ -630,7 +630,7 @@ watch(
 }
 
 .asistente-info p {
-  color: #7b8198;
+  color: var(--color-texto-suave, #9aa1b8);
   font-size: 12px;
   line-height: 1.7;
   margin: 0;
@@ -642,7 +642,7 @@ watch(
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: #f4b400;
+  background: var(--color-accent, #f4b400);
   border: 1px solid #f4b400;
   border-radius: 999px;
   color: #060c22;

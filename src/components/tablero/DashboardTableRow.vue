@@ -126,20 +126,21 @@ defineEmits(['toggle-demora'])
 }
 
 .bus {
-  background: #1a2138;
-  color: white;
-  padding: 4px 7px;
+  background: var(--color-tarjeta);
+  color: var(--color-texto-suave);
+  padding: 2px 0px;
   border-radius: 3px;
-  font-size: 13px;
-  font-weight: bold;
+  font-size: 12px;
+
   letter-spacing: 1px;
 }
 
 .empresa,
 .tipo {
   color: var(--color-texto-suave);
-  font-size: 13px;
+  font-size: 12px;
   letter-spacing: 1px;
+
 }
 
 /* ESTADO */

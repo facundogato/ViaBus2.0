@@ -356,7 +356,7 @@ async function guardarPassword() {
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
-  background: linear-gradient(135deg, #0f1629 0%, #0a1028 100%);
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-radius: 16px;
   padding: 28px;
@@ -454,7 +454,7 @@ async function guardarPassword() {
   display: flex;
   gap: 24px;
   flex-wrap: wrap;
-  background: #0a0f22;
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-radius: 16px;
   padding: 26px;
@@ -482,7 +482,7 @@ async function guardarPassword() {
   margin-top: 4px;
 }
 .columna input {
-  background: #0f1629;
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   color: white;
   padding: 12px 14px;
@@ -563,7 +563,7 @@ async function guardarPassword() {
   grid-template-columns: 150px 1fr auto;
   gap: 24px;
   align-items: center;
-  background: #0f1629;
+  background: var(--color-tarjeta, #0a0f22);
   border: 1px solid #1a2138;
   border-left: 3px solid #f4b400;
   border-radius: 14px;

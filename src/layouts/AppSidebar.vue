@@ -53,8 +53,7 @@
     <template v-if="isAdmin">
       <div class="seccion-label">ADMINISTRACIÓN</div>
       <NavMenuItem to="/admin" icono="admin_panel_settings" etiqueta="Panel Admin" tamano-icono="22px" />
-      <NavMenuItem to="/tarjetas" icono="credit_card" etiqueta="Tarjetas" tamano-icono="22px" />
-    </template>
+   </template>
 
     <!-- CHOFER: solo visible si el usuario logueado tiene rol chofer -->
     <template v-if="isChofer">

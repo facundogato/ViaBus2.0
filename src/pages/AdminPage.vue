@@ -431,11 +431,11 @@ h1{
   border-radius:6px;
   padding:25px;
   margin-bottom:35px;
-  background:#0a0f22;
+  background: var(--color-tarjeta, #0a0f22);
 }
 
 h2{
-  color:white;
+  color: var(--color-texto-suave, #cfd2e0);
   font-size:16px;
   letter-spacing:2px;
   margin-bottom:25px;
@@ -453,20 +453,21 @@ h2{
 }
 
 .campo{
+  background: var(--color-tarjeta, #0a0f22);
   display:flex;
   flex-direction:column;
   gap:8px;
 }
 
 .campo label{
-  color:#7b8198;
+  color: var(--color-texto-suave, #cfd2e0);
   font-size:11px;
   letter-spacing:2px;
 }
 
 .campo select,
 .campo input{
-  background:#0f1629;
+  background: var(--color-tarjeta, #0a0f22);
   border:1px solid #1a2138;
   color:white;
   padding:12px 15px;
@@ -487,7 +488,7 @@ h2{
 }
 
 .btn-volver{
-  background:transparent;
+  background: var(--color-tarjeta);
   border:1px solid #1a2138;
   color:#7b8198;
   padding:12px 25px;
@@ -543,7 +544,7 @@ h2{
 }
 
 .tabla-header{
-  background:#0f1629;
+  background: var(--color-tarjeta, #0a0f22);
   color:#7b8198;
   font-size:11px;
   letter-spacing:1px;
@@ -561,7 +562,7 @@ h2{
 }
 
 .btn-icono{
-  background:transparent;
+  background: var(--color-sidebar, #0a0f22);
   border:1px solid #1a2138;
   color:#7b8198;
   width:30px;

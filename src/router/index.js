@@ -100,11 +100,7 @@ const routes = [
   },
 
   // TARJETAS QR (imprimir, entregar, administrar) — solo admin
-  {
-    path: '/tarjetas',
-    component: AdminTarjetasPage,
-    meta: { requiresAdmin: true }
-  },
+
 
 
   {
